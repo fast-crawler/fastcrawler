@@ -8,7 +8,7 @@ from pydantic import (
 
 
 if TYPE_CHECKING:
-    from fastcrawler.parsers.html import XPATHField
+    from fastcrawler.parsers.html import XPATHField  # pragma: no cover
 
 
 class BaseModel(_BaseModel):

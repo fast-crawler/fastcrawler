@@ -4,10 +4,13 @@ from lxml import (
     etree
 )
 
+from pydantic import ValidationError
+
 from fastcrawler.parsers.pydantic import (
     T, BaseModel, URLs, get_inner_model
 )
 from fastcrawler.parsers.proto import ParserProtocol
+from fastcrawler.exceptions import ParserInvalidModelType, ParserValidationError
 
 
 class XPATHField:
@@ -36,7 +39,6 @@ class XPATHField:
                     else result
                     for result in results
                 ]
-
                 return results
 
         elif results and self.value:
@@ -73,6 +75,7 @@ class HTMLParser(ParserProtocol):
     def __init__(self, value: str):
         self.value = value
         self.resolver: URLs = []
+        self.data = []
 
     def parse(self, model: Type[T]) -> T:
         if hasattr(model, "__mro__") and BaseModel in model.__mro__:
@@ -89,11 +92,13 @@ class HTMLParser(ParserProtocol):
                 self.resolver = URLs(urls=model.Config.url_resolver.resolve(
                     self.value
                 ))
+
             try:
                 self.data: T = model.model_validate(data)
-            except Exception as error:
-                raise error from None
+            except ValidationError as error:
+                raise ParserValidationError(error.errors())
+
             return self.data
 
         else:
-            raise ...
+            raise ParserInvalidModelType(model=model)

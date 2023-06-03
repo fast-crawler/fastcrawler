@@ -1,7 +1,11 @@
 from typing import Type
 
 
+from pydantic import ValidationError
+
+
 from fastcrawler.parsers.pydantic import URLs, BaseModel, T
+from fastcrawler.exceptions import ParserInvalidModelType, ParserValidationError
 
 
 class JsonParser:
@@ -23,5 +27,10 @@ class JsonParser:
                 for address in model.Config.url_resolver.split("."):
                     current_address = current_address.get(address)
                 self.resolver = URLs(urls=[current_address, ])
-            self.data: T = model.model_validate(data)
+            try:
+                self.data: T = model.model_validate(data)
+            except ValidationError as error:
+                raise ParserValidationError(error.errors())
             return self.data
+        else:
+            raise ParserInvalidModelType(model=model)
