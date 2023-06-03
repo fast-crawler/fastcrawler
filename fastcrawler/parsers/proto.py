@@ -1,0 +1,6 @@
+from typing import Protocol, Any
+
+
+class ParserProtocol(Protocol):
+    def __init__(self, data: Any): ...
+    def parse(self, model: Any) -> Any: ...
