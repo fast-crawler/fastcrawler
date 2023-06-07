@@ -1,4 +1,4 @@
-from typing import Protocol, List, Optional
+from typing import Protocol, List
 
 import pydantic
 
@@ -7,8 +7,8 @@ class ProxySetting(pydantic.BaseModel):
     protocol: str = "http://"
     server: str
     port: int
-    username: Optional[str]
-    password: Optional[str]
+    username: str | None = None
+    password: str | None = None
 
 
 class EngineProto(Protocol):

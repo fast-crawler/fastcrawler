@@ -1,4 +1,4 @@
-from typing import List, Union, Type
+from typing import List, Type
 from lxml import (
     html as lxml_html,
     etree
@@ -23,7 +23,7 @@ class XPATHField:
         self.value = value
         self.many = many
 
-    def resolve(self, html: str, **_) -> Union[T, List[T], None]:
+    def resolve(self, html: str, **_) -> T | List[T] | None:
         tree = lxml_html.fromstring(html)
         results: List[dict] = tree.xpath(self.xpath)
         if self.many:

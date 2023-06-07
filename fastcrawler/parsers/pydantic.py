@@ -1,4 +1,4 @@
-from typing import Union, List, Optional, TypeVar, get_args, TYPE_CHECKING
+from typing import List, TypeVar, get_args, TYPE_CHECKING
 
 
 from pydantic import (
@@ -13,11 +13,11 @@ if TYPE_CHECKING:
 
 class BaseModel(_BaseModel):
     class Config:
-        url_resolver: Union["XPATHField", str]
+        url_resolver: "XPATHField" | str
 
 
 class URLs(BaseModel):
-    urls: Optional[List[Union[AnyUrl, None]]] = []
+    urls: List[AnyUrl | None] | None = []
 
 
 T = TypeVar('T', bound=BaseModel)
