@@ -27,6 +27,9 @@ class Playwright(EngineProto):
         self.cookies = cookies
 
     async def setup(self) -> None:
+        """
+        setup the playwright browser
+        """
         self.async_manager = async_playwright()
         self.driver = await self.async_manager.start()
         self.browser = await self.driver.firefox.launch(
@@ -43,6 +46,9 @@ class Playwright(EngineProto):
         return None
 
     async def base(self, url: pydantic.AnyUrl, method) -> str:
+        """
+        Base method to execute different HTTP methods for crawling purpose
+        """
         await getattr(self.page, method)(url)
         return await self.page.content()
 
@@ -72,14 +78,23 @@ class Playwright(EngineProto):
         )
 
     async def teardown(self) -> None:
+        """
+        close the playwright browser and async manager
+        """
         await self.browser.close()
         await self.async_manager.__aexit__()
         self.async_manager = None
         return None
 
     async def __aenter__(self):
+        """
+        Keeps the compability with async manager
+        """
         await self.setup()
         return self
 
     async def __aexit__(self, *_):
+        """
+        Keeps the compability with async manager
+        """
         await self.teardown()

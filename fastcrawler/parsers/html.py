@@ -24,6 +24,8 @@ class XPATHField:
         self.many = many
 
     def resolve(self, html: str, **_) -> T | List[T] | None:
+        """ Resolves HTML input as the xpath value given to list
+        """
         tree = lxml_html.fromstring(html)
         results: List[dict] = tree.xpath(self.xpath)
         if self.many:
@@ -50,8 +52,22 @@ class XPATHField:
 
 class XPathList(XPATHField):
     """
-    XPathList represents a list of fields that can be retrieved from a given
+    XPathList represents a list of elements that can be retrieved from a given
     HTML document using XPath.
+
+    For example, we have a table that contains many uls.
+    so table is actually a list of elements.
+    so XPathList must be used to retrieve servals
+
+
+    Sample Usage:
+        class ListItem(BaseModel):
+            id: Optional[int] = XPATHField(xpath="//a/@id")
+            name: str = XPATHField(xpath="//a", value="text")
+
+        items: List[ListItem] = XPathList(xpath="//ul/li")
+
+    so items look thorugh all //ul/li, fetching their //a as id and name.
     """
 
     def __init__(self, xpath: str, value: str = None):
@@ -60,6 +76,10 @@ class XPathList(XPATHField):
         self.many = True
 
     def resolve(self, html: str, model: object):
+        """ Resolves HTML input as the xpath value given
+        using lxml library
+        recall in recursive so eventually the outer HTML will be sliced to smaller htmls
+        """
         results = super().resolve(html)
         results = [
             HTMLParser(lxml_html.tostring(el)).parse(model)
@@ -71,13 +91,26 @@ class XPathList(XPATHField):
 class HTMLParser(ParserProtocol):
     """
     HTMLParser parses a given HTML document based on the specified model.
+    Using Pydantic model with XpathFIELD and xpahtlist
+
+    Sample Usage:
+        html_parser = HTMLParser(html)
+        html_parser.parse(a pydantic model)
     """
+
     def __init__(self, value: str):
+        """
+        Initiate the HTML file in memory, so it can be parsed later
+        as in MULTI PROCESS or etc.
+        """
         self.value = value
         self.resolver: URLs = []
         self.data = []
 
     def parse(self, model: Type[T]) -> T:
+        """
+        Parse using the pydantic model
+        """
         if hasattr(model, "__mro__") and BaseModel in model.__mro__:
             data = {}
             for field_name, field in model.model_fields.items():

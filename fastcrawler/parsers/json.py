@@ -10,13 +10,20 @@ from fastcrawler.exceptions import ParserInvalidModelType, ParserValidationError
 
 class JsonParser:
     """
-    JsonParser parses a given JSON document based on the specified model.
+    JsonParser parses a given JSON document based on the specified pydantic model.
     """
     def __init__(self, json: str):
+        """
+        Initiate the JSON file in memory, so it can be parsed later
+        as in MULTI PROCESS or etc.
+        """
         self.json: dict = json
         self.resolver: URLs = []
 
     def parse(self, model: Type[T]) -> T:
+        """
+        Parse using the pydantic model
+        """
         if BaseModel in model.__mro__:
             data = {}
             for field_name, field in model.model_fields.items():

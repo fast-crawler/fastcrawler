@@ -1,4 +1,4 @@
-from typing import List, TypeVar, get_args, TYPE_CHECKING
+from typing import List, TypeVar, get_args, TYPE_CHECKING, Union
 
 
 from pydantic import (
@@ -12,8 +12,11 @@ if TYPE_CHECKING:
 
 
 class BaseModel(_BaseModel):
+    """
+    Custom basemodel created from Pydantic :)
+    """
     class Config:
-        url_resolver: "XPATHField" | str
+        url_resolver: Union["XPATHField", str]
 
 
 class URLs(BaseModel):
@@ -24,6 +27,8 @@ T = TypeVar('T', bound=BaseModel)
 
 
 def get_inner_model(model: BaseModel, field_name: str):
+    """ Returns innter model in annotation type
+    """
     inner_model = get_args(
         model.__annotations__[field_name]
     )
