@@ -1,5 +1,6 @@
 import pytest
 from playwright.async_api import Page
+
 from fastcrawler.engine import Playwright, ProxySetting
 
 
