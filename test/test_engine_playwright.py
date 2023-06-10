@@ -1,33 +1,7 @@
 import pytest
 from playwright.async_api import Page
 
-from fastcrawler.engine import Playwright, ProxySetting
-
-
-@pytest.fixture
-def proxy_setting():
-    return ProxySetting(
-        protocol="http://",
-        server="185.199.229.156",
-        port=7492,
-        username="lovqqcio",
-        password="81adfjrlwdoo"
-    )
-
-
-@pytest.fixture
-def cookies():
-    return [
-        {
-            "name": "cookie_name_1",
-            "value": "cookie_value_1",
-            "domain": "example.com",
-            "path": "/",
-            "expires": -1,
-            "httpOnly": False,
-            "secure": False,
-        }
-    ]
+from fastcrawler.engine import Playwright
 
 
 @pytest.mark.asyncio
