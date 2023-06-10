@@ -1,10 +1,9 @@
 import typing
 
-
 import pydantic
-from playwright.async_api import async_playwright, ProxySettings
+from playwright.async_api import ProxySettings, async_playwright
 
-from fastcrawler.engine.proto import ProxySetting, EngineProto
+from fastcrawler.engine.proto import EngineProto, ProxySetting
 
 
 class Playwright(EngineProto):
@@ -15,6 +14,8 @@ class Playwright(EngineProto):
         proxy: ProxySetting = None,
         cookies: typing.List[dict] = None,
     ):
+        """ initilize the playwright with proxy, headless, and cookies
+        """
         self.proxy = proxy
         self._proxy = None
         if proxy:
@@ -52,7 +53,7 @@ class Playwright(EngineProto):
         await getattr(self.page, method)(url)
         return await self.page.content()
 
-    async def get_all(self, urls: typing.List[pydantic.AnyUrl]):
+    async def get(self, urls: typing.List[pydantic.AnyUrl]):
         """
         Although Playwright is async, but URL must be retrieved in sync if one browser is being used
         """
@@ -62,17 +63,17 @@ class Playwright(EngineProto):
             results.append(result)
         return results
 
-    async def post_all(self):
+    async def post(self):
         raise NotImplementedError(
             "This method is not implemented yet for playwright engine."
         )
 
-    async def put_all(self):
+    async def put(self):
         raise NotImplementedError(
             "This method is not implemented yet for playwright engine."
         )
 
-    async def delete_all(self):
+    async def delete(self):
         raise NotImplementedError(
             "This method is not implemented yet for playwright engine."
         )
