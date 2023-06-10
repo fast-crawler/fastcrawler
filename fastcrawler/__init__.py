@@ -1,8 +1,9 @@
-from fastcrawler.parsers import XPATHField, XPathList, BaseModel
-
+from .parsers import BaseModel, CSSField, XPATHField
+from .utils import Depends
 
 __all__ = [
     "XPATHField",
-    "XPathList",
-    "BaseModel"
+    "BaseModel",
+    "CSSField",
+    "Depends"
 ]

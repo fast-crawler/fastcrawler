@@ -1,12 +1,13 @@
-from .html import XPATHField, XPathList, HTMLParser
-from .pydantic import BaseModel
+from .html import HTMLParser
 from .json import JsonParser
-
+from .pydantic import BaseModel
+from .selectors.css import CSSField
+from .selectors.xpath import XPATHField
 
 __all__ = [
     "XPATHField",
-    "XPathList",
     "BaseModel",
+    "CSSField",
 
     "JsonParser",
     "HTMLParser"

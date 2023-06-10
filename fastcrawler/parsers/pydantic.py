@@ -1,14 +1,11 @@
-from typing import List, TypeVar, get_args, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, List, TypeVar, Union
 
-
-from pydantic import (
-    BaseModel as _BaseModel,
-    AnyUrl
-)
-
+from pydantic import AnyUrl
+from pydantic import BaseModel as _BaseModel
 
 if TYPE_CHECKING:
-    from fastcrawler.parsers.html import XPATHField  # pragma: no cover
+    from fastcrawler.parsers.selectors.base import \
+        BaseSelector  # pragma: no cover
 
 
 class BaseModel(_BaseModel):
@@ -16,7 +13,7 @@ class BaseModel(_BaseModel):
     Custom basemodel created from Pydantic :)
     """
     class Config:
-        url_resolver: Union["XPATHField", str]
+        url_resolver: Union["BaseSelector", str]
 
 
 class URLs(BaseModel):
@@ -24,12 +21,3 @@ class URLs(BaseModel):
 
 
 T = TypeVar('T', bound=BaseModel)
-
-
-def get_inner_model(model: BaseModel, field_name: str):
-    """ Returns innter model in annotation type
-    """
-    inner_model = get_args(
-        model.__annotations__[field_name]
-    )
-    return inner_model[0] if len(inner_model) > 0 else None
