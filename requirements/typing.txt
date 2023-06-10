@@ -16,3 +16,4 @@ types-setuptools==67.7.0.1
     # via -r requirements/typing.in
 typing-extensions==4.5.0
     # via mypy
+pytest-asyncio
