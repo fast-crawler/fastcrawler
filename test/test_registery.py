@@ -1,3 +1,5 @@
+# pylint: skip-file
+
 from fastcrawler.core.registery import Crawler
 from fastcrawler.core.spider import Spider
 

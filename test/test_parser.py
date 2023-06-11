@@ -1,3 +1,5 @@
+# pylint: skip-file
+
 from typing import List
 
 import pytest
@@ -84,5 +86,5 @@ def test_exceptions_with_html_parser(corrupted_html):
 def test_base_selector():
     obj = BaseSelector("Test", many=True)
     with pytest.raises(NotImplementedError):
-        obj.resolve()
+        obj.resolve(None, None)
     assert obj.__repr__() == "Field(type=BaseSelector extract=None, many=True, query=Test)"

@@ -1,3 +1,5 @@
+# pylint: skip-file
+
 from fastcrawler.engine import ProxySetting
 
 

@@ -1,3 +1,5 @@
+# pylint: skip-file
+
 import pytest
 
 from fastcrawler.utils import Depends, dependency_injector
@@ -61,4 +63,4 @@ def test_repr_depends():
 
     repr = Depends(inner).__repr__()
     assert type(repr) == str
-    assert "Depends(inner, use_cache=False)" == repr
+    assert "_Depends(inner, use_cache=False)" == repr

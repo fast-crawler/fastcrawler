@@ -1,3 +1,5 @@
+# pylint: skip-file
+
 from typing import List, Optional
 
 from fastcrawler import BaseModel, CSSField, XPATHField

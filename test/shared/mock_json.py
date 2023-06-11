@@ -1,3 +1,5 @@
+# pylint: skip-file
+
 def get_json_data():
     return {
         "results": [
