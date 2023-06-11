@@ -2,6 +2,12 @@ class BaseModelError(Exception):
     """Base class for exceptions in this module."""
 
 
+class NoCrawlerFoundError(BaseModelError):
+    """No crawler is found in starting application"""
+    def __init__(self):
+        super().__init__(self, self.__doc__)
+
+
 class ParserValidationError(BaseModelError):
     """Exception raised for errors in the input model validation from ParserValidationError."""
 

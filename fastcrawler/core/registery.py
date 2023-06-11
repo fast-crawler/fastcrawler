@@ -1,4 +1,5 @@
 from typing import List
+
 from fastcrawler.core.spider import Spider
 
 

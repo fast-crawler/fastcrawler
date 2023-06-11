@@ -1,7 +1,9 @@
 # pylint: skip-file
 
-from fastcrawler.core.registery import Crawler
-from fastcrawler.core.spider import Spider
+import pytest
+
+from fastcrawler import Crawler, FastCrawler, Spider
+from fastcrawler.exceptions import NoCrawlerFoundError
 
 
 def test_crawler_instances():
@@ -26,3 +28,9 @@ def test_crawler_with_task():
 
     obj = Crawler(cls_A >> cls_B >> cls_C)
     assert [cls_A, cls_B, cls_C] == obj.task.instances
+
+    client_one = FastCrawler(crawlers=obj)
+    client_two = FastCrawler(crawlers=[obj, ])
+    assert client_one.crawlers == client_two.crawlers
+    with pytest.raises(NoCrawlerFoundError):
+        FastCrawler(crawlers=None)
