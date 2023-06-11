@@ -1,14 +1,14 @@
 import asyncio
-from typing import Callable, Any
-from functools import wraps
 import inspect
+from functools import wraps
+from typing import Any, Callable
 
 
-class Depends:
+class _Depends:
     """Dependancy injection to run callable as a dependency
     """
     def __init__(
-        self, dependency: Callable[..., Any] | None = None,
+        self, dependency: Callable[..., Any],
         *,
         use_cache: bool = False
     ):
@@ -47,13 +47,13 @@ def dependency_injector(func):
     """
     if asyncio.iscoroutinefunction(func):
         @wraps(func)
-        async def wrapper(*args, **kwargs):
+        async def async_wrapper(*args, **kwargs):
             sig = inspect.signature(func)
             bound = sig.bind_partial(*args, **kwargs)
             bound.apply_defaults()
 
             for name, value in bound.arguments.items():
-                if isinstance(value, Depends):
+                if isinstance(value, _Depends):
                     if value.use_cache:
                         bound.arguments[name] = await value.async_eval()
                     else:
@@ -64,15 +64,17 @@ def dependency_injector(func):
 
             return await func(*bound.args, **bound.kwargs)
 
+        return async_wrapper
+
     else:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def sync_wrapper(*args, **kwargs):
             sig = inspect.signature(func)
             bound = sig.bind_partial(*args, **kwargs)
             bound.apply_defaults()
 
             for name, value in bound.arguments.items():
-                if isinstance(value, Depends):
+                if isinstance(value, _Depends):
                     if value.use_cache:
                         bound.arguments[name] = value.sync_eval()
                     else:
@@ -83,4 +85,12 @@ def dependency_injector(func):
 
             return func(*bound.args, **bound.kwargs)
 
-    return wrapper
+        return sync_wrapper
+
+
+def Depends(
+    dependency: Callable[..., Any],
+    *,
+    use_cache: bool = False
+) -> Any:
+    return _Depends(dependency=dependency, use_cache=use_cache)
