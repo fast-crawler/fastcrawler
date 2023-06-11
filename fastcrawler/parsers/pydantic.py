@@ -17,7 +17,7 @@ class BaseModel(_BaseModel):
 
 
 class URLs(BaseModel):
-    urls: List[AnyUrl | None] | None = []
+    urls: List[AnyUrl] = []
 
 
-T = TypeVar('T', bound=BaseModel)
+BaseModelType = TypeVar('BaseModelType', bound=BaseModel)

@@ -1,8 +1,10 @@
+# pylint: disable=pointless-string-statement
+
 from typing import Any, Protocol
 
 
 class ParserProtocol(Protocol):
-    def __init__(self, data: Any): ...
+    def __init__(self, scraped_data: Any): ...
     """Initilize the parser with the given data (html/json/etc)"""
     def parse(self, model: Any) -> Any: ...
     """

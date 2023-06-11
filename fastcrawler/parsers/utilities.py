@@ -1,13 +1,13 @@
-from typing import get_args
+from typing import Any, List, get_args
 
-from pydantic.main import FieldInfo
+from pydantic.fields import FieldInfo
 
 from fastcrawler.parsers.selectors.base import BaseSelector
 
-from .pydantic import BaseModel
+from .pydantic import BaseModelType
 
 
-def get_inner_model(model: BaseModel, field_name: str):
+def get_inner_model(model: List[BaseModelType] | Any, field_name: str) -> Any | BaseModelType:
     """ Returns innter model in annotation type
     """
     inner_model = get_args(

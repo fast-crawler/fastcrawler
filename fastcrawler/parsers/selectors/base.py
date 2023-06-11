@@ -1,26 +1,31 @@
-from typing import List
+# pylint: disable=c-extension-no-member
 
-from lxml import etree
-from lxml import html as lxml_html
+from typing import Any, Callable, List
 
-from fastcrawler.parsers.pydantic import T
+from lxml import etree  # type: ignore[attr-defined]
+from lxml import html as lxml_html  # type: ignore[attr-defined]
+
+from fastcrawler.parsers.proto import ParserProtocol
+from fastcrawler.parsers.pydantic import BaseModelType
 
 
 class BaseSelector:
     """Base class for HTML-based selectors that are dependent on lxml family.
     """
+
+    parser: Callable[..., ParserProtocol]
+
     def __init__(
         self,
         query: str,
         extract: str | None = None,
         many: bool = False,
-        model: T | None = None
+        model: Callable[..., BaseModelType] | None = None
     ):
         self.query = query
         self.extract = extract
         self.many = many
         self.model = model
-        self.parser = None
 
     def __repr__(self):
         """Represents a selector for debugging purposes
@@ -30,13 +35,16 @@ class BaseSelector:
             f"many={self.many}, query={self.query})"
         )
 
-    def resolve(self):
+    def resolve(self, scraped_data, model):
         """Must be implemented by outer classes.
         Resolves the selector spefinalized by 'XPATH' or 'CSS' or etc
         """
-        raise NotImplementedError("Resolves must be overwritten by subclass")
+        raise NotImplementedError(
+            "Resolves must be overwritten by subclass"
+            f"scraped_data={scraped_data}, model={model}"
+        )
 
-    def _process_results(self, results: List[etree.ElementBase]) -> T | list[T | None]:
+    def _process_results(self, results: List[etree.ElementBase]) -> BaseModelType | List[BaseModelType | Any] | None:
         """Process the results resolved based on the logic
         which is combination of many, and extract.
         """
@@ -58,7 +66,7 @@ class BaseSelector:
             results = self.get_from_exctract(results[0])
             return results
 
-    def get_from_exctract(self, result: etree.ElementBase):
+    def get_from_exctract(self, result: etree.ElementBase) -> Any:
         """
         Resolve the extract from string, to get text from etree.ElementBase
             or to get other attributes or the string of HTML by default
@@ -66,7 +74,7 @@ class BaseSelector:
         if self.extract == "text":
             return result.text
         elif self.extract:
-            return result.get(self.extract)
+            return result.get(key=self.extract, default=None)
         elif not self.many and isinstance(result, etree.ElementBase):
             return lxml_html.tostring(result)
         return result

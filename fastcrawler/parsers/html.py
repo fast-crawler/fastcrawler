@@ -1,62 +1,70 @@
-from typing import Type
+from typing import List, Type
 
 from pydantic import ValidationError
+from pydantic_core import Url
 
 from fastcrawler.exceptions import (ParserInvalidModelType,
                                     ParserValidationError)
 
 from .proto import ParserProtocol
-from .pydantic import BaseModel, T, URLs
+from .pydantic import BaseModel, BaseModelType, URLs
 from .selectors.base import BaseSelector
 from .utilities import get_inner_model, get_selector
 
 
 class HTMLParser(ParserProtocol):
     """
-    HTMLParser parses a given HTML document based on the specified model.
-    Using Pydantic model with XpathFIELD and xpahtlist
+    HTMLParser first initiate the scraped data, then it parses a given HTML document
+        based on the specified model. Using Pydantic model with XPATHField or CSSField.
+        Notice that this behavior is to seperate the process of saving in memory (Memory Bound)
+        and process/clean the data (CPU Bound)
+
 
     Sample Usage:
+        # first initiate the scraped data
         html_parser = HTMLParser(html)
-        html_parser.parse(a pydantic model)
-    """
 
-    def __init__(self, extract: str):
+        # parse it later!
+        html_parser.parse(a pydantic model built with XPATHField or CSSField)
+    """
+    def __init__(self, scraped_data: str):
         """
         Initiate the HTML file in memory, so it can be parsed later
         as in MULTI PROCESS or etc.
         """
-        self.extract = extract
+        self.scraped_data = scraped_data
         self.resolver: URLs | None = None
-        self.data: T | None = None
+        self.data = None
 
-    def parse(self, model: Type[T] | None = None) -> T:
+    def parse(self, model: Type[BaseModelType]) -> BaseModelType:
         """
         Parse using the pydantic model
         """
-        if hasattr(model, "__mro__") and BaseModel in model.__mro__:
+        if hasattr(model, "__mro__") and BaseModel in model.__mro__:  # type: ignore
             data = {}
             for field_name, field in model.model_fields.items():
                 field_selector = get_selector(field)
                 if field_selector:
                     data[field_name] = field_selector.resolve(
-                        html=self.extract,
+                        scraped_data=self.scraped_data,
                         model=get_inner_model(model, field_name)
                     )
 
             if hasattr(
                 model.Config, "url_resolver",
             ) and issubclass(model.Config.url_resolver.__class__, BaseSelector):
+                urls: List[Url] = model.Config.url_resolver.resolve(  # type: ignore
+                    self.scraped_data,
+                    model=None
+                )
                 self.resolver = URLs(
-                    urls=model.Config.url_resolver.resolve(
-                        self.extract
-                    )
+                    urls=urls
                 )
 
             try:
-                self.data: T = model.model_validate(data)
+                self.data: BaseModelType | None = model.model_validate(data)
             except ValidationError as error:
-                raise ParserValidationError(error.errors())
+                raise ParserValidationError(error.errors()) from error
 
             return self.data
 
