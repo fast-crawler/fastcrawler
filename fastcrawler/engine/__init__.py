@@ -1,7 +1,9 @@
-from fastcrawler.engine.playwright import Playwright
-from fastcrawler.engine.proto import ProxySetting
+from .aio import AioHTTP
+from .playwright import Playwright
+from .proto import ProxySetting
 
 __all__ = [
     "Playwright",
-    "ProxySetting"
+    "ProxySetting",
+    "AioHTTP"
 ]
