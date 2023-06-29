@@ -3,8 +3,10 @@
 from typing import List
 
 import pytest
-from shared.schema import (InnerHTML, ListItemJson, VeryNested, VeryNestedCSS,
-                           VeryNestedJson)
+from test.shared.schema import (
+    InnerHTML, ListItemJson, VeryNested, VeryNestedCSS, VeryNestedJson, LinksData,
+    LinksDataSingle, EmailData
+)
 
 from fastcrawler.exceptions import (ParserInvalidModelType,
                                     ParserValidationError)
@@ -20,6 +22,7 @@ def test_html_parser_with_xpath(html):
     assert parser.items[0].items[0].id == 100
     assert parser.items[0].items[0].name == "Link 1"
     assert parser.items[0].items[2].name == "Link 3"
+    assert parser.items[0].items[2].source_as_default == "Nothing"
     assert len(html_parser.resolver.urls) == 3
     assert str(html_parser.resolver.urls[2]) == "http://address.com/item?page=3"
 
@@ -31,6 +34,7 @@ def test_html_parser_with_css(html):
     assert parser.items[0].items[0].id == 100
     assert parser.items[0].items[0].name == "Link 1"
     assert parser.items[0].items[2].name == "Link 3"
+    assert parser.items[0].items[2].source_as_default == "Nothing"
     assert len(html_parser.resolver.urls) == 3
     assert str(html_parser.resolver.urls[2]) == "http://address.com/item?page=3"
 
@@ -88,3 +92,17 @@ def test_base_selector():
     with pytest.raises(NotImplementedError):
         obj.resolve(None, None)
     assert obj.__repr__() == "Field(type=BaseSelector extract=None, many=True, query=Test)"
+
+
+def test_regex_path(html: str):
+    html_parser = HTMLParser(html)
+    parser = html_parser.parse(LinksData)
+    assert len(parser.link) == html.count("href")
+
+    html_parser = HTMLParser(html)
+    _parser = html_parser.parse(LinksDataSingle)
+    assert _parser.link == parser.link[0]
+
+    html_parser = HTMLParser(html)
+    parser = html_parser.parse(EmailData)
+    assert parser.emails is None

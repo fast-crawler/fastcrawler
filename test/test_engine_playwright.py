@@ -11,6 +11,7 @@ async def test_setup():
     async with Playwright() as playwright_engine:
         assert isinstance(playwright_engine.page, Page)
 
+
 @pytest.mark.asyncio
 async def test_base_and_proxy(proxy_setting):
     url = "https://api.ipify.org/?format=json"
@@ -18,12 +19,14 @@ async def test_base_and_proxy(proxy_setting):
         content = await playwright_engine.base(url, "goto")
         assert playwright_engine.proxy.server in content
 
+
 @pytest.mark.asyncio
 async def test_get_all_no_proxy():
     urls = ["https://api.ipify.org/?format=json"] * 2
     async with Playwright(headless=True) as playwright_engine:
         contents = await playwright_engine.get(urls)
         assert all("ip" in content for content in contents)
+
 
 @pytest.mark.asyncio
 async def test_not_implemented_methods():
@@ -36,6 +39,7 @@ async def test_not_implemented_methods():
 
         with pytest.raises(NotImplementedError):
             await playwright_engine.delete()
+
 
 @pytest.mark.asyncio
 async def test_teardown():
