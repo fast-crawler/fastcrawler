@@ -4,8 +4,6 @@ from typing import Any, Callable, List, Literal
 
 from fastcrawler.parsers.html import HTMLParser
 from fastcrawler.parsers.pydantic import BaseModelType
-from lxml import etree  # type: ignore[attr-defined]
-from lxml import html as lxml_html  # type: ignore[attr-defined]
 
 from .base import BaseSelector
 
