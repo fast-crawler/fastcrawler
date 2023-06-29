@@ -1,9 +1,9 @@
 # pylint: skip-file
 
 import pytest
-from shared.engine import get_cookies, get_proxy_setting
-from shared.mock_html import get_corrupted_html, get_html
-from shared.mock_json import get_json_data
+from test.shared.engine import get_cookies, get_proxy_setting
+from test.shared.mock_html import get_corrupted_html, get_html
+from test.shared.mock_json import get_json_data
 
 
 @pytest.fixture
