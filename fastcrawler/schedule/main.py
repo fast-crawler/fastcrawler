@@ -1,8 +1,10 @@
 import asyncio
+
 import uvicorn
 
-from api import app as app_fastapi
 from fastcrawler.schedule.app import app as app_rocketry
+
+from .api import app as app_fastapi
 
 
 class Server(uvicorn.Server):
