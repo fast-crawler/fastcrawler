@@ -4,8 +4,6 @@ from typing import Any, Callable, List
 
 from fastcrawler.parsers.html import HTMLParser
 from fastcrawler.parsers.pydantic import BaseModelType
-from lxml import etree  # type: ignore[attr-defined]
-from lxml import html as lxml_html  # type: ignore[attr-defined]
 
 from .base import BaseSelector
 
@@ -35,8 +33,7 @@ class _XPATHField(BaseSelector):
         """Resolves HTML input as the xpath value given to list
         """
         self.model = model or self.model
-        tree = lxml_html.fromstring(scraped_data)
-        results: List[etree.ElementBase] = tree.xpath(self.query)
+        results = self.default_selector.from_string_by_xpath(scraped_data, self.query)
         if not results and self.use_default:
             return self.default
         return self._process_results(results)
