@@ -47,4 +47,9 @@ def CSSField(
     default: Any = None,
     use_default: bool = True
 ) -> Any:
+    """The reason that an object was initiated from class, and the class wasn't called directly
+        is that because class __init__ method is returning only the instance of that class,
+        and that's not what we want, we want to assign this to another type (ANY), so I should
+        be using a function as interface to avoid IDE's error in type annotation or mypy.
+    """
     return _CSSField(query, extract, many, model, default, use_default)
