@@ -1,14 +1,15 @@
 from typing import List, Type
 
-from fastcrawler.exceptions import (ParserInvalidModelType,
-                                    ParserValidationError)
 from pydantic import ValidationError
 from pydantic_core import Url
 
-from .proto import ParserProtocol
+from fastcrawler.exceptions import (ParserInvalidModelType,
+                                    ParserValidationError)
+
+from .base import ParserProtocol
 from .pydantic import BaseModel, BaseModelType, URLs
 from .selectors.base import BaseSelector
-from .utilities import get_inner_model, get_selector
+from .utils import get_inner_model, get_selector
 
 
 class HTMLParser(ParserProtocol):

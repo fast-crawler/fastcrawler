@@ -4,7 +4,7 @@ from typing import List
 from lxml import etree  # type: ignore[attr-defined]
 from lxml import html as lxml_html  # type: ignore[attr-defined]
 
-from .interface import ProcessorInterface
+from .base import ProcessorInterface
 
 
 class LxmlProcessor(ProcessorInterface):

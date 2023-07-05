@@ -4,7 +4,7 @@ import pydantic
 from playwright.async_api import Browser, Page, ProxySettings, async_playwright
 from playwright.async_api._context_manager import PlaywrightContextManager
 
-from fastcrawler.engine.proto import EngineProto, ProxySetting, SetCookieParam
+from fastcrawler.engine.base import EngineProto, ProxySetting, SetCookieParam
 
 
 class Playwright(EngineProto):

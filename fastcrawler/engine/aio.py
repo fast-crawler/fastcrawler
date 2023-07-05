@@ -1,4 +1,4 @@
-from fastcrawler.engine.proto import EngineProto
+from fastcrawler.engine.base import EngineProto
 
 
 class AioHTTP(EngineProto):

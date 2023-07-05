@@ -2,11 +2,11 @@
 
 from typing import Any, Callable, List
 
-from fastcrawler.parsers.proto import ParserProtocol
+from fastcrawler.parsers.base import ParserProtocol
 from fastcrawler.parsers.pydantic import BaseModelType
 
-from ..processor._lxml import LxmlProcessor
-from ..processor.interface import ElementInterface, ProcessorInterface
+from ..processors.base import ElementInterface, ProcessorInterface
+from ..processors.lxml import LxmlProcessor
 
 
 class BaseSelector:

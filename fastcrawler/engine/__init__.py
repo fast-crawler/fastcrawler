@@ -1,6 +1,6 @@
 from .aio import AioHTTP
+from .base import ProxySetting
 from .playwright import Playwright
-from .proto import ProxySetting
 
 __all__ = [
     "Playwright",
