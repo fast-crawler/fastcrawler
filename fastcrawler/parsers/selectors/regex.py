@@ -1,6 +1,6 @@
 # pylint: disable=c-extension-no-member
-
-from typing import Any, Callable, List
+import re
+from typing import Any, Callable, List, Literal
 
 from fastcrawler.parsers.html import HTMLParser
 from fastcrawler.parsers.pydantic import BaseModelType
@@ -8,48 +8,51 @@ from fastcrawler.parsers.pydantic import BaseModelType
 from .base import BaseSelector
 
 
-class _XPATHField(BaseSelector):
+class _RegexField(BaseSelector):
     """
-    XPATHField represents a field that can be retrieved from a given HTML
-    document using XPath.
+    RegexField represents a field that can be retrieved from a given HTML
+    document using Regex.
     """
     def __init__(
         self,
-        query: str,
-        extract: str | None = None,
+        regex: Literal[''],
+        default: Any = None,
         many: bool = False,
         model: Callable[..., BaseModelType] | None = None,
-        default: Any = None,
-        use_default: bool = True
+        has_default: bool = True
     ):
-        super(_XPATHField, self).__init__(query, extract, many, model)
         self.parser = HTMLParser
         self.default = default
-        self.use_default = use_default
+        self.regex = regex
+        self.many = many
+        self.model = model
+        self.has_default = has_default
 
     def resolve(
         self, scraped_data: str, model: BaseModelType | None = None
-    ) -> BaseModelType | List[BaseModelType | Any] | None:
-        """Resolves HTML input as the xpath value given to list
+    ) -> BaseModelType | List[BaseModelType | Any] | None | Any:
+        """Resolves HTML input as the Regex value given to list
         """
         self.model = model or self.model
-        results = self.default_selector.from_string_by_xpath(scraped_data, self.query)
-        if not results and self.use_default:
-            return self.default
-        return self._process_results(results)
+        if self.many:
+            return re.findall(self.regex, scraped_data)
+        else:
+            result = re.search(self.regex, scraped_data)
+            return result.group(1) if result else None
 
 
-def XPATHField(
-    query: str,
-    extract: str | None = None,
+def RegexField(
+    regex: Literal[r""],
     many: bool = False,
     model: Callable[..., BaseModelType] | None = None,
     default: Any = None,
-    use_default: bool = True
+    has_default: bool = True
 ) -> Any:
     """The reason that an object was initiated from class, and the class wasn't called directly
         is that because class __init__ method is returning only the instance of that class,
         and that's not what we want, we want to assign this to another type (ANY), so I should
         be using a function as interface to avoid IDE's error in type annotation or mypy.
     """
-    return _XPATHField(query, extract, many, model, default, use_default)
+    return _RegexField(
+        regex=regex, many=many, default=default, model=model, has_default=has_default
+    )

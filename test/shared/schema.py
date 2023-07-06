@@ -2,13 +2,16 @@
 
 from typing import List, Optional
 
-from fastcrawler import BaseModel, CSSField, XPATHField
+from fastcrawler import BaseModel, CSSField, XPATHField, RegexField
 
 
 class ListItem(BaseModel):
     id: Optional[int] = XPATHField(query="//a/@id")
     name: str = XPATHField(query="//a", extract="text")
     source: str = "https://mywebsite.com"
+    source_as_default: None | str = XPATHField(
+        query="//a[@nothing]", extract="text", default="Nothing"
+    )
 
 
 class TestModel(BaseModel):
@@ -33,6 +36,7 @@ class InnerHTML(BaseModel):
 class ListItemCSS(BaseModel):
     id: Optional[int] = CSSField(query="a", extract="id")
     name: Optional[str] = CSSField(query="a", extract="text")
+    source_as_default: None | str = CSSField(query="nav", extract="text", default="Nothing")
 
 
 class TestModelCSS(BaseModel):
@@ -58,3 +62,15 @@ class VeryNestedJson(BaseModel):
 
     class Config:
         url_resolver = "pagination.next_page"
+
+
+class LinksData(BaseModel):
+    link: list = RegexField(regex=r"href=['\"]([^'\"]+)['\"]", many=True, has_default=False)
+
+
+class LinksDataSingle(BaseModel):
+    link: str = RegexField(regex=r"href=['\"]([^'\"]+)['\"]")
+
+
+class EmailData(BaseModel):
+    emails: list | None = RegexField(regex=r"[\w.-]+@[\w.-]+\.\w+", default=None, has_default=True)

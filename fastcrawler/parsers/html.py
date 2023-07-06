@@ -6,10 +6,10 @@ from pydantic_core import Url
 from fastcrawler.exceptions import (ParserInvalidModelType,
                                     ParserValidationError)
 
-from .proto import ParserProtocol
+from .base import ParserProtocol
 from .pydantic import BaseModel, BaseModelType, URLs
 from .selectors.base import BaseSelector
-from .utilities import get_inner_model, get_selector
+from .utils import get_inner_model, get_selector
 
 
 class HTMLParser(ParserProtocol):
@@ -57,9 +57,12 @@ class HTMLParser(ParserProtocol):
                     self.scraped_data,
                     model=None
                 )
-                self.resolver = URLs(
-                    urls=urls
-                )
+                if urls:
+                    self.resolver = URLs(
+                        urls=urls
+                    )
+                else:
+                    self.resolver = URLs()
 
             try:
                 self.data: BaseModelType | None = model.model_validate(data)

@@ -2,11 +2,11 @@
 
 from typing import Any, Callable, List
 
-from lxml import etree  # type: ignore[attr-defined]
-from lxml import html as lxml_html  # type: ignore[attr-defined]
-
-from fastcrawler.parsers.proto import ParserProtocol
+from fastcrawler.parsers.base import ParserProtocol
 from fastcrawler.parsers.pydantic import BaseModelType
+
+from ..processors.base import ElementInterface, ProcessorInterface
+from ..processors.lxml import LxmlProcessor
 
 
 class BaseSelector:
@@ -14,6 +14,7 @@ class BaseSelector:
     """
 
     parser: Callable[..., ParserProtocol]
+    default_selector: ProcessorInterface = LxmlProcessor
 
     def __init__(
         self,
@@ -44,7 +45,7 @@ class BaseSelector:
             f"scraped_data={scraped_data}, model={model}"
         )
 
-    def _process_results(self, results: List[etree.ElementBase]) -> BaseModelType | List[BaseModelType | Any] | None:
+    def _process_results(self, results: List[ElementInterface]) -> BaseModelType | List[BaseModelType | Any] | None:
         """Process the results resolved based on the logic
         which is combination of many, and extract.
         """
@@ -57,7 +58,7 @@ class BaseSelector:
             ]
             if self.model:
                 results = [
-                    self.parser(lxml_html.tostring(el)).parse(self.model)
+                    self.parser(self.default_selector.to_string(el)).parse(self.model)
                     for el in results
                 ]
             return results
@@ -66,7 +67,7 @@ class BaseSelector:
             results = self.get_from_exctract(results[0])
             return results
 
-    def get_from_exctract(self, result: etree.ElementBase) -> Any:
+    def get_from_exctract(self, result: ElementInterface) -> Any:
         """
         Resolve the extract from string, to get text from etree.ElementBase
             or to get other attributes or the string of HTML by default
@@ -75,6 +76,6 @@ class BaseSelector:
             return result.text
         elif self.extract:
             return result.get(key=self.extract, default=None)
-        elif not self.many and isinstance(result, etree.ElementBase):
-            return lxml_html.tostring(result)
+        elif not self.many and isinstance(result, self.default_selector.base_element):
+            return self.default_selector.to_string(result)
         return result

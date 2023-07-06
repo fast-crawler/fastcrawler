@@ -7,7 +7,7 @@ from fastcrawler.exceptions import (ParserInvalidModelType,
                                     ParserValidationError)
 from fastcrawler.parsers.pydantic import BaseModel, BaseModelType, URLs
 
-from .proto import ParserProtocol
+from .base import ParserProtocol
 
 
 class JsonParser(ParserProtocol):
