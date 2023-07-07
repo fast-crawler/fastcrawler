@@ -45,7 +45,9 @@ class BaseSelector:
             f"scraped_data={scraped_data}, model={model}"
         )
 
-    def _process_results(self, results: List[ElementInterface]) -> BaseModelType | List[BaseModelType | Any] | None:
+    def _process_results(
+        self, results: List[ElementInterface]
+    ) -> BaseModelType | List[BaseModelType | Any] | None:
         """Process the results resolved based on the logic
         which is combination of many, and extract.
         """

@@ -13,6 +13,8 @@ class _RegexField(BaseSelector):
     RegexField represents a field that can be retrieved from a given HTML
     document using Regex.
     """
+
+    # pylint: disable=super-init-not-called
     def __init__(
         self,
         regex: Literal[''],
@@ -23,7 +25,7 @@ class _RegexField(BaseSelector):
     ):
         self.parser = HTMLParser
         self.default = default
-        self.regex = regex
+        self.regex = re.compile(regex)
         self.many = many
         self.model = model
         self.has_default = has_default
@@ -41,6 +43,7 @@ class _RegexField(BaseSelector):
             return result.group(1) if result else None
 
 
+# pylint: disable=invalid-name
 def RegexField(
     regex: Literal[r""],
     many: bool = False,
