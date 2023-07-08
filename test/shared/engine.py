@@ -1,15 +1,30 @@
 # pylint: skip-file
 
+from pydantic_settings import BaseSettings
+
 from fastcrawler.engine import ProxySetting
+
+
+class Setting(BaseSettings):
+    server: str
+    port: int
+    username: str
+    password: str
+
+    class Config:
+        env_file = ".env"
+
+
+setting = Setting()
 
 
 def get_proxy_setting():
     return ProxySetting(
         protocol="http://",
-        server="185.199.229.156",
-        port=7492,
-        username="lovqqcio",
-        password="81adfjrlwdoo"
+        server=setting.server,
+        port=setting.port,
+        username=setting.username,
+        password=setting.password
     )
 
 
