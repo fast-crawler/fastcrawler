@@ -1,7 +1,8 @@
 from .aio import AioHTTP
-from .base import ProxySetting
+from .base import ProxySetting, SetCookieParam
 
 __all__ = [
     "ProxySetting",
-    "AioHTTP"
+    "SetCookieParam",
+    "AioHTTP",
 ]
