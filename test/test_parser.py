@@ -1,15 +1,20 @@
 # pylint: skip-file
 
+from test.shared.schema import (
+    EmailData,
+    InnerHTML,
+    LinksData,
+    LinksDataSingle,
+    ListItemJson,
+    VeryNested,
+    VeryNestedCSS,
+    VeryNestedJson,
+)
 from typing import List
 
 import pytest
-from test.shared.schema import (
-    InnerHTML, ListItemJson, VeryNested, VeryNestedCSS, VeryNestedJson, LinksData,
-    LinksDataSingle, EmailData
-)
 
-from fastcrawler.exceptions import (ParserInvalidModelType,
-                                    ParserValidationError)
+from fastcrawler.exceptions import ParserInvalidModelType, ParserValidationError
 from fastcrawler.parsers import HTMLParser, JsonParser
 from fastcrawler.parsers.selectors.base import BaseSelector
 
@@ -72,6 +77,7 @@ def test_exceptions_with_json_parser(json_data):
 
     class CustomClass:
         results: List[ListItemJson]
+
     with pytest.raises(ParserInvalidModelType):
         json_parser.parse(CustomClass)
 
@@ -83,6 +89,7 @@ def test_exceptions_with_html_parser(corrupted_html):
 
     class CustomClass:
         results: List[ListItemJson]
+
     with pytest.raises(ParserInvalidModelType):
         html_parser.parse(CustomClass)
 

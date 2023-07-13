@@ -2,7 +2,7 @@
 
 from typing import List, Optional
 
-from fastcrawler import BaseModel, CSSField, XPATHField, RegexField
+from fastcrawler import BaseModel, CSSField, RegexField, XPATHField
 
 
 class ListItem(BaseModel):
@@ -25,18 +25,22 @@ class VeryNested(BaseModel):
         url_resolver = XPATHField(
             query="//ul[@class='pagination']//a",
             extract="href",
-            many=True
+            many=True,
         )
 
 
 class InnerHTML(BaseModel):
-    table: str | None = XPATHField(query="//table")
+    table: str | None = XPATHField(query="//table", default=None)
 
 
 class ListItemCSS(BaseModel):
     id: Optional[int] = CSSField(query="a", extract="id")
     name: Optional[str] = CSSField(query="a", extract="text")
-    source_as_default: None | str = CSSField(query="nav", extract="text", default="Nothing")
+    source_as_default: None | str = CSSField(
+        query="nav",
+        extract="text",
+        default="Nothing",
+    )
 
 
 class TestModelCSS(BaseModel):
@@ -48,7 +52,9 @@ class VeryNestedCSS(BaseModel):
 
     class Config:
         url_resolver = CSSField(
-            query="ul.pagination > li > a", many=True, extract="href"
+            query="ul.pagination > li > a",
+            many=True,
+            extract="href",
         )
 
 
@@ -65,7 +71,7 @@ class VeryNestedJson(BaseModel):
 
 
 class LinksData(BaseModel):
-    link: list = RegexField(regex=r"href=['\"]([^'\"]+)['\"]", many=True, has_default=False)
+    link: list = RegexField(regex=r"href=['\"]([^'\"]+)['\"]", many=True)
 
 
 class LinksDataSingle(BaseModel):
@@ -73,4 +79,4 @@ class LinksDataSingle(BaseModel):
 
 
 class EmailData(BaseModel):
-    emails: list | None = RegexField(regex=r"[\w.-]+@[\w.-]+\.\w+", default=None, has_default=True)
+    emails: list | None = RegexField(regex=r"[\w.-]+@[\w.-]+\.\w+", default=None)
