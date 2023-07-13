@@ -14,7 +14,6 @@ from test.shared.schema import (
     VeryNestedCSS,
     VeryNestedJson,
 )
-from typing import List
 
 import pytest
 
@@ -85,7 +84,7 @@ def test_exceptions_with_json_parser(json_data):
         json_parser.parse(VeryNestedJson)
 
     class CustomClass:
-        results: List[ListItemJson]
+        results: list[ListItemJson]
 
     with pytest.raises(ParserInvalidModelType):
         json_parser.parse(CustomClass)
@@ -97,7 +96,7 @@ def test_exceptions_with_html_parser(corrupted_html):
         html_parser.parse(VeryNested)
 
     class CustomClass:
-        results: List[ListItemJson]
+        results: list[ListItemJson]
 
     with pytest.raises(ParserInvalidModelType):
         html_parser.parse(CustomClass)

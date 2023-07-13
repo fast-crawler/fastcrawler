@@ -1,6 +1,6 @@
 # pylint: disable=c-extension-no-member
 import re
-from typing import Any, Callable, List, Literal
+from typing import Any, Callable, Literal
 
 from fastcrawler.parsers.html import HTMLParser
 from fastcrawler.parsers.pydantic import BaseModelType
@@ -31,7 +31,7 @@ class _RegexField(BaseSelector):
 
     def resolve(
         self, scraped_data: str, model: BaseModelType | None = None
-    ) -> BaseModelType | List[BaseModelType | Any] | None | Any:
+    ) -> BaseModelType | list[BaseModelType | Any] | None | Any:
         """Resolves HTML input as the Regex value given to list"""
         self.model = model or self.model
         if self.many:

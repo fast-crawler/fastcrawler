@@ -1,6 +1,6 @@
 # pylint: disable=c-extension-no-member
 
-from typing import Any, Callable, List
+from typing import Any, Callable
 
 from fastcrawler.parsers.html import HTMLParser
 from fastcrawler.parsers.pydantic import BaseModelType
@@ -18,7 +18,7 @@ class _CSSField(BaseSelector):
 
     def resolve(
         self, scraped_data: str, model: None | BaseModelType = None
-    ) -> BaseModelType | List[BaseModelType | Any] | None:
+    ) -> BaseModelType | list[BaseModelType | Any] | None:
         """Resolves HTML input using CSS selector"""
         self.model = model or self.model
         results = self.processor.from_string_by_css(scraped_data, self.query)

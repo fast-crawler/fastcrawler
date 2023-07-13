@@ -1,6 +1,6 @@
 # pylint: disable=c-extension-no-member
 
-from typing import Any, Callable, List
+from typing import Any, Callable
 
 from fastcrawler.parsers.html import HTMLParser
 from fastcrawler.parsers.pydantic import BaseModelType
@@ -18,7 +18,7 @@ class _XPATHField(BaseSelector):
 
     def resolve(
         self, scraped_data: str, model: BaseModelType | None = None
-    ) -> BaseModelType | List[BaseModelType | Any] | None:
+    ) -> BaseModelType | list[BaseModelType | Any] | None:
         """Resolves HTML input as the xpath value given to list"""
         self.model = model or self.model
         results = self.processor.from_string_by_xpath(scraped_data, self.query)

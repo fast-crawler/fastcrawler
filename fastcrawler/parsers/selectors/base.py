@@ -1,6 +1,6 @@
 # pylint: disable=c-extension-no-member
 
-from typing import Any, Callable, List
+from typing import Any, Callable
 
 from pydantic.fields import FieldInfo
 
@@ -51,8 +51,8 @@ class BaseSelector:
 
     def _process_results(
         self,
-        results: List[ElementInterface],
-    ) -> BaseModelType | List[BaseModelType | Any] | None:
+        results: list[ElementInterface],
+    ) -> BaseModelType | list[BaseModelType | Any] | None:
         """Process the results resolved based on the logic
         which is combination of many, and extract.
         """
