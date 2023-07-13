@@ -56,10 +56,8 @@ class BaseSelector:
         """Process the results resolved based on the logic
         which is combination of many, and extract.
         """
-        if not results:
-            return None
 
-        elif self.many:
+        if self.many:
             results = [(self.get_from_exctract(result)) for result in results]
             if self.model:
                 results = [
@@ -123,7 +121,7 @@ class BaseSelector:
         elif (
             not self.extract
             and not self.many
-            and issubclass(type(result), self.processor.base_element.__mro__[1])
+            and issubclass(type(result), self.processor.base_element)
         ):
             # Return: HTML string of object result
             return self.processor.to_string(result)

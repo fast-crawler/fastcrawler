@@ -1,11 +1,10 @@
-# pylint: disable=c-extension-no-member
 from selectolax.parser import HTMLParser, Node
 
 from .base import ElementInterface
 
 
 class ModestProcessor:
-    base_element: Node
+    base_element = Node
 
     @staticmethod
     def to_string(result: Node) -> str:
