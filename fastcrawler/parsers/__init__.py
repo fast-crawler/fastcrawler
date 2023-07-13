@@ -1,7 +1,8 @@
 from .html import HTMLParser
 from .json import JsonParser
 from .processors.lxml import LxmlProcessor
-from .processors.modest import ModestProcessor
+
+# from .processors.modest import ModestProcessor
 from .pydantic import BaseModel
 from .selectors.css import CSSField
 from .selectors.regex import RegexField

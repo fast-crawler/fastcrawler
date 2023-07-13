@@ -2,7 +2,8 @@
 
 
 from fastcrawler import BaseModel, CSSField, RegexField, XPATHField
-from fastcrawler.parsers import ModestProcessor
+
+# from fastcrawler.parsers import ModestProcessor
 
 
 class ListItem(BaseModel):
@@ -82,59 +83,46 @@ class EmailData(BaseModel):
     emails: list | None = RegexField(regex=r"[\w.-]+@[\w.-]+\.\w+", default=None)
 
 
-class MDT_Item(BaseModel):
-    id: int | None = CSSField(processor=ModestProcessor, query="a", extract="id")
-    name: str | None = CSSField(processor=ModestProcessor, query="a", extract="text")
-    source_as_default: None | str = CSSField(
-        processor=ModestProcessor,
-        query="nav",
-        extract="text",
-        default="Nothing",
-    )
+# class MDT_Item(BaseModel):
+#     id: int | None = CSSField(processor=ModestProcessor, query="a", extract="id")
+#     name: str | None = CSSField(processor=ModestProcessor, query="a", extract="text")
+#     source_as_default: None | str = CSSField(
+#         processor=ModestProcessor,
+#         query="nav",
+#         extract="text",
+#         default="Nothing",
+#     )
 
 
-class MDT_ItemList(BaseModel):
-    items: list[ListItemCSS] = CSSField(
-        processor=ModestProcessor,
-        query="li",
-        many=True,
-    )
+# class MDT_ItemList(BaseModel):
+#     items: list[ListItemCSS] = CSSField(
+#         processor=ModestProcessor,
+#         query="li",
+#         many=True,
+#     )
 
 
-class MDT_NestedItemList(BaseModel):
-    items: list[TestModelCSS] = CSSField(
-        processor=ModestProcessor,
-        query="table",
-        many=True,
-    )
+# class MDT_NestedItemList(BaseModel):
+#     items: list[TestModelCSS] = CSSField(
+#         processor=ModestProcessor,
+#         query="table",
+#         many=True,
+#     )
 
-    class Config:
-        url_resolver = CSSField(
-            processor=ModestProcessor,
-            query="ul.pagination > li > a",
-            many=True,
-            extract="href",
-        )
-
-
-class MDT_FlatList(BaseModel):
-    link: str = CSSField(
-        processor=ModestProcessor,
-        query="ul > li > a",
-    )
+#     class Config:
+#         url_resolver = CSSField(
+#             processor=ModestProcessor,
+#             query="ul.pagination > li > a",
+#             many=True,
+#             extract="href",
+#         )
 
 
-class RandomProcessor(ModestProcessor):
-    ...
-
-
-class NotImplementedXPATH(BaseModel):
-    id: str = XPATHField(
-        processor=RandomProcessor,
-        query="//table//li//a",
-        default=None,
-        extract="text",
-    )
+# class MDT_FlatList(BaseModel):
+#     link: str = CSSField(
+#         processor=ModestProcessor,
+#         query="ul > li > a",
+#     )
 
 
 class RandomElement:
