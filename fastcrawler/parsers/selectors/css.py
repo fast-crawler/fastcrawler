@@ -6,6 +6,7 @@ from fastcrawler.parsers.html import HTMLParser
 from fastcrawler.parsers.pydantic import BaseModelType
 from fastcrawler.parsers.utils import _UNSET
 
+from ..processors.base import ProcessorInterface
 from .base import BaseSelector
 
 
@@ -14,18 +15,6 @@ class _CSSField(BaseSelector):
     CSSSelectorField represents a field that can be retrieved from a given HTML
         document using CSS selectors.
     """
-
-    def __init__(
-        self,
-        query: str,
-        extract: str | None = None,
-        many: bool = False,
-        model: Callable[..., BaseModelType] | None = None,
-        default: Any = _UNSET,
-    ):
-        super(_CSSField, self).__init__(query, extract, many, model)
-        self.parser = HTMLParser
-        self.default = default
 
     def resolve(
         self, scraped_data: str, model: None | BaseModelType = None
@@ -40,6 +29,8 @@ class _CSSField(BaseSelector):
 
 def CSSField(
     query: str,
+    processor: None | ProcessorInterface = None,
+    parser: HTMLParser = HTMLParser,
     extract: str | None = None,
     many: bool = False,
     model: Callable[..., BaseModelType] | None = None,
@@ -50,4 +41,12 @@ def CSSField(
     and that's not what we want, we want to assign this to another type (ANY), so I should
     be using a function as interface to avoid IDE's error in type annotation or mypy.
     """
-    return _CSSField(query, extract, many, model, default)
+    return _CSSField(
+        query=query,
+        extract=extract,
+        many=many,
+        model=model,
+        default=default,
+        parser=parser,
+        processor=processor,
+    )

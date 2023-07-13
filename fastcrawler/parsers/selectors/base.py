@@ -7,6 +7,7 @@ from pydantic.fields import FieldInfo
 from fastcrawler.exceptions import ProcessorNotSupported
 from fastcrawler.parsers.base import ParserProtocol
 from fastcrawler.parsers.pydantic import BaseModelType, MappedAttr, MappedResult
+from fastcrawler.parsers.utils import _UNSET
 
 from ..processors.base import ElementInterface, ProcessorInterface
 from ..processors.lxml import LxmlProcessor
@@ -15,21 +16,23 @@ from ..processors.lxml import LxmlProcessor
 class BaseSelector:
     """Base class for HTML-based selectors that are dependent on lxml family."""
 
-    parser: Callable[..., ParserProtocol]
-
     def __init__(
         self,
         query: str,
+        parser: Callable[..., ParserProtocol] | None = None,
+        processor: ProcessorInterface | None = None,
         extract: str | None = None,
         many: bool = False,
         model: Callable[..., BaseModelType] | None = None,
-        processor: ProcessorInterface = LxmlProcessor,
+        default: Any = _UNSET,
     ):
         self.query = query
         self.extract = extract
         self.many = many
         self.model = model
-        self.processor = processor
+        self.processor = processor or LxmlProcessor
+        self.default = default
+        self.parser = parser
 
     def __repr__(self):
         """Represents a selector for debugging purposes"""
