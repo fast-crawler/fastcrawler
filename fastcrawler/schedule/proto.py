@@ -7,20 +7,22 @@ class TaskApplicationProto(Protocol):
     task_lib: Callable
 
     def __init__(self, *args, **kwargs):
-        """Initialize task application
-        """
+        """Initialize task application"""
 
     async def serve(self, *args, **kwargs):
-        """proto to serve with Uvicorn
-        """
+        """Proto to serve with Uvicorn"""
 
-    async def get_all_tasks(self, *args, **kwargs) -> list[Task]: ...
+    async def get_all_tasks(self) -> set[Task]:
+        """Returns all tasks that exists in Fast Crawler"""
 
-    async def add_task(self, *args, **kwargs) -> None: ...
+    async def add_task(self, *args, **kwargs) -> None:
+        """Dynamically add a task to fast crawler"""
 
-    async def start_up(self, *args, **kwargs) -> None: ...
+    async def start_up(self) -> None:
+        """Manage start up actvity"""
 
-    async def shut_down(self, *args, **kwargs) -> None: ...
+    async def shut_down(self) -> None:
+        """Manage shut down activity"""
 
 
 class TaskControllerProto(Protocol):
@@ -43,7 +45,9 @@ class TaskControllerProto(Protocol):
         Add tasks within internal python API
         """
 
-    async def change_task_schedule(self, task_name: str, schedule: str) -> None:
+    async def change_task_schedule(
+        self, task_name: str, schedule: str
+    ) -> None:
         """
         Reschedule a task
             schedule:

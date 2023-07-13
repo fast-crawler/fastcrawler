@@ -5,34 +5,42 @@ from rocketry.conditions.api import cron
 
 from fastcrawler.exceptions import TaskNotFound
 
-from .proto import TaskApplicationProto, TaskControllerProto
 from .schema import Task
 
 
-class RocketryApplication(TaskApplicationProto):
+class RocketryApplication:
     def __init__(self, *args, **kwargs):
         self.task_lib: Rocketry = Rocketry(*args, **kwargs)
 
     async def serve(self, *args, **kwargs):
-        """proto to serve with uvicorn
-        """
+        """Proto to serve with uvicorn"""
+        await self.start_up()
         return await self.task_lib.serve(*args, **kwargs)
 
-    async def get_all_tasks(self, *args, **kwargs) -> list[Task]: ...
+    async def get_all_tasks(self) -> set[Task]:
+        return await self.task_lib.session.tasks
 
-    async def add_task(self, *args, **kwargs) -> None: ...
+    async def add_task(self) -> None:
+        """
+        ...
+        """
+        # TODO: implement add task
 
-    async def start_up(self, *args, **kwargs) -> None: ...
+    async def start_up(self) -> None:
+        """
+        Run Startup Event
+        """
 
-    async def shut_down(self, *args, **kwargs) -> None:
+    async def shut_down(self) -> None:
         self.task_lib.session.shut_down()
+        return None
 
 
-class RocketryManager(TaskControllerProto):
+class RocketryManager:
     def __init__(self, app: RocketryApplication):
         self.app = app
 
-    async def all(self) -> list[Task]:
+    async def all(self) -> set[Task]:
         """
         Return all tasks from internal
         """
@@ -45,7 +53,11 @@ class RocketryManager(TaskControllerProto):
         await self.app.add_task(task_func, settings)
         return None
 
-    async def change_task_schedule(self, task_name: str, schedule: str) -> None:
+    async def change_task_schedule(
+        self,
+        task_name: str,
+        schedule: str,
+    ) -> None:
         """
         Reschedule a task
             schedule:
@@ -56,7 +68,7 @@ class RocketryManager(TaskControllerProto):
         """
         for task in await self.app.get_all_tasks():
             if task.name == task_name:
-                if schedule.count(' ') == 4:
+                if schedule.count(" ") == 4:
                     task.start_cond = cron(schedule)
                 else:
                     task.start_cond = schedule
