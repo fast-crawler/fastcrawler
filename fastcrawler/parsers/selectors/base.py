@@ -16,7 +16,6 @@ class BaseSelector:
     """Base class for HTML-based selectors that are dependent on lxml family."""
 
     parser: Callable[..., ParserProtocol]
-    default_selector: ProcessorInterface = LxmlProcessor
 
     def __init__(
         self,
@@ -24,11 +23,13 @@ class BaseSelector:
         extract: str | None = None,
         many: bool = False,
         model: Callable[..., BaseModelType] | None = None,
+        processor: ProcessorInterface = LxmlProcessor,
     ):
         self.query = query
         self.extract = extract
         self.many = many
         self.model = model
+        self.processor = processor
 
     def __repr__(self):
         """Represents a selector for debugging purposes"""
@@ -59,8 +60,7 @@ class BaseSelector:
             results = [(self.get_from_exctract(result)) for result in results]
             if self.model:
                 results = [
-                    self.parser(self.default_selector.to_string(el)).parse(self.model)
-                    for el in results
+                    self.parser(self.processor.to_string(el)).parse(self.model) for el in results
                 ]
             return results
 
@@ -120,10 +120,10 @@ class BaseSelector:
         elif (
             not self.extract
             and not self.many
-            and issubclass(type(result), self.default_selector.base_element.__mro__[1])
+            and issubclass(type(result), self.processor.base_element.__mro__[1])
         ):
             # Return: HTML string of object result
-            return self.default_selector.to_string(result)
+            return self.processor.to_string(result)
         else:  # Return: inner HTML element objects to parse nested models
             return result
 

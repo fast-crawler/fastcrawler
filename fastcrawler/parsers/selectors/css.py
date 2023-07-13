@@ -32,7 +32,7 @@ class _CSSField(BaseSelector):
     ) -> BaseModelType | List[BaseModelType | Any] | None:
         """Resolves HTML input using CSS selector"""
         self.model = model or self.model
-        results = self.default_selector.from_string_by_css(scraped_data, self.query)
+        results = self.processor.from_string_by_css(scraped_data, self.query)
         if not results:
             return self.default
         return self._process_results(results)
