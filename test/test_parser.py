@@ -3,7 +3,7 @@
 from typing import List
 
 import pytest
-from shared.schema import (InnerHTML, ListItemJson, VeryNested, VeryNestedCSS,
+from test.shared.schema import (InnerHTML, ListItemJson, VeryNested, VeryNestedCSS,
                            VeryNestedJson)
 
 from fastcrawler.exceptions import (ParserInvalidModelType,

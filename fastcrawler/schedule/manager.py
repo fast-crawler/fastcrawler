@@ -18,13 +18,13 @@ class RocketryApplication:
         return await self.task_lib.serve(*args, **kwargs)
 
     async def get_all_tasks(self) -> set[Task]:
-        return await self.task_lib.session.tasks
+        return self.task_lib.session.tasks
 
-    async def add_task(self) -> None:
+    async def add_task(self, task_func: Callable, settings: Task) -> None:
         """
         ...
         """
-        # TODO: implement add task
+        self.task_lib.task(**dict(settings))(task_func)
 
     async def start_up(self) -> None:
         """

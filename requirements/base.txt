@@ -1,6 +1,7 @@
-pydantic==2.0b2
+pydantic==2.0.2
 pytest==7.3.1
 playwright==1.34
 cssselect==1.2.0
 lxml
-rocketry==2.5.1
+redbird @ git+https://github.com/ManiMozaffar/red-bird.git     
+rocketry @ git+https://github.com/ManiMozaffar/rocketry.git@9e94520d66ac079bd4e39a48bd1c1b5f35453b48
