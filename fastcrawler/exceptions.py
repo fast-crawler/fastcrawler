@@ -4,6 +4,7 @@ class BaseModelError(Exception):
 
 class NoCrawlerFoundError(BaseModelError):
     """No crawler is found in starting application"""
+
     def __init__(self):
         super().__init__(self, self.__doc__)
 
@@ -25,6 +26,7 @@ class ParserInvalidModelType(BaseModelError):
         super().__init__(self.message)
 
 
+
 class TaskNotFound(BaseModelError):
     def __init__(self, task_name):
         super().__init__(
@@ -41,3 +43,16 @@ class NoCrawlerFound(BaseModelError):
             "so the application is aware of the crawlers."
             "\nThis may also raise if you have overridden the library's startup built in method"
         )
+
+class ProcessorNotSupported(BaseModelError):
+    def __init__(self, model):
+        self.model = model
+        self.message = (
+            f"The provided processor {model} is not supported.\n"
+            "To support the process, please explictly map the processor"
+            "inside the XPATH/CSS/Base selector, as a method called 'interface_mapper'"
+            "\nWe support full duck typing which means you can inject whatever"
+            "you need."
+        )
+        super().__init__(self.message)
+
