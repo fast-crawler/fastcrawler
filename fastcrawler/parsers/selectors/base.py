@@ -36,7 +36,7 @@ class BaseSelector:
 
     def __repr__(self):
         """Represents a selector for debugging purposes"""
-        return f"Field(type={self.__class__.__name__} extract={self.extract}, " f"many={self.many}, query={self.query})"
+        return f"Field(type={self.__class__.__name__} extract={self.extract}, many={self.many}, query={self.query})"
 
     def resolve(self, scraped_data, model):
         """Must be implemented by outer classes.

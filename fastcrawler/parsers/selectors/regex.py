@@ -6,8 +6,10 @@ from fastcrawler.parsers.html import HTMLParser
 from fastcrawler.parsers.pydantic import BaseModelType
 from fastcrawler.parsers.utils import _UNSET
 
+from .base import BaseSelector
 
-class _RegexField:
+
+class _RegexField(BaseSelector):
     """
     RegexField represents a field that can be retrieved from a given HTML
     document using Regex.
