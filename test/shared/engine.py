@@ -4,7 +4,7 @@ from random import choice
 from pydantic_settings import BaseSettings
 
 from fastcrawler.engine import ProxySetting, SetCookieParam
-from fastcrawler.engine.aio import AioHTTP
+from fastcrawler.engine.aio import AioHttpEngine
 
 sample_cookies = [
     SetCookieParam(
@@ -68,6 +68,8 @@ def get_cookies():
 
 async def get_aiohttp_engine():
     headers = {}
-    engine = AioHTTP(cookies=get_cookies(), headers=headers, useragent=get_random_useragent())
+    engine = AioHttpEngine(
+        cookies=get_cookies(), headers=headers, useragent=get_random_useragent()
+    )
     await engine.setup()
     return engine

@@ -4,10 +4,10 @@ import pydantic
 from aiohttp import BasicAuth, ClientSession, TCPConnector
 from aiohttp.cookiejar import Morsel
 
-from fastcrawler.engine.base import ProxySetting, SetCookieParam
+from fastcrawler.engine.contracts import ProxySetting, SetCookieParam
 
 
-class AioHTTP:
+class AioHttpEngine:
     def __init__(
         self,
         cookies: list[SetCookieParam] | None = None,
@@ -39,15 +39,17 @@ class AioHTTP:
                 self._proxy["proxy_auth"] = auth
 
     @property
-    def cookies(self):
+    def cookies(self) -> SetCookieParam:
+        # TODO: convert current cookies, and then return cookies as SetCookieParam
         return self._cookies
 
     @property
-    def headers(self):
+    def headers(self) -> dict:
         return self._headers
 
     @property
-    def proxy(self):
+    def proxy(self) -> ProxySetting:
+        # TODO: convert proxy dict to ProxySetting, and return that.
         return self._proxy
 
     def get_morsel_cookie(self, cookie: SetCookieParam) -> Morsel:

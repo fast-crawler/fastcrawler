@@ -1,3 +1,6 @@
+# pragma: no cover
+# noqa
+
 from typing import Protocol
 
 

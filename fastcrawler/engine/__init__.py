@@ -1,8 +1,8 @@
-from .aio import AioHTTP
-from .base import ProxySetting, SetCookieParam
+from .aio import AioHttpEngine
+from .contracts import ProxySetting, SetCookieParam
 
 __all__ = [
     "ProxySetting",
     "SetCookieParam",
-    "AioHTTP",
+    "AioHttpEngine",
 ]

@@ -5,7 +5,7 @@ from pydantic_core import Url
 
 from fastcrawler.exceptions import ParserInvalidModelType, ParserValidationError
 
-from .pydantic import BaseModel, BaseModelType, URLs
+from .models import BaseModel, BaseModelType, URLs
 from .selectors.base import BaseSelector, get_selector
 from .utils import get_inner_model
 

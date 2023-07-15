@@ -1,6 +1,4 @@
 # pylint: skip-file
-import pytest
-
 from test.shared.schema import (
     EmailData,
     InnerHTML,
@@ -12,6 +10,9 @@ from test.shared.schema import (
     VeryNestedCSS,
     VeryNestedJson,
 )
+
+import pytest
+
 from fastcrawler.exceptions import (
     ParserInvalidModelType,
     ParserValidationError,
@@ -101,6 +102,7 @@ def test_base_selector():
     obj = BaseSelector("Test", many=True)
     with pytest.raises(NotImplementedError):
         obj.resolve(None, None)
+    print(obj.__repr__())
     assert obj.__repr__() == "Field(type=BaseSelector extract=None, many=True, query=Test)"
 
 

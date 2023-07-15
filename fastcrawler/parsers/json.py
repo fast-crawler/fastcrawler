@@ -4,7 +4,7 @@ from pydantic import ValidationError
 from pydantic_core import Url
 
 from fastcrawler.exceptions import ParserInvalidModelType, ParserValidationError
-from fastcrawler.parsers.pydantic import BaseModel, BaseModelType, URLs
+from fastcrawler.parsers.models import BaseModel, BaseModelType, URLs
 
 
 class JsonParser:
@@ -43,7 +43,9 @@ class JsonParser:
             for field_name, field in model.model_fields.items():
                 self.data[field_name] = self.scraped_data.get(field_name) or field.default
 
-            if hasattr(model.Config, "url_resolver") and isinstance(model.Config.url_resolver, str):
+            if hasattr(model.Config, "url_resolver") and isinstance(
+                model.Config.url_resolver, str
+            ):
                 current_address: dict = self.scraped_data.copy()
                 for address in model.Config.url_resolver.split("."):
                     current_address = current_address.get(address)  # type: ignore

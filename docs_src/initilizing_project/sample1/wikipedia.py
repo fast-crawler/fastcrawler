@@ -2,7 +2,7 @@
 
 
 from fastcrawler import BaseModel, Crawler, CSSField, Spider, XPATHField
-from fastcrawler.engine import AioHTTP
+from fastcrawler.engine import AioHttpEngine
 
 
 class PageResolver(BaseModel):
@@ -16,21 +16,24 @@ class ArticleData(BaseModel):
 
 
 class WikiBaseSpider(Spider):
-    engine = AioHTTP
+    engine = AioHttpEngine
     concurrency = 100
 
 
 class WikiArticleFinder(WikiBaseSpider):
     data_model = PageResolver
     req_count = 1_000_000
-    start_url = ["https://meta.wikimedia.org/wiki/List_of_Wikipedias", ]
+    start_url = [
+        "https://meta.wikimedia.org/wiki/List_of_Wikipedias",
+    ]
 
 
 class WikiArticleRetirever(WikiBaseSpider):
     data_model = ArticleData
     req_count = 1_000_000
 
-    async def save_data(self, data: ArticleData): ...  # save parsed data to database
+    async def save_data(self, data: ArticleData):
+        ...  # save parsed data to database
 
 
 wiki_spider = Crawler(WikiArticleFinder >> WikiArticleRetirever)

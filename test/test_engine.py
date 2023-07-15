@@ -3,14 +3,14 @@ from time import perf_counter
 
 import pytest
 
-from fastcrawler.engine.aio import AioHTTP, Morsel
+from fastcrawler.engine.aio import AioHttpEngine, Morsel
 
 
 @pytest.mark.asyncio
 async def test_aiohttp_with_statement(user_agent):
     urls = ["http://127.0.0.1:8000/throtlled/3/"] * 10
     useragent = user_agent
-    async with AioHTTP(useragent=useragent, connection_limit=5) as engine:
+    async with AioHttpEngine(useragent=useragent, connection_limit=5) as engine:
         responses = await engine.get(urls)
     for response in responses:
         assert isinstance(response, str)
@@ -20,13 +20,15 @@ async def test_aiohttp_with_statement(user_agent):
 @pytest.mark.asyncio
 async def test_aiohttp_proxy(user_agent):
     urls = ["https://api.ipify.org?format=json"]
+    response = None
     useragent = user_agent
     proxy = get_proxy_setting()
-    engine = AioHTTP(useragent=useragent, proxy=proxy)
+    engine = AioHttpEngine(useragent=useragent, proxy=proxy)
     async with engine:
         responses = await engine.get(urls, verify_ssl=False)
     for response in responses:
         assert isinstance(response, str)
+    assert response is not None
     assert proxy.server in response
 
 
@@ -37,7 +39,7 @@ async def test_aiohttp_get_request(user_agent, cookies):
         "http://127.0.0.1:8000/headers",
         "http://127.0.0.1:8000/cookies",
     ]
-    async with AioHTTP(useragent=user_agent, cookies=cookies) as engine:
+    async with AioHttpEngine(useragent=user_agent, cookies=cookies) as engine:
         responses = await engine.get(urls)
     for response in responses:
         assert isinstance(response, str)
@@ -48,14 +50,14 @@ async def test_aiohttp_get_wo_useragent_and_cookies_request():
     urls = [
         "http://127.0.0.1:8000/get",
     ]
-    async with AioHTTP() as engine:
+    async with AioHttpEngine() as engine:
         responses = await engine.get(urls)
     for response in responses:
         assert isinstance(response, str)
 
 
 @pytest.mark.asyncio
-async def test_aiohttp_post_request(aiohttp_engine: AioHTTP):
+async def test_aiohttp_post_request(aiohttp_engine: AioHttpEngine):
     urls = ["http://127.0.0.1:8000/post"]
     datas = [{"key1": "value1", "key2": "value2"}, {"key3": "value3", "key4": "value4"}]
     responses = await aiohttp_engine.post(urls, datas)
@@ -64,7 +66,7 @@ async def test_aiohttp_post_request(aiohttp_engine: AioHTTP):
 
 
 @pytest.mark.asyncio
-async def test_aiohttp_put_request(aiohttp_engine: AioHTTP):
+async def test_aiohttp_put_request(aiohttp_engine: AioHttpEngine):
     urls = ["http://127.0.0.1:8000/put"]
     datas = [{"key1": "value1", "key2": "value2"}, {"key3": "value3", "key4": "value4"}]
     responses = await aiohttp_engine.put(urls, datas)
@@ -73,7 +75,7 @@ async def test_aiohttp_put_request(aiohttp_engine: AioHTTP):
 
 
 @pytest.mark.asyncio
-async def test_aiohttp_delete_request(aiohttp_engine: AioHTTP):
+async def test_aiohttp_delete_request(aiohttp_engine: AioHttpEngine):
     urls = ["http://127.0.0.1:8000/delete"]
     datas = [{"key1": "value1", "key2": "value2"}, {"key3": "value3", "key4": "value4"}]
     responses = await aiohttp_engine.delete(urls, datas)
@@ -84,7 +86,7 @@ async def test_aiohttp_delete_request(aiohttp_engine: AioHTTP):
 @pytest.mark.asyncio
 async def test_aiohttp_headers(headers, user_agent):
     expected_headers = {**headers, "User-Agent": user_agent}
-    async with AioHTTP(headers=headers, useragent=user_agent) as aiohttp_engine:
+    async with AioHttpEngine(headers=headers, useragent=user_agent) as aiohttp_engine:
         urls = [
             "http://127.0.0.1:8000/headers/",
         ]
@@ -103,7 +105,7 @@ def get_morsel(cookie):
 async def test_aiohttp_cookie(cookies, user_agent):
     cookies_origin = {cookie.name: get_morsel(cookie) for cookie in cookies}
 
-    async with AioHTTP(cookies=cookies, useragent=user_agent) as aiohttp_engine:
+    async with AioHttpEngine(cookies=cookies, useragent=user_agent) as aiohttp_engine:
         urls = [
             "http://127.0.0.1:8000/cookies/",
         ]
@@ -118,7 +120,7 @@ async def test_aiohttp_cookie(cookies, user_agent):
 async def test_limit_per_host(headers, user_agent):
     """only test limit per host for AioHTTP engine (V Test)"""
 
-    async with AioHTTP(
+    async with AioHttpEngine(
         headers=headers, useragent=user_agent, connection_limit=5
     ) as aiohttp_engine:
         urls_1 = ["http://127.0.0.1:8000/throtlled/5/"] * 4

@@ -1,6 +1,6 @@
 from typing import Any, get_args
 
-from .pydantic import BaseModelType
+from .models import BaseModelType
 
 
 def get_inner_model(model: list[BaseModelType] | Any, field_name: str) -> Any | BaseModelType:
