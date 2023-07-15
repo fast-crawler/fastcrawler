@@ -1,7 +1,8 @@
-import pytest
 import asyncio
 
-from fastcrawler.schedule.manager import RocketryApplication, RocketryManager, TaskNotFound
+import pytest
+
+from fastcrawler.schedule.adopter import RocketryApplication, RocketryManager, TaskNotFound
 from fastcrawler.schedule.schema import Task
 
 
