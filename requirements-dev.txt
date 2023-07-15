@@ -1,0 +1,12 @@
+pytest
+pytest-asyncio
+cssselect==1.2.0
+pytest-cov
+pydantic_core==2.1.2
+pydantic_settings
+lxml
+aiohttp
+fastapi
+uvicorn
+colorama
+pyyaml

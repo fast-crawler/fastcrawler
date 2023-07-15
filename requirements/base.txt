@@ -3,5 +3,5 @@ pytest==7.3.1
 playwright==1.34
 cssselect==1.2.0
 lxml
-redbird @ git+https://github.com/ManiMozaffar/red-bird.git     
-rocketry @ git+https://github.com/ManiMozaffar/rocketry.git@9e94520d66ac079bd4e39a48bd1c1b5f35453b48
+redbird @ git+https://github.com/ManiMozaffar/red-bird@v2_but_v1
+rocketry @ git+https://github.com/ManiMozaffar/rocketry@master

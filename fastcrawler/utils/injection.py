@@ -5,7 +5,7 @@ from typing import Any, Callable
 
 
 class _Depends:
-    """Dependancy injection to run callable as a dependency
+    """ Dependancy injection to run callable as a dependency
     """
     def __init__(
         self, dependency: Callable[..., Any],
@@ -93,4 +93,9 @@ def Depends(
     *,
     use_cache: bool = False
 ) -> Any:
+    """The reason that an object was initiated from class, and the class wasn't called directly
+        is that because class __init__ method is returning only the instance of that class,
+        and that's not what we want, we want to assign this to another type (ANY), so I should
+        be using a function as interface to avoid IDE's error in type annotation or mypy.
+    """
     return _Depends(dependency=dependency, use_cache=use_cache)
