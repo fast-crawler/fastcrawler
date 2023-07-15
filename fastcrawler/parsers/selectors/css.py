@@ -7,10 +7,9 @@ from fastcrawler.parsers.pydantic import BaseModelType
 from fastcrawler.parsers.utils import _UNSET
 
 from ..processors.base import ProcessorInterface
-from .base import BaseSelector
 
 
-class _CSSField(BaseSelector):
+class _CSSField:
     """
     CSSSelectorField represents a field that can be retrieved from a given HTML
         document using CSS selectors.

@@ -5,13 +5,12 @@ from pydantic_core import Url
 
 from fastcrawler.exceptions import ParserInvalidModelType, ParserValidationError
 
-from .base import ParserProtocol
 from .pydantic import BaseModel, BaseModelType, URLs
 from .selectors.base import BaseSelector, get_selector
 from .utils import get_inner_model
 
 
-class HTMLParser(ParserProtocol):
+class HTMLParser:
     """
     HTMLParser first initiate the scraped data, then it parses a given HTML document
         based on the specified model. Using Pydantic model with XPATHField or CSSField.

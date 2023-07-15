@@ -6,16 +6,13 @@ from fastcrawler.parsers.html import HTMLParser
 from fastcrawler.parsers.pydantic import BaseModelType
 from fastcrawler.parsers.utils import _UNSET
 
-from .base import BaseSelector
 
-
-class _RegexField(BaseSelector):
+class _RegexField:
     """
     RegexField represents a field that can be retrieved from a given HTML
     document using Regex.
     """
 
-    # pylint: disable=super-init-not-called
     def __init__(
         self,
         regex: Literal[""],
