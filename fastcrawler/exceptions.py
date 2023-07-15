@@ -26,12 +26,11 @@ class ParserInvalidModelType(BaseModelError):
         super().__init__(self.message)
 
 
-
 class TaskNotFound(BaseModelError):
     def __init__(self, task_name):
         super().__init__(
             f"The Task with name={task_name} has not been found",
-            "\nPlease check your input and be sure the task name is correct"
+            "\nPlease check your input and be sure the task name is correct",
         )
 
 
@@ -44,6 +43,7 @@ class NoCrawlerFound(BaseModelError):
             "\nThis may also raise if you have overridden the library's startup built in method"
         )
 
+
 class ProcessorNotSupported(BaseModelError):
     def __init__(self, model):
         self.model = model
@@ -55,4 +55,3 @@ class ProcessorNotSupported(BaseModelError):
             "you need."
         )
         super().__init__(self.message)
-

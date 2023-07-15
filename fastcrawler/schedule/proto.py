@@ -3,7 +3,7 @@ from typing import Callable, Protocol
 from .schema import Task
 
 
-class TaskApplicationProto(Protocol):
+class TaskApplicationProto(Protocol):  # pragma: no cover
     task_lib: Callable
 
     def __init__(self, *args, **kwargs):
@@ -25,7 +25,7 @@ class TaskApplicationProto(Protocol):
         """Manage shut down activity"""
 
 
-class TaskControllerProto(Protocol):
+class TaskControllerProto(Protocol):  # pragma: no cover
     app: TaskApplicationProto
 
     def __init__(self, app: TaskApplicationProto):
@@ -45,9 +45,7 @@ class TaskControllerProto(Protocol):
         Add tasks within internal python API
         """
 
-    async def change_task_schedule(
-        self, task_name: str, schedule: str
-    ) -> None:
+    async def change_task_schedule(self, task_name: str, schedule: str) -> None:
         """
         Reschedule a task
             schedule:

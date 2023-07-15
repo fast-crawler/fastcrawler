@@ -12,7 +12,7 @@ class RocketryApplication:
     def __init__(self, *args, **kwargs):
         self.task_lib: Rocketry = Rocketry(*args, **kwargs)
 
-    async def serve(self, *args, **kwargs):
+    async def serve(self, *args, **kwargs):  # pragma: no cover
         """Proto to serve with uvicorn"""
         await self.start_up()
         return await self.task_lib.serve(*args, **kwargs)
@@ -25,6 +25,7 @@ class RocketryApplication:
         ...
         """
         self.task_lib.task(**dict(settings))(task_func)
+        return None
 
     async def start_up(self) -> None:
         """
