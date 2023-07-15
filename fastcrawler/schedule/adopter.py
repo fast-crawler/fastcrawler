@@ -37,7 +37,7 @@ class RocketryApplication:
         return None
 
 
-class RocketryManager:
+class RocketryController:
     def __init__(self, app: RocketryApplication):
         self.app = app
 

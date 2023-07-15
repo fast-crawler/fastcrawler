@@ -4,7 +4,7 @@ from pydantic.fields import FieldInfo
 
 from fastcrawler.exceptions import ProcessorNotSupported
 from fastcrawler.parsers.contracts import ParserProtocol
-from fastcrawler.parsers.models import BaseModelType, MappedAttr, MappedResult
+from fastcrawler.parsers.schema import BaseModelType, MappedAttr, MappedResult
 from fastcrawler.parsers.utils import _UNSET
 
 from ..processors.contracts import ElementInterface, ProcessorInterface

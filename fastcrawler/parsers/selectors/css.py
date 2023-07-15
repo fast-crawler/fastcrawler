@@ -3,7 +3,7 @@
 from typing import Any, Callable
 
 from fastcrawler.parsers.html import HTMLParser
-from fastcrawler.parsers.models import BaseModelType
+from fastcrawler.parsers.schema import BaseModelType
 from fastcrawler.parsers.utils import _UNSET
 
 from ..processors.contracts import ProcessorInterface

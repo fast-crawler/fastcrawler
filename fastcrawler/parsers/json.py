@@ -4,7 +4,7 @@ from pydantic import ValidationError
 from pydantic_core import Url
 
 from fastcrawler.exceptions import ParserInvalidModelType, ParserValidationError
-from fastcrawler.parsers.models import BaseModel, BaseModelType, URLs
+from fastcrawler.parsers.schema import BaseModel, BaseModelType, URLs
 
 
 class JsonParser:
