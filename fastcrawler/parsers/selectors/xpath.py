@@ -7,9 +7,10 @@ from fastcrawler.parsers.pydantic import BaseModelType
 from fastcrawler.parsers.utils import _UNSET
 
 from ..processors.base import ProcessorInterface
+from .base import BaseSelector
 
 
-class _XPATHField:
+class _XPATHField(BaseSelector):
     """
     XPATHField represents a field that can be retrieved from a given HTML
     document using XPath.
