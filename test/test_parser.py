@@ -1,4 +1,5 @@
 # pylint: skip-file
+import pytest
 
 from test.shared.schema import (
     EmailData,
@@ -11,9 +12,6 @@ from test.shared.schema import (
     VeryNestedCSS,
     VeryNestedJson,
 )
-
-import pytest
-
 from fastcrawler.exceptions import (
     ParserInvalidModelType,
     ParserValidationError,
