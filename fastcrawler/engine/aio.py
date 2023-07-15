@@ -4,10 +4,10 @@ import pydantic
 from aiohttp import BasicAuth, ClientSession, TCPConnector
 from aiohttp.cookiejar import Morsel
 
-from fastcrawler.engine.base import EngineProto, ProxySetting, SetCookieParam
+from fastcrawler.engine.base import ProxySetting, SetCookieParam
 
 
-class AioHTTP(EngineProto):
+class AioHTTP:
     def __init__(
         self,
         cookies: list[SetCookieParam] | None = None,
@@ -18,9 +18,10 @@ class AioHTTP(EngineProto):
     ):
         """Initialize a new engine instance with given cookie, header, useragent, and proxy"""
         self.session = None
-
         self._cookies = (
-            [(cookie.name, self.get_morsel_cookie(cookie)) for cookie in cookies] if cookies is not None else None
+            [(cookie.name, self.get_morsel_cookie(cookie)) for cookie in cookies]
+            if cookies is not None
+            else None
         )
 
         self._headers = headers or {}
@@ -84,7 +85,6 @@ class AioHTTP(EngineProto):
             **kwargs,
         )
 
-
     async def teardown(self) -> None:
         """Cleans up the engine."""
         await self.session.close()
@@ -102,17 +102,23 @@ class AioHTTP(EngineProto):
         tasks = [self.base(url, "GET", None, **kwargs) for url in urls]
         return await asyncio.gather(*tasks)
 
-    async def post(self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs) -> list[str] | str:
+    async def post(
+        self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs
+    ) -> list[str] | str:
         """POST HTTP Method for protocol to crawl a list of URL."""
         tasks = [self.base(url, "POST", data=data, **kwargs) for url, data in zip(urls, datas)]
         return await asyncio.gather(*tasks)
 
-    async def put(self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs) -> list[str] | str:
+    async def put(
+        self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs
+    ) -> list[str] | str:
         """PUT HTTP Method for protocol to crawl a list of URL."""
         tasks = [self.base(url, "PUT", data=data) for url, data in zip(urls, datas)]
         return await asyncio.gather(*tasks)
 
-    async def delete(self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs) -> list[str] | str:
+    async def delete(
+        self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs
+    ) -> list[str] | str:
         """DELETE HTTP Method for protocol to crawl a list of URL."""
         tasks = [self.base(url, "DELETE", data=data, **kwargs) for url, data in zip(urls, datas)]
         return await asyncio.gather(*tasks)

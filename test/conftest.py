@@ -1,17 +1,17 @@
 # pylint: skip-file
 import asyncio
-
-import pytest
-
 from test.shared.engine import (
-    get_cookies,
-    get_random_useragent,
-    get_proxy_setting,
     get_aiohttp_engine,
+    get_cookies,
     get_headers,
+    get_proxy_setting,
+    get_random_useragent,
 )
 from test.shared.mock_html import get_corrupted_html, get_html
 from test.shared.mock_json import get_json_data
+
+import pytest
+import pytest_asyncio
 
 
 @pytest.fixture
@@ -49,8 +49,8 @@ def cookies():
     return get_cookies()
 
 
-@pytest.fixture()
-def aiohttp_engine():
-    engine = get_aiohttp_engine()
+@pytest_asyncio.fixture()
+async def aiohttp_engine():
+    engine = await get_aiohttp_engine()
     yield engine
-    asyncio.run(engine.teardown())
+    await engine.teardown()
