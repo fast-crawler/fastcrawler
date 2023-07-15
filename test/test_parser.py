@@ -1,17 +1,27 @@
 # pylint: skip-file
 
-from typing import List
-
-import pytest
 from test.shared.schema import (
-    InnerHTML, ListItemJson, VeryNested, VeryNestedCSS, VeryNestedJson, LinksData,
-    LinksDataSingle, EmailData
+    EmailData,
+    InnerHTML,
+    LinksData,
+    LinksDataSingle,
+    ListItemJson,
+    NotSupportedProcessor,
+    VeryNested,
+    VeryNestedCSS,
+    VeryNestedJson,
 )
 
-from fastcrawler.exceptions import (ParserInvalidModelType,
-                                    ParserValidationError)
+import pytest
+
+from fastcrawler.exceptions import (
+    ParserInvalidModelType,
+    ParserValidationError,
+    ProcessorNotSupported,
+)
 from fastcrawler.parsers import HTMLParser, JsonParser
 from fastcrawler.parsers.selectors.base import BaseSelector
+from fastcrawler.parsers.utils import _UNSET
 
 
 def test_html_parser_with_xpath(html):
@@ -71,7 +81,8 @@ def test_exceptions_with_json_parser(json_data):
         json_parser.parse(VeryNestedJson)
 
     class CustomClass:
-        results: List[ListItemJson]
+        results: list[ListItemJson]
+
     with pytest.raises(ParserInvalidModelType):
         json_parser.parse(CustomClass)
 
@@ -82,7 +93,8 @@ def test_exceptions_with_html_parser(corrupted_html):
         html_parser.parse(VeryNested)
 
     class CustomClass:
-        results: List[ListItemJson]
+        results: list[ListItemJson]
+
     with pytest.raises(ParserInvalidModelType):
         html_parser.parse(CustomClass)
 
@@ -106,3 +118,30 @@ def test_regex_path(html: str):
     html_parser = HTMLParser(html)
     parser = html_parser.parse(EmailData)
     assert parser.emails is None
+
+
+def test_unset():
+    assert bool(_UNSET) is False
+
+
+def test_not_supported_processor(html):
+    with pytest.raises(ProcessorNotSupported):
+        html_parser = HTMLParser(html)
+        html_parser.parse(NotSupportedProcessor)
+
+
+# def test_html_parser_with_css_modest(html):
+#     html_parser = HTMLParser(html)
+#     parser = html_parser.parse(MDT_NestedItemList)
+#     assert len(parser.items[0].items) == 3
+#     assert parser.items[0].items[0].id == 100
+#     assert parser.items[0].items[0].name == "Link 1"
+#     assert parser.items[0].items[2].name == "Link 3"
+#     assert parser.items[0].items[2].source_as_default == "Nothing"
+#     assert len(html_parser.resolver.urls) == 3
+#     assert str(html_parser.resolver.urls[2]) == "http://address.com/item?page=3"
+
+
+# def test_html_parser_with_css_modest_flat(html):
+#     html_parser = HTMLParser(html)
+#     html_parser.parse(MDT_FlatList)

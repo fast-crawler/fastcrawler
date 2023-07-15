@@ -1,18 +1,16 @@
-from typing import List, Type
+from typing import Type
 
 from pydantic import ValidationError
 from pydantic_core import Url
 
-from fastcrawler.exceptions import (ParserInvalidModelType,
-                                    ParserValidationError)
+from fastcrawler.exceptions import ParserInvalidModelType, ParserValidationError
 
-from .base import ParserProtocol
 from .pydantic import BaseModel, BaseModelType, URLs
-from .selectors.base import BaseSelector
-from .utils import get_inner_model, get_selector
+from .selectors.base import BaseSelector, get_selector
+from .utils import get_inner_model
 
 
-class HTMLParser(ParserProtocol):
+class HTMLParser:
     """
     HTMLParser first initiate the scraped data, then it parses a given HTML document
         based on the specified model. Using Pydantic model with XPATHField or CSSField.
@@ -27,6 +25,7 @@ class HTMLParser(ParserProtocol):
         # parse it later!
         html_parser.parse(a pydantic model built with XPATHField or CSSField)
     """
+
     def __init__(self, scraped_data: str):
         """
         Initiate the HTML file in memory, so it can be parsed later
@@ -40,36 +39,33 @@ class HTMLParser(ParserProtocol):
         """
         Parse using the pydantic model
         """
-        if hasattr(model, "__mro__") and BaseModel in model.__mro__:  # type: ignore
+        if issubclass(model, BaseModel):  # type: ignore
             data = {}
             for field_name, field in model.model_fields.items():
-                field_selector = get_selector(field)
-                if field_selector:
-                    data[field_name] = field_selector.resolve(
+                fastcrawler_selector = get_selector(field)
+                if fastcrawler_selector:
+                    data[field_name] = fastcrawler_selector.resolve(
                         scraped_data=self.scraped_data,
-                        model=get_inner_model(model, field_name)
+                        model=get_inner_model(
+                            model, field_name
+                        ),  # TODO: check if pydantic returns the model data type
                     )
 
             if hasattr(
-                model.Config, "url_resolver",
+                model.Config,
+                "url_resolver",
             ) and issubclass(model.Config.url_resolver.__class__, BaseSelector):
-                urls: List[Url] = model.Config.url_resolver.resolve(  # type: ignore
+                urls: list[Url] = model.Config.url_resolver.resolve(  # type: ignore
                     self.scraped_data,
-                    model=None
+                    model=None,
                 )
-                if urls:
-                    self.resolver = URLs(
-                        urls=urls
-                    )
-                else:
-                    self.resolver = URLs()
+                self.resolver = URLs(urls=urls or [])
 
             try:
                 self.data: BaseModelType | None = model.model_validate(data)
+                return self.data
             except ValidationError as error:
                 raise ParserValidationError(error.errors()) from error
-
-            return self.data
 
         else:
             raise ParserInvalidModelType(model=model)

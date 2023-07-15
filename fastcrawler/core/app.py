@@ -6,7 +6,7 @@ from .registery import Crawler
 
 
 class FastCrawler:
-    """ The client interface to start all crawlers.
+    """The client interface to start all crawlers.
     Initilize all crawlers
 
 
@@ -18,12 +18,15 @@ class FastCrawler:
         app.start()
 
     """
+
     crawlers: List[Crawler]
 
     def __init__(self, crawlers: List[Crawler] | Crawler):
-        """ Initilize FastCrawler with defined crawlers"""
+        """Initilize FastCrawler with defined crawlers"""
         if isinstance(crawlers, Crawler):
-            self.crawlers = [crawlers, ]
+            self.crawlers = [
+                crawlers,
+            ]
         else:
             self.crawlers = crawlers
 

@@ -1,4 +1,4 @@
-from typing import List, Protocol
+from typing import Protocol
 
 
 class ElementInterface(Protocol):
@@ -35,16 +35,18 @@ class ProcessorInterface(Protocol):
 
     @staticmethod
     def from_string_by_xpath(
-        string: str, query: str
-    ) -> List[ElementInterface] | ElementInterface | None:
+        string: str,
+        query: str,
+    ) -> list[ElementInterface] | ElementInterface | None:
         """
         Resolves a HTML string by XPATH
         """
 
     @staticmethod
     def from_string_by_css(
-        string: str, query: str
-    ) -> List[ElementInterface] | ElementInterface | None:
+        string: str,
+        query: str,
+    ) -> list[ElementInterface] | ElementInterface | None:
         """
         Resolves a HTML string by CSS
         """

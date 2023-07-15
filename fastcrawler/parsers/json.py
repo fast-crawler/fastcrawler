@@ -3,14 +3,11 @@ from typing import Any, Type
 from pydantic import ValidationError
 from pydantic_core import Url
 
-from fastcrawler.exceptions import (ParserInvalidModelType,
-                                    ParserValidationError)
+from fastcrawler.exceptions import ParserInvalidModelType, ParserValidationError
 from fastcrawler.parsers.pydantic import BaseModel, BaseModelType, URLs
 
-from .base import ParserProtocol
 
-
-class JsonParser(ParserProtocol):
+class JsonParser:
     """
     HTMLParser first initiate the scraped data, then it parses a given HTML document
         based on the specified model. Using Pydantic model with XPATHField or CSSField.
@@ -25,6 +22,7 @@ class JsonParser(ParserProtocol):
         # parse it later!
         html_parser.parse(a pydantic model built with XPATHField or CSSField)
     """
+
     data = None
 
     def __init__(self, scraped_data: dict):
@@ -49,7 +47,11 @@ class JsonParser(ParserProtocol):
                 current_address: dict = self.scraped_data.copy()
                 for address in model.Config.url_resolver.split("."):
                     current_address = current_address.get(address)  # type: ignore
-                self.resolver = URLs(urls=[Url(current_address), ])
+                self.resolver = URLs(
+                    urls=[
+                        Url(current_address),
+                    ]
+                )
             try:
                 self.data = model.model_validate(self.data)
             except ValidationError as error:
