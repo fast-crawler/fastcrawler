@@ -1,6 +1,6 @@
 # pylint: skip-file
 import asyncio
-from random import choice, choices, randint
+from random import choice
 
 from pydantic_settings import BaseSettings
 
@@ -21,8 +21,14 @@ sample_cookies = [
 ]
 
 useragents = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
+    (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/58.0.3029.110 Safari/537.3"
+    ),
+    (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/58.0.3029.110 Safari/537.3"
+    ),
 ]
 
 
@@ -61,8 +67,8 @@ def get_cookies():
     return sample_cookies
 
 
-def get_aiohttp_engine():
+async def get_aiohttp_engine():
     headers = {}
     engine = AioHTTP(cookies=get_cookies(), headers=headers, useragent=get_random_useragent())
-    asyncio.run(engine.setup())
+    await engine.setup()
     return engine

@@ -8,7 +8,7 @@ from fastapi import FastAPI, Request
 
 try:
     from colorama import Fore
-except:
+except Exception:
 
     class Fore:
         pass
@@ -46,7 +46,7 @@ async def headers(request: Request):
 
 
 @app.get("/throtlled/{seconds}/")
-async def headers(request: Request, seconds: int):
+async def throtlled(request: Request, seconds: int):
     req_id = get_random_id()
     start = Fore.RED if COLORED else ""
     reset = Fore.RESET if COLORED else ""
