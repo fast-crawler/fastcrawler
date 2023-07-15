@@ -18,6 +18,5 @@ __all__ = [
     "JsonParser",
     "HTMLParser",
     # Processors
-    "ModestProcessor",
     "LxmlProcessor",
 ]
