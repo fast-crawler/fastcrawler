@@ -1,5 +1,4 @@
 # pylint: skip-file
-import asyncio
 from test.shared.engine import (
     get_aiohttp_engine,
     get_cookies,
@@ -13,6 +12,7 @@ from test.shared.mock_json import get_json_data
 import pytest
 import pytest_asyncio
 
+from fastcrawler.schedule.adopter import RocketryApplication, RocketryManager
 
 
 @pytest.fixture
@@ -55,3 +55,13 @@ async def aiohttp_engine():
     engine = await get_aiohttp_engine()
     yield engine
     await engine.teardown()
+
+
+@pytest.fixture(scope="function")
+def task_app():
+    yield RocketryApplication()
+
+
+@pytest.fixture(scope="function")
+def task_manager(task_app):
+    yield RocketryManager(task_app)

@@ -1,5 +1,4 @@
 # pylint: skip-file
-import asyncio
 from random import choice
 
 from pydantic_settings import BaseSettings
