@@ -10,5 +10,5 @@ __all__ = [
     "Depends",
     "Spider",
     "Crawler",
-    "FastCrawler"
+    "FastCrawler",
 ]

@@ -129,17 +129,23 @@ class AioHttpEngine:
         tasks = [self.base(url, "GET", None, **kwargs) for url in urls]
         return await asyncio.gather(*tasks)
 
-    async def post(self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs) -> list[str] | str:
+    async def post(
+        self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs
+    ) -> list[str] | str:
         """POST HTTP Method for protocol to crawl a list of URL."""
         tasks = [self.base(url, "POST", data=data, **kwargs) for url, data in zip(urls, datas)]
         return await asyncio.gather(*tasks)
 
-    async def put(self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs) -> list[str] | str:
+    async def put(
+        self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs
+    ) -> list[str] | str:
         """PUT HTTP Method for protocol to crawl a list of URL."""
         tasks = [self.base(url, "PUT", data=data, **kwargs) for url, data in zip(urls, datas)]
         return await asyncio.gather(*tasks)
 
-    async def delete(self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs) -> list[str] | str:
+    async def delete(
+        self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs
+    ) -> list[str] | str:
         """DELETE HTTP Method for protocol to crawl a list of URL."""
         tasks = [self.base(url, "DELETE", data=data, **kwargs) for url, data in zip(urls, datas)]
         return await asyncio.gather(*tasks)

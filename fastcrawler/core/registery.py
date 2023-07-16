@@ -9,6 +9,7 @@ class CrawlerMeta(type):
 
     DONT TOUCH THIS CLASS UNLESS YOU KNOW WHAT YOU ARE DOING.
     """
+
     def __init__(cls, name, bases, dct):
         super().__init__(name, bases, dct)
         cls._instances = {}

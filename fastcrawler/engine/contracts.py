@@ -34,7 +34,7 @@ class EngineProto(Protocol):
         useragent: str | None,
         proxy: ProxySetting | None,
     ):
-        """Initialize a new engine instance with given cookie(s), header(s), useragent, and proxy"""
+        "Initialize a new engine instance with given cookie(s), header(s), useragent, and proxy"
 
     async def __aenter__(self):
         """Async context manager support for engine -> ENTER"""

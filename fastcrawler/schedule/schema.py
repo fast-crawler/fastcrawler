@@ -125,7 +125,7 @@ class Task(BaseModel):
     name: str | None = Field(description="Name of the task. Must be unique")
     description: str | None = Field(description="Description of the task for documentation")
     logger_name: str | None = Field(
-        description="Logger name to be used in logging the task record"
+        description="Logger name to be used in logging the task record", default=None
     )
     execution: Literal["main", "async", "thread", "process"] | None = None
     priority: int = 0

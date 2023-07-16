@@ -69,7 +69,9 @@ def get_cookies():
 async def get_aiohttp_engine():
     headers = {}
     engine = AioHttpEngine(
-        cookies=get_cookies(), headers=headers, useragent=get_random_useragent()
+        cookies=get_cookies(),
+        headers=headers,
+        useragent=get_random_useragent(),
     )
     await engine.setup()
     return engine

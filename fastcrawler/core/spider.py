@@ -28,4 +28,5 @@ class Spider(metaclass=SpiderMetaClass):
     instances property hold the instances that were set by metaclass
     that is connected to current spider class
     """
+
     instances: List["Spider"]

@@ -5,5 +5,5 @@ from .spider import Spider
 __all__ = [
     "Crawler",
     "Spider",
-    "FastCrawler"
+    "FastCrawler",
 ]

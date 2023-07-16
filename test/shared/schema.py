@@ -11,7 +11,9 @@ class ListItem(BaseModel):
     name: str | None = XPATHField(query="//a", extract="text")
     source: str = "https://mywebsite.com"
     source_as_default: None | str = XPATHField(
-        query="//a[@nothing]", extract="text", default="Nothing"
+        query="//a[@nothing]",
+        extract="text",
+        default="Nothing",
     )
 
 
