@@ -1,12 +1,12 @@
 # pylint: disable=c-extension-no-member
 
-from typing import Any, Callable
+from typing import Any
 
 from fastcrawler.parsers.html import HTMLParser
-from fastcrawler.parsers.pydantic import BaseModelType
+from fastcrawler.parsers.schema import BaseModelType
 from fastcrawler.parsers.utils import _UNSET
 
-from ..processors.base import ProcessorInterface
+from ..processors.contracts import ProcessorProcotol
 from .base import BaseSelector
 
 
@@ -17,23 +17,24 @@ class _CSSField(BaseSelector):
     """
 
     def resolve(
-        self, scraped_data: str, model: None | BaseModelType = None
+        self, scraped_data: str, model: BaseModelType | list[BaseModelType | Any] | None
     ) -> BaseModelType | list[BaseModelType | Any] | None:
         """Resolves HTML input using CSS selector"""
         self.model = model or self.model
         results = self.processor.from_string_by_css(scraped_data, self.query)
         if not results:
             return self.default
-        return self._process_results(results)
+        return self._process_results(results)  # type: ignore
 
 
+# pylint: disable=invalid-name
 def CSSField(
     query: str,
-    processor: None | ProcessorInterface = None,
-    parser: HTMLParser = HTMLParser,
+    processor: None | ProcessorProcotol = None,
+    parser=HTMLParser,
     extract: str | None = None,
     many: bool = False,
-    model: Callable[..., BaseModelType] | None = None,
+    model: BaseModelType | list[BaseModelType | Any] | None = None,
     default: Any = _UNSET,
 ) -> Any:
     """The reason that an object was initiated from class, and the class wasn't called directly

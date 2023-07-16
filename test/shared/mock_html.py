@@ -1,5 +1,6 @@
 # pylint: skip-file
 
+
 def get_html():
     return """
     <html>

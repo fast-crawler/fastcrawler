@@ -5,7 +5,7 @@ from pydantic_core import Url
 
 from fastcrawler.exceptions import ParserInvalidModelType, ParserValidationError
 
-from .pydantic import BaseModel, BaseModelType, URLs
+from .schema import BaseModel, BaseModelType, URLs
 from .selectors.base import BaseSelector, get_selector
 from .utils import get_inner_model
 
@@ -26,6 +26,14 @@ class HTMLParser:
         html_parser.parse(a pydantic model built with XPATHField or CSSField)
     """
 
+    @property
+    def data(self):
+        return getattr(self, "_data", None)
+
+    @data.setter
+    def data(self, value):
+        self._data = value
+
     def __init__(self, scraped_data: str):
         """
         Initiate the HTML file in memory, so it can be parsed later
@@ -33,13 +41,12 @@ class HTMLParser:
         """
         self.scraped_data = scraped_data
         self.resolver: URLs | None = None
-        self.data = None
 
     def parse(self, model: Type[BaseModelType]) -> BaseModelType:
         """
         Parse using the pydantic model
         """
-        if issubclass(model, BaseModel):  # type: ignore
+        if issubclass(model, BaseModel):
             data = {}
             for field_name, field in model.model_fields.items():
                 fastcrawler_selector = get_selector(field)
@@ -55,7 +62,7 @@ class HTMLParser:
                 model.Config,
                 "url_resolver",
             ) and issubclass(model.Config.url_resolver.__class__, BaseSelector):
-                urls: list[Url] = model.Config.url_resolver.resolve(  # type: ignore
+                urls: list[Url] = model.Config.url_resolver.resolve(
                     self.scraped_data,
                     model=None,
                 )

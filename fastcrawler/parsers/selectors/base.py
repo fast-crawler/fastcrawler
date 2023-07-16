@@ -1,15 +1,13 @@
-# pylint: disable=c-extension-no-member
-
 from typing import Any, Callable
 
 from pydantic.fields import FieldInfo
 
 from fastcrawler.exceptions import ProcessorNotSupported
-from fastcrawler.parsers.base import ParserProtocol
-from fastcrawler.parsers.pydantic import BaseModelType, MappedAttr, MappedResult
+from fastcrawler.parsers.contracts import ParserProtocol
+from fastcrawler.parsers.schema import BaseModelType, MappedAttr, MappedResult
 from fastcrawler.parsers.utils import _UNSET
 
-from ..processors.base import ElementInterface, ProcessorInterface
+from ..processors.contracts import ElementProtocol, ProcessorProcotol
 from ..processors.lxml import LxmlProcessor
 
 
@@ -20,10 +18,10 @@ class BaseSelector:
         self,
         query: str,
         parser: Callable[..., ParserProtocol] | None = None,
-        processor: ProcessorInterface | None = None,
+        processor: ProcessorProcotol | None = None,
         extract: str | None = None,
         many: bool = False,
-        model: Callable[..., BaseModelType] | None = None,
+        model: BaseModelType | list[BaseModelType | Any] | None = None,
         default: Any = _UNSET,
     ):
         self.query = query
@@ -36,20 +34,24 @@ class BaseSelector:
 
     def __repr__(self):
         """Represents a selector for debugging purposes"""
-        return f"Field(type={self.__class__.__name__} extract={self.extract}, many={self.many}, query={self.query})"
+        return (
+            f"Field(type={self.__class__.__name__} extract={self.extract},"
+            f" many={self.many}, query={self.query})"
+        )
 
     def resolve(self, scraped_data, model):
         """Must be implemented by outer classes.
         Resolves the selector spefinalized by 'XPATH' or 'CSS' or etc
         """
         raise NotImplementedError(
-            "Resolves must be overwritten by subclass" f"scraped_data={scraped_data}, model={model}"
+            "Resolves must be overwritten by subclass"
+            f"scraped_data={scraped_data}, model={model}"
         )
 
     def _process_results(
         self,
-        results: list[ElementInterface],
-    ) -> BaseModelType | list[BaseModelType | Any] | None:
+        results: list[ElementProtocol],
+    ) -> BaseModelType | list[BaseModelType | Any] | list[ElementProtocol] | None:
         """Process the results resolved based on the logic
         which is combination of many, and extract.
         """
@@ -57,7 +59,10 @@ class BaseSelector:
         if self.many:
             results = [(self.get_from_exctract(result)) for result in results]
             if self.model:
-                results = [self.parser(self.processor.to_string(el)).parse(self.model) for el in results]
+                results = [
+                    self.parser(self.processor.to_string(el)).parse(self.model)  # type: ignore
+                    for el in results  # type: ignore
+                ]
             return results
 
         results = self.get_from_exctract(results[0])
@@ -94,7 +99,7 @@ class BaseSelector:
             else getattr(result, mapped.attr_name)
         )
 
-    def get_from_exctract(self, result: ElementInterface) -> Any:
+    def get_from_exctract(self, result: ElementProtocol) -> Any:
         """
         Resolve the extract from string, to get text from etree.ElementBase
             or to get other attributes or the string of HTML by default
@@ -113,9 +118,13 @@ class BaseSelector:
                 self.interface_mapper(result).get,
                 self.extract,
             )
-        elif not self.extract and not self.many and issubclass(type(result), self.processor.base_element):
+        elif (
+            not self.extract
+            and not self.many
+            and issubclass(type(result), self.processor.base_element)  # type: ignore
+        ):
             # Return: HTML string of object result
-            return self.processor.to_string(result)
+            return self.processor.to_string(result)  # type: ignore
         else:  # Return: inner HTML element objects to parse nested models
             return result
 

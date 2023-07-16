@@ -1,7 +1,10 @@
+# pragma: no cover
+# noqa
+
 from typing import Protocol
 
 
-class ElementInterface(Protocol):
+class ElementProtocol(Protocol):
     def get(self, key: str, default=None):
         """
         get method, which resolves an HTML element from a given key
@@ -23,11 +26,11 @@ class ElementInterface(Protocol):
         """
 
 
-class ProcessorInterface(Protocol):
-    base_element: ElementInterface = ...
+class ProcessorProcotol(Protocol):
+    base_element: ElementProtocol
 
     @staticmethod
-    def to_string(result: ElementInterface) -> str:
+    def to_string(result: ElementProtocol) -> str:
         """
         Resolves a result to string, by getting the inner html,
         This method is used to iterate over HTML elements to resolve inner pydantic models
@@ -37,7 +40,7 @@ class ProcessorInterface(Protocol):
     def from_string_by_xpath(
         string: str,
         query: str,
-    ) -> list[ElementInterface] | ElementInterface | None:
+    ) -> list[ElementProtocol] | ElementProtocol | None:
         """
         Resolves a HTML string by XPATH
         """
@@ -46,7 +49,7 @@ class ProcessorInterface(Protocol):
     def from_string_by_css(
         string: str,
         query: str,
-    ) -> list[ElementInterface] | ElementInterface | None:
+    ) -> list[ElementProtocol] | ElementProtocol | None:
         """
         Resolves a HTML string by CSS
         """

@@ -4,7 +4,7 @@ from pydantic import ValidationError
 from pydantic_core import Url
 
 from fastcrawler.exceptions import ParserInvalidModelType, ParserValidationError
-from fastcrawler.parsers.pydantic import BaseModel, BaseModelType, URLs
+from fastcrawler.parsers.schema import BaseModel, BaseModelType, URLs
 
 
 class JsonParser:
@@ -23,7 +23,13 @@ class JsonParser:
         html_parser.parse(a pydantic model built with XPATHField or CSSField)
     """
 
-    data = None
+    @property
+    def data(self):
+        return getattr(self, "_data", None)
+
+    @data.setter
+    def data(self, value):
+        self._data = value
 
     def __init__(self, scraped_data: dict):
         """
@@ -37,19 +43,23 @@ class JsonParser:
         """
         Parse using the pydantic model
         """
-        if hasattr(model, "__mro__") and BaseModel in model.__mro__:  # type: ignore
+        if hasattr(model, "__mro__") and BaseModel in model.__mro__:
             self.data: BaseModelType | Any = {}
 
             for field_name, field in model.model_fields.items():
                 self.data[field_name] = self.scraped_data.get(field_name) or field.default
 
-            if hasattr(model.Config, "url_resolver") and isinstance(model.Config.url_resolver, str):
-                current_address: dict = self.scraped_data.copy()
-                for address in model.Config.url_resolver.split("."):
-                    current_address = current_address.get(address)  # type: ignore
+            if hasattr(model.Config, "url_resolver") and isinstance(
+                model.Config.url_resolver, str
+            ):
+                current_address: Any | dict = self.scraped_data.copy()
+                for adrs in model.Config.url_resolver.split("."):
+                    # Keep looping, w.t.r dots, (like key.key) to get page value
+                    current_address = current_address.get(adrs)
+
                 self.resolver = URLs(
                     urls=[
-                        Url(current_address),
+                        Url(current_address),  # type: ignore
                     ]
                 )
             try:

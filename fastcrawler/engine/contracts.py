@@ -7,15 +7,15 @@ import pydantic
 
 
 class SetCookieParam(pydantic.BaseModel):
-    name: str
-    value: str
+    name: str = ""
+    value: str = ""
     url: str | None = None
     domain: str = ""
-    path: str | None = None
-    expires: float | None = None
-    httpOnly: bool | None = None
-    secure: bool | None = None
-    sameSite: Literal["Lax", "None", "Strict"] | None = None
+    path: str = ""
+    expires: str = ""
+    httpOnly: str = ""
+    secure: str = ""
+    sameSite: str | Literal["Lax", "None", "Strict"] = ""
 
 
 class ProxySetting(pydantic.BaseModel):
@@ -26,6 +26,13 @@ class ProxySetting(pydantic.BaseModel):
     password: str | None = None
 
 
+class Response(pydantic.BaseModel):
+    text: str | None = None
+    status_code: int | None = None
+    headers: dict | None = None
+    cookie: dict | None = None
+
+
 class EngineProto(Protocol):
     def __init__(
         self,
@@ -34,7 +41,7 @@ class EngineProto(Protocol):
         useragent: str | None,
         proxy: ProxySetting | None,
     ):
-        """Initialize a new engine instance with given cookie(s), header(s), useragent, and proxy"""
+        "Initialize a new engine instance with given cookie(s), header(s), useragent, and proxy"
 
     async def __aenter__(self):
         """Async context manager support for engine -> ENTER"""
@@ -62,3 +69,6 @@ class EngineProto(Protocol):
 
     async def delete(self, urls: list[pydantic.AnyUrl], datas: list[dict]) -> str:
         """DELETE HTTP Method for protocol to crawl a list of URL."""
+
+    async def translate_to_response(self, response_obj: type) -> Response:
+        """Translate the response object to a Response object"""

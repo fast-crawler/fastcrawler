@@ -1,3 +1,5 @@
+# pragma: no cover
+
 from typing import Callable, Protocol
 
 from .schema import Task
