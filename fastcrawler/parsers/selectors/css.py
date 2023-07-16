@@ -6,7 +6,7 @@ from fastcrawler.parsers.html import HTMLParser
 from fastcrawler.parsers.schema import BaseModelType
 from fastcrawler.parsers.utils import _UNSET
 
-from ..processors.contracts import ProcessorInterface
+from ..processors.contracts import ProcessorProcotol
 from .base import BaseSelector
 
 
@@ -27,9 +27,10 @@ class _CSSField(BaseSelector):
         return self._process_results(results)  # type: ignore
 
 
+# pylint: disable=invalid-name
 def CSSField(
     query: str,
-    processor: None | ProcessorInterface = None,
+    processor: None | ProcessorProcotol = None,
     parser=HTMLParser,
     extract: str | None = None,
     many: bool = False,

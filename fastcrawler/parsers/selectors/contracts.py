@@ -6,7 +6,7 @@ from fastcrawler.parsers.contracts import ParserProtocol
 from fastcrawler.parsers.schema import BaseModelType
 from fastcrawler.parsers.utils import _UNSET
 
-from ..processors.contracts import ProcessorInterface
+from ..processors.contracts import ProcessorProcotol
 
 
 class SelectorProto(Protocol):
@@ -16,7 +16,7 @@ class SelectorProto(Protocol):
         self,
         query: str,
         parser: Callable[..., ParserProtocol] | None = None,
-        processor: ProcessorInterface | None = None,
+        processor: ProcessorProcotol | None = None,
         extract: str | None = None,
         many: bool = False,
         model: Callable[..., BaseModelType] | None = None,

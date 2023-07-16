@@ -7,7 +7,7 @@ from fastcrawler.parsers.contracts import ParserProtocol
 from fastcrawler.parsers.schema import BaseModelType, MappedAttr, MappedResult
 from fastcrawler.parsers.utils import _UNSET
 
-from ..processors.contracts import ElementInterface, ProcessorInterface
+from ..processors.contracts import ElementProtocol, ProcessorProcotol
 from ..processors.lxml import LxmlProcessor
 
 
@@ -18,7 +18,7 @@ class BaseSelector:
         self,
         query: str,
         parser: Callable[..., ParserProtocol] | None = None,
-        processor: ProcessorInterface | None = None,
+        processor: ProcessorProcotol | None = None,
         extract: str | None = None,
         many: bool = False,
         model: BaseModelType | list[BaseModelType | Any] | None = None,
@@ -50,8 +50,8 @@ class BaseSelector:
 
     def _process_results(
         self,
-        results: list[ElementInterface],
-    ) -> BaseModelType | list[BaseModelType | Any] | list[ElementInterface] | None:
+        results: list[ElementProtocol],
+    ) -> BaseModelType | list[BaseModelType | Any] | list[ElementProtocol] | None:
         """Process the results resolved based on the logic
         which is combination of many, and extract.
         """
@@ -99,7 +99,7 @@ class BaseSelector:
             else getattr(result, mapped.attr_name)
         )
 
-    def get_from_exctract(self, result: ElementInterface) -> Any:
+    def get_from_exctract(self, result: ElementProtocol) -> Any:
         """
         Resolve the extract from string, to get text from etree.ElementBase
             or to get other attributes or the string of HTML by default
