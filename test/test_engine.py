@@ -1,9 +1,22 @@
+# pylint: skip-file
 from test.conftest import get_proxy_setting
 from time import perf_counter
 
 import pytest
 
 from fastcrawler.engine.aio import AioHttpEngine, Morsel
+
+
+@pytest.mark.asyncio
+async def test_aiohttp_cookies_and_proxy_attr(cookies):
+    proxy = get_proxy_setting()
+    # None cookies
+    async with AioHttpEngine(cookies=None) as engine:
+        assert engine.cookies is None
+    # with cookies
+    async with AioHttpEngine(cookies=cookies, proxy=proxy) as engine:
+        assert engine.cookies == cookies
+        assert engine.proxy == proxy
 
 
 @pytest.mark.asyncio
@@ -111,7 +124,7 @@ async def test_aiohttp_cookie(cookies, user_agent):
         ]
         await aiohttp_engine.get(urls)
         cookies = aiohttp_engine.session.cookie_jar.filter_cookies(
-            str(aiohttp_engine.session._base_url)
+            str(aiohttp_engine.session._base_url),
         )
     assert cookies_origin == cookies
 
@@ -121,7 +134,9 @@ async def test_limit_per_host(headers, user_agent):
     """only test limit per host for AioHTTP engine (V Test)"""
 
     async with AioHttpEngine(
-        headers=headers, useragent=user_agent, connection_limit=5
+        headers=headers,
+        useragent=user_agent,
+        connection_limit=5,
     ) as aiohttp_engine:
         urls_1 = ["http://127.0.0.1:8000/throtlled/5/"] * 4
         urls_2 = ["http://127.0.0.1:8000/throtlled/10/"] * 4
