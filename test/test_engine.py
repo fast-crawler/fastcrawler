@@ -136,12 +136,12 @@ async def test_limit_per_host(headers, user_agent):
     async with AioHttpEngine(
         headers=headers,
         useragent=user_agent,
-        connection_limit=5,
+        connection_limit=3,
     ) as aiohttp_engine:
-        urls_1 = ["http://127.0.0.1:8000/throtlled/5/"] * 4
-        urls_2 = ["http://127.0.0.1:8000/throtlled/10/"] * 4
+        urls_1 = ["http://127.0.0.1:8000/throtlled/3/"] * 2
+        urls_2 = ["http://127.0.0.1:8000/throtlled/5/"]
         start = perf_counter()
         await aiohttp_engine.get(urls_1 + urls_2 + urls_1)
         end = perf_counter()
 
-    assert end - start == pytest.approx(20, abs=1)
+    assert end - start == pytest.approx(6, abs=1)
