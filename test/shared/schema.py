@@ -74,15 +74,15 @@ class VeryNestedJson(BaseModel):
 
 
 class LinksData(BaseModel):
-    link: list = RegexField(regex=r"href=['\"]([^'\"]+)['\"]", many=True)
+    link: list = RegexField(query=r"href=['\"]([^'\"]+)['\"]", many=True)
 
 
 class LinksDataSingle(BaseModel):
-    link: str = RegexField(regex=r"href=['\"]([^'\"]+)['\"]")
+    link: str = RegexField(query=r"href=['\"]([^'\"]+)['\"]")
 
 
 class EmailData(BaseModel):
-    emails: list | None = RegexField(regex=r"[\w.-]+@[\w.-]+\.\w+", default=None)
+    emails: list | None = RegexField(query=r"[\w.-]+@[\w.-]+\.\w+", default=None)
 
 
 # class MDT_Item(BaseModel):

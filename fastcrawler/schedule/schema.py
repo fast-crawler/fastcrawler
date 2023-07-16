@@ -2,7 +2,7 @@ import datetime
 from typing import Literal
 
 from pydantic import BaseModel, Field  # pylint: disable=no-name-in-module
-from rocketry.core import BaseCondition as _BaseCondition
+from rocketry.core import BaseCondition as _BaseCondition  # type: ignore
 
 
 class BaseCondition(_BaseCondition):  # pylint: disable=abstract-method

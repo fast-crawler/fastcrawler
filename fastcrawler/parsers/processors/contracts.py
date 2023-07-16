@@ -27,7 +27,7 @@ class ElementInterface(Protocol):
 
 
 class ProcessorInterface(Protocol):
-    base_element: ElementInterface = ...
+    base_element: ElementInterface
 
     @staticmethod
     def to_string(result: ElementInterface) -> str:

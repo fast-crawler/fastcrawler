@@ -1,6 +1,6 @@
 # pylint: disable=c-extension-no-member
 
-from typing import Any, Callable
+from typing import Any
 
 from fastcrawler.parsers.html import HTMLParser
 from fastcrawler.parsers.schema import BaseModelType
@@ -17,23 +17,23 @@ class _XPATHField(BaseSelector):
     """
 
     def resolve(
-        self, scraped_data: str, model: BaseModelType | None = None
+        self, scraped_data: str, model: BaseModelType | list[BaseModelType | Any] | None
     ) -> BaseModelType | list[BaseModelType | Any] | None:
         """Resolves HTML input as the xpath value given to list"""
         self.model = model or self.model
         results = self.processor.from_string_by_xpath(scraped_data, self.query)
         if not results:
             return self.default
-        return self._process_results(results)
+        return self._process_results(results)  # type: ignore
 
 
 def XPATHField(
     query: str,
     processor: None | ProcessorInterface = None,
-    parser: HTMLParser = HTMLParser,
+    parser=HTMLParser,
     extract: str | None = None,
     many: bool = False,
-    model: Callable[..., BaseModelType] | None = None,
+    model: BaseModelType | list[BaseModelType | Any] | None = None,
     default: Any = _UNSET,
 ) -> Any:
     """The reason that an object was initiated from class, and the class wasn't called directly

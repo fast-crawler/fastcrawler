@@ -26,8 +26,11 @@ def test_crawler_with_task():
     class cls_C(Spider):
         pass
 
-    obj = Crawler(cls_A >> cls_B >> cls_C)
-    assert [cls_A, cls_B, cls_C] == obj.task.instances
+    obj1 = cls_A()
+    obj2 = cls_B()
+    obj3 = cls_C()
+    obj = Crawler(obj1 >> obj2 >> obj3)
+    assert [obj1, obj2, obj3] == obj.task.instances
 
     client_one = FastCrawler(crawlers=obj)
     client_two = FastCrawler(

@@ -7,15 +7,15 @@ import pydantic
 
 
 class SetCookieParam(pydantic.BaseModel):
-    name: str
-    value: str
+    name: str = ""
+    value: str = ""
     url: str | None = None
     domain: str = ""
-    path: str | None = None
-    expires: float | None = None
-    httpOnly: bool | None = None
-    secure: bool | None = None
-    sameSite: Literal["Lax", "None", "Strict"] | None = None
+    path: str = ""
+    expires: str = ""
+    httpOnly: str = ""
+    secure: str = ""
+    sameSite: str | Literal["Lax", "None", "Strict"] = ""
 
 
 class ProxySetting(pydantic.BaseModel):

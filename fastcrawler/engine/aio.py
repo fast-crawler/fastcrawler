@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 
 import pydantic
 from aiohttp import BasicAuth, ClientSession, TCPConnector
@@ -17,7 +18,7 @@ class AioHttpEngine:
         connection_limit: int = 100,
     ):
         """Initialize a new engine instance with given cookie, header, useragent, and proxy"""
-        self.session = None
+        self.session: None | ClientSession = None
         self._cookies = (
             [(cookie.name, self._get_morsel_cookie(cookie)) for cookie in cookies]
             if cookies is not None
@@ -30,14 +31,15 @@ class AioHttpEngine:
 
         self._connector = TCPConnector(limit_per_host=connection_limit)
 
-        self._proxy = {}
-        self.__proxy = proxy
+        self._proxy: dict[Any, Any] = {}
+        self.proxy_dct = proxy
         if proxy:
             proxy_url = f"{proxy.protocol}{proxy.server}:{proxy.port}"
             self._proxy["proxy"] = proxy_url
             if proxy.username and proxy.password:
-                auth = BasicAuth(login=proxy.username, password=proxy.password)
-                self._proxy["proxy_auth"] = auth
+                self._proxy["proxy_auth"] = BasicAuth(
+                    login=proxy.username, password=proxy.password
+                )
 
     @property
     def cookies(self) -> list[SetCookieParam] | None:
@@ -54,9 +56,9 @@ class AioHttpEngine:
         return self._headers
 
     @property
-    def proxy(self) -> ProxySetting:
+    def proxy(self) -> ProxySetting | None:
         """Return proxy setting"""
-        return self.__proxy
+        return self.proxy_dct
 
     @staticmethod
     def _get_morsel_cookie(cookie: SetCookieParam) -> Morsel:
@@ -90,7 +92,13 @@ class AioHttpEngine:
             "name": cookie.key,
             "value": cookie.value,
         }
-        cookie_params.update({v: cookie.get(k) for k, v in trans.items() if v is not None})
+        cookie_params.update(
+            {
+                v: cookie.get(k, "")
+                for k, v in trans.items()
+                if v is not None and cookie.get(k) is not None
+            }
+        )
         return SetCookieParam(**cookie_params)
 
     async def __aenter__(self):
@@ -114,15 +122,19 @@ class AioHttpEngine:
 
     async def teardown(self) -> None:
         """Cleans up the engine."""
-        await self.session.close()
+        if self.session:
+            await self.session.close()
 
-    async def base(self, url: pydantic.AnyUrl, method: str, data: dict, **kwargs) -> str:
+    async def base(
+        self, url: pydantic.AnyUrl, method: str, data: dict | None, **kwargs
+    ) -> str | None:
         """Base Method for protocol to retrieve a list of URL."""
-
-        async with self.session.request(
-            method, url, data=data, headers=self.headers, **self._proxy, **kwargs
-        ) as response:
-            return await response.text()
+        if self.session:
+            async with self.session.request(
+                method, str(url), data=data, headers=self.headers, **self._proxy, **kwargs
+            ) as response:
+                return await response.text()
+        return None
 
     async def get(self, urls: list[pydantic.AnyUrl], **kwargs) -> list[str] | str:
         """GET HTTP Method for protocol to retrieve a list of URL."""

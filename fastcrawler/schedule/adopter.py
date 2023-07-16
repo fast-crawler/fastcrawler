@@ -1,7 +1,7 @@
 from typing import Callable
 
-from rocketry import Rocketry
-from rocketry.conditions.api import cron
+from rocketry import Rocketry  # type: ignore
+from rocketry.conditions.api import cron  # type: ignore
 
 from fastcrawler.exceptions import TaskNotFound
 
@@ -72,7 +72,7 @@ class RocketryController:
                 if schedule.count(" ") == 4:
                     task.start_cond = cron(schedule)
                 else:
-                    task.start_cond = schedule
+                    task.start_cond = schedule  # type: ignore
                 return None
         raise TaskNotFound(task_name)
 

@@ -1,5 +1,7 @@
 from .core import Crawler, FastCrawler, Spider
-from .parsers import BaseModel, CSSField, XPATHField, RegexField
+from .engine import AioHttpEngine
+from .parsers import BaseModel, CSSField, RegexField, XPATHField
+from .schedule import RocketryApplication, RocketryController
 from .utils import Depends
 
 __all__ = [
@@ -11,4 +13,7 @@ __all__ = [
     "Spider",
     "Crawler",
     "FastCrawler",
+    "RocketryApplication",
+    "RocketryController",
+    "AioHttpEngine",
 ]

@@ -21,7 +21,7 @@ class BaseSelector:
         processor: ProcessorInterface | None = None,
         extract: str | None = None,
         many: bool = False,
-        model: Callable[..., BaseModelType] | None = None,
+        model: BaseModelType | list[BaseModelType | Any] | None = None,
         default: Any = _UNSET,
     ):
         self.query = query
@@ -51,7 +51,7 @@ class BaseSelector:
     def _process_results(
         self,
         results: list[ElementInterface],
-    ) -> BaseModelType | list[BaseModelType | Any] | None:
+    ) -> BaseModelType | list[BaseModelType | Any] | list[ElementInterface] | None:
         """Process the results resolved based on the logic
         which is combination of many, and extract.
         """
@@ -60,7 +60,8 @@ class BaseSelector:
             results = [(self.get_from_exctract(result)) for result in results]
             if self.model:
                 results = [
-                    self.parser(self.processor.to_string(el)).parse(self.model) for el in results
+                    self.parser(self.processor.to_string(el)).parse(self.model)  # type: ignore
+                    for el in results  # type: ignore
                 ]
             return results
 
@@ -120,10 +121,10 @@ class BaseSelector:
         elif (
             not self.extract
             and not self.many
-            and issubclass(type(result), self.processor.base_element)
+            and issubclass(type(result), self.processor.base_element)  # type: ignore
         ):
             # Return: HTML string of object result
-            return self.processor.to_string(result)
+            return self.processor.to_string(result)  # type: ignore
         else:  # Return: inner HTML element objects to parse nested models
             return result
 

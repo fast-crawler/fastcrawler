@@ -1,3 +1,4 @@
+# pragma: no cover
 # pylint: disable=c-extension-no-member
 from typing import Any, Callable, Protocol
 
