@@ -8,6 +8,15 @@ from fastcrawler.engine.aio import AioHttpEngine, Morsel
 
 
 @pytest.mark.asyncio
+async def test_not_setuped_aiohttp():
+    engine = AioHttpEngine(cookies=None)
+    res = await engine.get(["http://127.0.0.1:8000/get"])
+    assert engine.session is None
+    await engine.teardown()
+    assert res == [None]
+
+
+@pytest.mark.asyncio
 async def test_aiohttp_cookies_and_proxy_attr(cookies):
     proxy = get_proxy_setting()
     # None cookies

@@ -81,25 +81,16 @@ class AioHttpEngine:
     @staticmethod
     def _get_cookie(cookie: Morsel) -> SetCookieParam:
         """convert Morsel object to SetCookieParam object"""
-        trans = {
-            "domain": "domain",
-            "path": "path",
-            "expires": "expires",
-            "httponly": "httpOnly",
-            "secure": "secure",
-            "samesite": "sameSite",
-        }
         cookie_params = {
             "name": cookie.key,
             "value": cookie.value,
+            "domain": cookie.get("domain"),
+            "path": cookie.get("path"),
+            "expires": cookie.get("expires"),
+            "httpOnly": cookie.get("httponly"),
+            "secure": cookie.get("secure"),
+            "sameSite": cookie.get("samesite"),
         }
-        cookie_params.update(
-            {
-                v: cookie.get(k, "")
-                for k, v in trans.items()
-                if v is not None and cookie.get(k) is not None
-            }
-        )
         return SetCookieParam(**cookie_params)
 
     async def __aenter__(self):
