@@ -26,6 +26,13 @@ class ProxySetting(pydantic.BaseModel):
     password: str | None = None
 
 
+class Response(pydantic.BaseModel):
+    text: str | None = None
+    status_code: int | None = None
+    headers: dict | None = None
+    cookie: dict | None = None
+
+
 class EngineProto(Protocol):
     def __init__(
         self,
@@ -62,3 +69,6 @@ class EngineProto(Protocol):
 
     async def delete(self, urls: list[pydantic.AnyUrl], datas: list[dict]) -> str:
         """DELETE HTTP Method for protocol to crawl a list of URL."""
+
+    async def translate_to_response(self, response_obj: type) -> Response:
+        """Translate the response object to a Response object"""
