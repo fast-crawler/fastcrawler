@@ -19,7 +19,7 @@ class AioHttpEngine:
         """Initialize a new engine instance with given cookie, header, useragent, and proxy"""
         self.session = None
         self._cookies = (
-            [(cookie.name, self.get_morsel_cookie(cookie)) for cookie in cookies]
+            [(cookie.name, self._get_morsel_cookie(cookie)) for cookie in cookies]
             if cookies is not None
             else None
         )
@@ -31,6 +31,7 @@ class AioHttpEngine:
         self._connector = TCPConnector(limit_per_host=connection_limit)
 
         self._proxy = {}
+        self.__proxy = proxy
         if proxy:
             proxy_url = f"{proxy.protocol}{proxy.server}:{proxy.port}"
             self._proxy["proxy"] = proxy_url
@@ -39,22 +40,28 @@ class AioHttpEngine:
                 self._proxy["proxy_auth"] = auth
 
     @property
-    def cookies(self) -> SetCookieParam:
-        # TODO: convert current cookies, and then return cookies as SetCookieParam
-        return self._cookies
+    def cookies(self) -> list[SetCookieParam] | None:
+        """Return cookies"""
+        cookies = None
+        if self._cookies is not None:
+            cookies = [self._get_cookie(cookie) for _, cookie in self._cookies]
+
+        return cookies
 
     @property
     def headers(self) -> dict:
+        """Return headers"""
         return self._headers
 
     @property
     def proxy(self) -> ProxySetting:
-        # TODO: convert proxy dict to ProxySetting, and return that.
-        return self._proxy
+        """Return proxy setting"""
+        return self.__proxy
 
-    def get_morsel_cookie(self, cookie: SetCookieParam) -> Morsel:
+    @staticmethod
+    def _get_morsel_cookie(cookie: SetCookieParam) -> Morsel:
         """Converts a SetCookieParam object to an Morsel object."""
-        morsel_obj = Morsel()
+        morsel_obj: Morsel = Morsel()
         morsel_obj.set(cookie.name, cookie.value, cookie.value)
         morsel_obj.update(
             dict(
@@ -67,6 +74,24 @@ class AioHttpEngine:
             )
         )
         return morsel_obj
+
+    @staticmethod
+    def _get_cookie(cookie: Morsel) -> SetCookieParam:
+        """convert Morsel object to SetCookieParam object"""
+        trans = {
+            "domain": "domain",
+            "path": "path",
+            "expires": "expires",
+            "httponly": "httpOnly",
+            "secure": "secure",
+            "samesite": "sameSite",
+        }
+        cookie_params = {
+            "name": cookie.key,
+            "value": cookie.value,
+        }
+        cookie_params.update({v: cookie.get(k) for k, v in trans.items() if v is not None})
+        return SetCookieParam(**cookie_params)
 
     async def __aenter__(self):
         """Async context manager support for engine -> ENTER"""
@@ -81,7 +106,7 @@ class AioHttpEngine:
         """Set-up up the engine for crawling purpose."""
         self.session = ClientSession(
             connector=self._connector,
-            cookies=self.cookies,
+            cookies=self._cookies,
             headers=self.headers,
             trust_env=True,
             **kwargs,
@@ -95,7 +120,7 @@ class AioHttpEngine:
         """Base Method for protocol to retrieve a list of URL."""
 
         async with self.session.request(
-            method, url, data=data, headers=self.headers, **self.proxy, **kwargs
+            method, url, data=data, headers=self.headers, **self._proxy, **kwargs
         ) as response:
             return await response.text()
 
@@ -104,23 +129,17 @@ class AioHttpEngine:
         tasks = [self.base(url, "GET", None, **kwargs) for url in urls]
         return await asyncio.gather(*tasks)
 
-    async def post(
-        self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs
-    ) -> list[str] | str:
+    async def post(self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs) -> list[str] | str:
         """POST HTTP Method for protocol to crawl a list of URL."""
         tasks = [self.base(url, "POST", data=data, **kwargs) for url, data in zip(urls, datas)]
         return await asyncio.gather(*tasks)
 
-    async def put(
-        self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs
-    ) -> list[str] | str:
+    async def put(self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs) -> list[str] | str:
         """PUT HTTP Method for protocol to crawl a list of URL."""
-        tasks = [self.base(url, "PUT", data=data) for url, data in zip(urls, datas)]
+        tasks = [self.base(url, "PUT", data=data, **kwargs) for url, data in zip(urls, datas)]
         return await asyncio.gather(*tasks)
 
-    async def delete(
-        self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs
-    ) -> list[str] | str:
+    async def delete(self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs) -> list[str] | str:
         """DELETE HTTP Method for protocol to crawl a list of URL."""
         tasks = [self.base(url, "DELETE", data=data, **kwargs) for url, data in zip(urls, datas)]
         return await asyncio.gather(*tasks)
