@@ -1,0 +1,26 @@
+name: 💡 Feature Request
+description: Create a feature request for fastcrawler.
+labels: 'enhancement'
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to file a feature request! Please fill out this form as completely as possible.
+  - type: textarea
+    id: usecase
+    attributes:
+      label: Use Case Statement
+      description: A clear and concise description of what you want and what your use case is.
+      placeholder: Well, I wanted to do ...., but it is not implemented
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Solution Brainstorm
+      description: We know you have bright ideas to share ... share away, friend.
+      placeholder: My idea is ....
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: Thanks 🙏

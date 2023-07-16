@@ -1,0 +1,47 @@
+name: 🐞 Bug Report
+description: Tell us about something that's not working the way we (probably) intend.
+body:
+  - type: dropdown
+    id: os
+    attributes:
+      label: OS
+      options:
+        - osx
+        - linux
+        - windows
+    validations:
+      required: false
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Which Library version?
+      placeholder: ex. 0.4.3
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to Reproduce
+      description: How can we see what you're seeing? Specific is terrific.
+      placeholder: |-
+        1. What
+        2. you
+        3. did.
+
+        Extra points for also including the output of `pip freeze --all`.
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Result logs
+      description: Logs? Screenshots? Yes, please.
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |-
+        ## Thanks 🙏
+    validations:
+      required: false
