@@ -6,9 +6,9 @@ body:
     attributes:
       value: Thanks for taking the time to file a feature request! Please fill out this form as completely as possible.
   - type: textarea
-    id: problem
+    id: usecase
     attributes:
-      label: Problem Statement
+      label: Use Case Statement Statement
       description: A clear and concise description of what you want and what your use case is.
       placeholder: |-
     validations:
@@ -20,7 +20,7 @@ body:
       description: We know you have bright ideas to share ... share away, friend.
       placeholder: |-
     validations:
-      required: true
+      required: false
   - type: markdown
     attributes:
       value: |-

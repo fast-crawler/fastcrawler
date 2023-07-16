@@ -15,8 +15,8 @@ body:
     id: version
     attributes:
       label: Version
-      description: Which SDK version?
-      placeholder: ex. 1.5.2
+      description: Which Library version?
+      placeholder: ex. 0.4.3
     validations:
       required: true
   - type: textarea
