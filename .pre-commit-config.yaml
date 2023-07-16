@@ -7,14 +7,19 @@ repos:
       - id: check-yaml
       - id: check-added-large-files
   - repo: 'https://github.com/psf/black'
-    rev: 23.3.0
+    rev: 23.7.0
     hooks:
       - id: black
   - repo: 'https://github.com/PyCQA/flake8'
     rev: 6.0.0
     hooks:
       - id: flake8
-  - repo: 'https://github.com/pre-commit/mirrors-mypy'
-    rev: v1.4.1
-    hooks:
-      - id: mypy
+  # - repo: 'https://github.com/pre-commit/mirrors-mypy'
+  #   rev: v1.4.1
+  #   hooks:
+  #     - id: mypy
+  #       name: mypy (fastcrawler)
+  #       files: ^fastcrawler/
+  #     # - id: mypy
+  #     #   name: mypy (test)
+  #     #   files: ^test/

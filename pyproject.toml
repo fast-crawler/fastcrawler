@@ -3,7 +3,7 @@ build-backend = "setuptools.build_meta"
 requires = ["setuptools", "wheel", "flit_core >=2,<3"]
 
 [tool.black]
-line-length = 120
+line-length = 99
 target-version = ['py311']
 
 [tool.flit.metadata.requires-extra]
