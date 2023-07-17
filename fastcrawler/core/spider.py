@@ -72,9 +72,14 @@ class Spider:
                     self.pending_urls.add(url)
         return result
 
-    async def save(self, all_data: list[BaseModel]):
-        for data in all_data:
-            print(data)
+    async def save(self, all_data: BaseModel):
+        ...
+
+    def process_response(self, response: Response):
+        if response.status_code == 200:
+            result = self.parse(response.text)
+            return result
+        return None
 
     async def start(self):
         await self.async_init()
@@ -84,18 +89,20 @@ class Spider:
         async with self._engine(connection_limit=self.engine_request_limit) as engine:
             while current_depth >= self.depth or len(await self.get_urls()) > 0:
                 current_depth += 1
-                urls = await self.get_urls()
-                responses: list[Response] = await getattr(
-                    engine, self.data_model.Config.http_method
-                )(urls=urls)
-                self.crawled_urls.update(urls)
+                urls = list(await self.get_urls())
+                for idx in range(0, len(urls), self.engine_request_limit):
+                    batch_urls = urls[idx : idx + self.engine_request_limit]
+                    responses: list[Response] = await getattr(
+                        engine, self.data_model.Config.http_method
+                    )(urls=batch_urls)
+                    self.crawled_urls.update(batch_urls)
 
-                # TODO: TRY THIS CODE SNIPET WITH MULTI PROCESSING
-                results = []
-                for response in responses:
-                    if response.status_code == 200:
-                        results.append(self.parse(response.text))
+                    for response in responses:
                         self.pending_urls.remove(response.url)
 
-                # SAVING METHOD IF NEEDED
-                await self.save(results)
+                    results = [self.process_response(response) for response in responses]
+                    # SAVING METHOD IF NEEDED
+                    await self.save(results)
+                self.pending_urls = set()
+
+        return None
