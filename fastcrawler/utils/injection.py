@@ -39,6 +39,38 @@ class _Depends:
         cache = "" if self.use_cache else ", use_cache=False"
         return f"{self.__class__.__name__}({attr}{cache})"
 
+    @staticmethod
+    async def inject(func: "_Depends"):
+        if asyncio.iscoroutinefunction(func.dependency):
+            sig = inspect.signature(func.dependency)
+            bound = sig.bind_partial()
+            bound.apply_defaults()
+            for name, value in bound.arguments.items():
+                if isinstance(value, _Depends):
+                    if value.use_cache:
+                        bound.arguments[name] = await value.async_eval()
+                    else:
+                        new_dependency = Depends(value.dependency, use_cache=False)
+                        bound.arguments[name] = await new_dependency.async_eval()
+                else:
+                    bound.arguments[name] = value
+            return await func.dependency(*bound.args, **bound.kwargs)
+
+        else:
+            sig = inspect.signature(func.dependency)
+            bound = sig.bind_partial()
+            bound.apply_defaults()
+            for name, value in bound.arguments.items():
+                if isinstance(value, _Depends):
+                    if value.use_cache:
+                        bound.arguments[name] = value.sync_eval()
+                    else:
+                        new_dependency = Depends(value.dependency, use_cache=False)
+                        bound.arguments[name] = new_dependency.sync_eval()
+                else:
+                    bound.arguments[name] = value
+            return func.dependency(*bound.args, **bound.kwargs)
+
 
 def dependency_injector(func):
     """Wrapper to evaluate dependencies and save them either as cached or non-cached
