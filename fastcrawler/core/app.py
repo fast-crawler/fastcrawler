@@ -35,4 +35,5 @@ class FastCrawler:
         # print(self.crawlers[0].task.instances)  # each spider
         # print(Crawler.get_all_objects())  # all crawlers args and etc
 
-    # def start(self): ...
+    async def serve(self):
+        ...
