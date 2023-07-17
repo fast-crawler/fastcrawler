@@ -148,5 +148,4 @@ class Task(BaseModel):
     class Config:
         arbitrary_types_allowed = True
         protected_namespaces = ()
-        underscore_attrs_are_private = True
         validate_assignment = True

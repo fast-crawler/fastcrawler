@@ -10,13 +10,15 @@ from fastcrawler.engine.contracts import ProxySetting, Response, SetCookieParam
 
 
 class AioHttpEngine:
+    default_request_limit = 1
+
     def __init__(
         self,
         cookies: list[SetCookieParam] | None = None,
         headers: dict | None = None,
         useragent: str | None = None,
         proxy: ProxySetting | None = None,
-        connection_limit: int = 100,
+        connection_limit: int | None = None,
     ):
         """Initialize a new engine instance with given cookie, header, useragent, and proxy"""
         self.session: None | ClientSession = None
@@ -30,7 +32,9 @@ class AioHttpEngine:
         if useragent:
             self._headers["User-Agent"] = useragent
 
-        self._connector = TCPConnector(limit_per_host=connection_limit)
+        self._connector = TCPConnector(
+            limit_per_host=connection_limit or self.default_request_limit
+        )
 
         self._proxy: dict[Any, Any] = {}
         self.proxy_dct = proxy
@@ -123,7 +127,13 @@ class AioHttpEngine:
         """Base Method for protocol to retrieve a list of URL."""
         if self.session:
             async with self.session.request(
-                method, str(url), data=data, headers=self.headers, **self._proxy, **kwargs
+                method,
+                str(url),
+                data=data,
+                headers=self.headers,
+                verify_ssl=False,
+                **self._proxy,
+                **kwargs,
             ) as response:
                 return await self.translate_to_response(response)
         return None
@@ -161,4 +171,5 @@ class AioHttpEngine:
             status_code=response_obj.status,
             headers=response_obj.headers,
             cookie=response_obj.cookies,
+            url=str(response_obj.url),
         )

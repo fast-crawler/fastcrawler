@@ -31,15 +31,19 @@ class Response(pydantic.BaseModel):
     status_code: int | None = None
     headers: dict | None = None
     cookie: dict | None = None
+    url: str | None = None
 
 
 class EngineProto(Protocol):
+    default_request_limit: int
+
     def __init__(
         self,
         cookies: list[SetCookieParam] | None,
         headers: dict | None,
         useragent: str | None,
         proxy: ProxySetting | None,
+        connection_limit: int = 100,
     ):
         "Initialize a new engine instance with given cookie(s), header(s), useragent, and proxy"
 
