@@ -1,5 +1,5 @@
 from fastcrawler.engine.aio import AioHttpEngine
-from fastcrawler.engine.contracts import EngineProto, Response
+from fastcrawler.engine.contracts import EngineProto, Request, Response
 from fastcrawler.exceptions import ParserInvalidModelType
 from fastcrawler.parsers.contracts import ParserProtocol
 from fastcrawler.parsers.html import HTMLParser
@@ -110,7 +110,6 @@ class Spider:
     async def start(self):
         await self.async_init()
         current_depth = 0
-
         async with self._engine(connection_limit=self.engine_request_limit) as engine:
             while await self.control_condition(current_depth):
                 current_depth += 1
@@ -118,20 +117,27 @@ class Spider:
                 for idx in range(0, len(urls), self.engine_request_limit):
                     end_index = idx + self.engine_request_limit
                     batch_urls = urls[idx:end_index]
+                    requests = [Request(url=url) for url in batch_urls]
                     responses: list[Response] = await getattr(
                         engine, self.data_model.Config.http_method
-                    )(urls=batch_urls)
+                    )(requests=requests)
                     self.add_url_to_crawled(batch_urls)
 
                     for response in responses:
                         self.remove_url_from_pending(response)
 
-                    results = [self.process_response(response) for response in responses]
+                    results = [
+                        self.process_response(response) for response in responses if response
+                    ]
                     # SAVING METHOD IF NEEDED
                     await self.save(results)
                 self.pending_urls = set()
-
+        await self._shutdown()
         return None
+
+    async def _shutdown(self):
+        print("Spider is shuting down ...")
+        self.start_url = self.__class__.start_url
 
     async def start_up(self):
         ...
