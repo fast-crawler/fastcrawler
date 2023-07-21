@@ -61,3 +61,9 @@ class TaskControllerProto(Protocol):  # pragma: no cover
         """
         Disables or enable one task
         """
+
+    async def start_up(self) -> None:
+        """Manage start up actvity"""
+
+    async def shut_down(self) -> None:
+        """Manage shut down activity"""

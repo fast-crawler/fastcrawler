@@ -1,3 +1,4 @@
+from functools import partial
 from typing import Callable
 
 from rocketry import Rocketry  # type: ignore
@@ -8,14 +9,26 @@ from fastcrawler.exceptions import TaskNotFound
 from .schema import Task
 
 
+def make_callable(method):
+    if hasattr(method, "__self__"):
+        if method.__self__ is not None:
+            return partial(method)
+        else:
+            instance = method.__self__.__class__()
+            return partial(method, instance)
+    else:
+        return method
+
+
 class RocketryApplication:
     def __init__(self, *args, **kwargs):
         self.task_lib: Rocketry = Rocketry(*args, **kwargs)
 
-    async def serve(self, *args, **kwargs):  # pragma: no cover
-        """Proto to serve with uvicorn"""
-        await self.start_up()
+    async def serve(self, *args, **kwargs):
         return await self.task_lib.serve(*args, **kwargs)
+
+    def run(self, *args, **kwargs):
+        return self.task_lib.run(*args, **kwargs)
 
     async def get_all_tasks(self) -> set[Task]:
         return self.task_lib.session.tasks
@@ -24,13 +37,11 @@ class RocketryApplication:
         """
         ...
         """
-        self.task_lib.task(**dict(settings))(task_func)
+        task_func = make_callable(task_func)
+        self.task_lib.task(
+            "every 1 second", **settings.model_dump(exclude_unset=True, exclude="start_cond")
+        )(task_func)
         return None
-
-    async def start_up(self) -> None:
-        """
-        Run Startup Event
-        """
 
     async def shut_down(self) -> None:
         self.task_lib.session.shut_down()
@@ -88,3 +99,17 @@ class RocketryController:
                     task.disabled = True
                 return None
         raise TaskNotFound(task_name)
+
+    async def start_up(self) -> None:
+        """
+        Run Startup Event
+        """
+        return None
+
+    async def serve(self, *args, **kwargs):  # pragma: no cover
+        """Proto to serve with uvicorn"""
+        await self.start_up()
+        return await self.app.serve(*args, **kwargs)
+
+    def run(self):
+        return self.app.run()

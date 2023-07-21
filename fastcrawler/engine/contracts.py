@@ -34,6 +34,11 @@ class Response(pydantic.BaseModel):
     url: str | None = None
 
 
+class Request(pydantic.BaseModel):
+    url: str
+    data: dict | str | None = None
+
+
 class EngineProto(Protocol):
     default_request_limit: int
 

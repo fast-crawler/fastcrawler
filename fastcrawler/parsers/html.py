@@ -41,6 +41,7 @@ class HTMLParser:
         """
         self.scraped_data = scraped_data
         self.resolver: URLs | None = None
+        self.next_resolver: URLs | None = None
 
     def parse(self, model: Type[BaseModelType]) -> BaseModelType:
         """

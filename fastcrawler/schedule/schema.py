@@ -1,5 +1,5 @@
 import datetime
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field  # pylint: disable=no-name-in-module
 from rocketry.core import BaseCondition as _BaseCondition  # type: ignore
@@ -122,8 +122,10 @@ class Task(BaseModel):
 
     """
 
-    name: str | None = Field(description="Name of the task. Must be unique")
-    description: str | None = Field(description="Description of the task for documentation")
+    name: str | None = Field(description="Name of the task. Must be unique", default=None)
+    description: str | None = Field(
+        description="Description of the task for documentation", default=None
+    )
     logger_name: str | None = Field(
         description="Logger name to be used in logging the task record", default=None
     )
@@ -135,8 +137,8 @@ class Task(BaseModel):
         description="Latest status of the task", default=None
     )
     timeout: datetime.timedelta | None = None
-    start_cond: BaseCondition | None = None
-    end_cond: BaseCondition | None = None
+    start_cond: Any | None = None
+    end_cond: Any | None = None
 
     _last_run: float | None = None
     _last_success: float | None = None

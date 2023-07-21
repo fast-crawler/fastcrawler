@@ -6,11 +6,13 @@ from aiohttp import BasicAuth, ClientSession, TCPConnector
 from aiohttp.client import ClientResponse
 from aiohttp.cookiejar import Morsel
 
-from fastcrawler.engine.contracts import ProxySetting, Response, SetCookieParam
+from .contracts import ProxySetting, Request, Response, SetCookieParam
 
 
 class AioHttpEngine:
     default_request_limit = 1
+    request_cls = Request
+    response_cls = Response
 
     def __init__(
         self,
@@ -138,35 +140,35 @@ class AioHttpEngine:
                 return await self.translate_to_response(response)
         return None
 
-    async def get(self, urls: list[pydantic.AnyUrl], **kwargs) -> list[Response]:
+    async def get(self, requests: list[Request], **kwargs) -> list[Response]:
         """GET HTTP Method for protocol to retrieve a list of URL."""
-        tasks = [self.base(url, "GET", None, **kwargs) for url in urls]
+        tasks = [self.base(request.url, "GET", None, **kwargs) for request in requests]
         return await asyncio.gather(*tasks)
 
-    async def post(
-        self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs
-    ) -> list[Response]:
+    async def post(self, requests: list[Request], **kwargs) -> list[Response]:
         """POST HTTP Method for protocol to crawl a list of URL."""
-        tasks = [self.base(url, "POST", data=data, **kwargs) for url, data in zip(urls, datas)]
+        tasks = [
+            self.base(request.url, "POST", data=request.data, **kwargs) for request in requests
+        ]
         return await asyncio.gather(*tasks)
 
-    async def put(
-        self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs
-    ) -> list[Response]:
+    async def put(self, requests: list[Request], **kwargs) -> list[Response]:
         """PUT HTTP Method for protocol to crawl a list of URL."""
-        tasks = [self.base(url, "PUT", data=data, **kwargs) for url, data in zip(urls, datas)]
+        tasks = [
+            self.base(request.url, "PUT", data=request.data, **kwargs) for request in requests
+        ]
         return await asyncio.gather(*tasks)
 
-    async def delete(
-        self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs
-    ) -> list[Response]:
+    async def delete(self, requests: list[Request], **kwargs) -> list[Response]:
         """DELETE HTTP Method for protocol to crawl a list of URL."""
-        tasks = [self.base(url, "DELETE", data=data, **kwargs) for url, data in zip(urls, datas)]
+        tasks = [
+            self.base(request.url, "DELETE", data=request.data, **kwargs) for request in requests
+        ]
         return await asyncio.gather(*tasks)
 
     async def translate_to_response(self, response_obj: ClientResponse) -> Response:
         """Translate aiohttp response object to Response object"""
-        return Response(
+        return self.response_cls(
             text=await response_obj.text(),
             status_code=response_obj.status,
             headers=response_obj.headers,
