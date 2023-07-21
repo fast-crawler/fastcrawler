@@ -25,7 +25,8 @@ class RocketryApplication:
         self.task_lib: Rocketry = Rocketry(*args, **kwargs)
 
     async def serve(self, *args, **kwargs):
-        return await self.task_lib.serve(*args, **kwargs)
+        await self.task_lib.serve(*args, **kwargs)
+        return None
 
     def run(self, *args, **kwargs):
         return self.task_lib.run(*args, **kwargs)
@@ -38,9 +39,7 @@ class RocketryApplication:
         ...
         """
         task_func = make_callable(task_func)
-        self.task_lib.task(
-            "every 1 second", **settings.model_dump(exclude_unset=True, exclude="start_cond")
-        )(task_func)
+        self.task_lib.task(**settings.model_dump(exclude_unset=True))(task_func)
         return None
 
     async def shut_down(self) -> None:
@@ -109,7 +108,8 @@ class RocketryController:
     async def serve(self, *args, **kwargs):  # pragma: no cover
         """Proto to serve with uvicorn"""
         await self.start_up()
-        return await self.app.serve(*args, **kwargs)
+        await self.app.serve(*args, **kwargs)
+        return None
 
     def run(self):
         return self.app.run()
