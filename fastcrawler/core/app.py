@@ -1,8 +1,10 @@
-from typing import List
+import asyncio
 
 from fastcrawler.exceptions import NoCrawlerFoundError
+from fastcrawler.schedule.adopter import RocketryApplication, RocketryController
+from fastcrawler.schedule.contracts import TaskControllerProto
 
-from .registery import Crawler
+from .crawler import Crawler
 
 
 class FastCrawler:
@@ -19,9 +21,13 @@ class FastCrawler:
 
     """
 
-    crawlers: List[Crawler]
+    controller: TaskControllerProto | None = None
 
-    def __init__(self, crawlers: List[Crawler] | Crawler):
+    def __init__(
+        self,
+        crawlers: list[Crawler] | Crawler,
+        controller: TaskControllerProto | None = None,
+    ):
         """Initilize FastCrawler with defined crawlers"""
         if isinstance(crawlers, Crawler):
             self.crawlers = [
@@ -30,10 +36,35 @@ class FastCrawler:
         else:
             self.crawlers = crawlers
 
+        self.controller = controller or RocketryController(app=RocketryApplication())
         if not self.crawlers or len(self.crawlers) == 0:
             raise NoCrawlerFoundError
-        # print(self.crawlers[0].task.instances)  # each spider
-        # print(Crawler.get_all_objects())  # all crawlers args and etc
 
-    async def serve(self):
+    @property
+    def get_all_serves(self):
+        return [
+            self.controller.app.serve(),
+        ]
+
+    async def serve(self) -> list[callable]:
+        await asyncio.gather(*self.get_all_serves)
+
+    async def run(self):
+        for crawler in self.crawlers:
+            await crawler.add_spiders()
+        await self.serve()
+
+    def run_sync(self):
+        asyncio.run(self.run())
+
+    async def startup(self):
         ...
+
+    async def shutdown(self):
+        ...
+
+    async def _shutdown(self):
+        await self.shutdown()
+        for crawler in self.crawlers:
+            await crawler.shut_down()
+        await self.controller.shut_down()
