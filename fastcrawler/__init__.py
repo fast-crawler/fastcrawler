@@ -3,6 +3,7 @@ from .engine import AioHttpEngine
 from .parsers import BaseModel, CSSField, RegexField, XPATHField
 from .schedule import RocketryApplication, RocketryController
 from .utils import Depends
+from .logger import Logger
 
 __all__ = [
     "XPATHField",
@@ -16,4 +17,5 @@ __all__ = [
     "RocketryApplication",
     "RocketryController",
     "AioHttpEngine",
+    "Logger",
 ]

@@ -1,4 +1,6 @@
 # pylint: skip-file
+
+from fastcrawler import Logger
 from test.shared.engine import (
     get_aiohttp_engine,
     get_cookies,
@@ -65,3 +67,8 @@ def task_app():
 @pytest.fixture(scope="function")
 def task_manager(task_app):
     yield RocketryController(task_app)
+
+
+@pytest.fixture(scope="function")
+def logger():
+    return Logger()
