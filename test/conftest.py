@@ -12,7 +12,7 @@ from test.shared.mock_json import get_json_data
 import pytest
 import pytest_asyncio
 
-from fastcrawler.schedule.adopter import RocketryApplication, RocketryController
+from fastcrawler.schedule.adopter import ProcessController, RocketryApplication
 
 
 @pytest.fixture
@@ -64,4 +64,4 @@ def task_app():
 
 @pytest.fixture(scope="function")
 def task_manager(task_app):
-    yield RocketryController(task_app)
+    yield ProcessController(task_app)

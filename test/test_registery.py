@@ -2,7 +2,7 @@
 
 import pytest
 
-from fastcrawler import Crawler, FastCrawler, Spider
+from fastcrawler import FastCrawler, Process, Spider
 from fastcrawler.exceptions import NoCrawlerFoundError
 
 
@@ -19,8 +19,8 @@ def test_crawler_with_task():
     obj1 = cls_A()
     obj2 = cls_B()
     obj3 = cls_C()
-    obj = Crawler(obj1 >> obj2 >> obj3)
-    assert [obj1, obj2, obj3] == obj.task.instances
+    obj = Process(obj1 >> obj2 >> obj3)
+    assert [obj1, obj2, obj3] == obj.spider.instances
 
     client_one = FastCrawler(crawlers=obj)
     client_two = FastCrawler(

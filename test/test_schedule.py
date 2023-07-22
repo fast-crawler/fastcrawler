@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from fastcrawler.schedule.adopter import RocketryApplication, RocketryController, TaskNotFound
+from fastcrawler.schedule.adopter import ProcessController, RocketryApplication, TaskNotFound
 from fastcrawler.schedule.schema import Task
 
 
@@ -70,7 +70,7 @@ async def test_serve_rocketry_application(task_app: RocketryApplication):
 
 
 @pytest.mark.asyncio
-async def test_add_task_to_manager(task_manager: RocketryController):
+async def test_add_task_to_manager(task_manager: ProcessController):
     new_task_1 = get_task(1)
     task_names = {new_task_1.name}
     await task_manager.add_task(task_function, new_task_1)
@@ -80,7 +80,7 @@ async def test_add_task_to_manager(task_manager: RocketryController):
 
 
 @pytest.mark.asyncio
-async def test_all_tasks_from_manager(task_manager: RocketryController):
+async def test_all_tasks_from_manager(task_manager: ProcessController):
     new_task_1 = get_task(1)
     new_task_2 = get_task(2)
     task_names = {task.name for task in (new_task_1, new_task_2)}
@@ -92,7 +92,7 @@ async def test_all_tasks_from_manager(task_manager: RocketryController):
 
 
 @pytest.mark.asyncio
-async def test_change_task_schedule_from_manager(task_manager: RocketryController):
+async def test_change_task_schedule_from_manager(task_manager: ProcessController):
     new_task_1 = get_task(1)
     await task_manager.add_task(task_function, new_task_1)
     # if any problem is encountered during change_task_schedule it should raise an exception
@@ -101,7 +101,7 @@ async def test_change_task_schedule_from_manager(task_manager: RocketryControlle
 
 
 @pytest.mark.asyncio
-async def test_change_task_schedule_string_from_manager(task_manager: RocketryController):
+async def test_change_task_schedule_string_from_manager(task_manager: ProcessController):
     new_task_1 = get_task(1)
     await task_manager.add_task(task_function, new_task_1)
     # if any problem is encountered during change_task_schedule it should raise an exception
@@ -110,7 +110,7 @@ async def test_change_task_schedule_string_from_manager(task_manager: RocketryCo
 
 
 @pytest.mark.asyncio
-async def test_fail_test_change_task_schedule_from_manager(task_manager: RocketryController):
+async def test_fail_test_change_task_schedule_from_manager(task_manager: ProcessController):
     new_task_1 = get_task(1)
     with pytest.raises(TaskNotFound):
         await task_manager.add_task(task_function, new_task_1)
@@ -118,7 +118,7 @@ async def test_fail_test_change_task_schedule_from_manager(task_manager: Rocketr
 
 
 @pytest.mark.asyncio
-async def test_toggle_task_not_disabled_from_manager(task_manager: RocketryController):
+async def test_toggle_task_not_disabled_from_manager(task_manager: ProcessController):
     new_task_1 = get_task(1)
     await task_manager.add_task(task_function, new_task_1)
     # if any problem is encountered during toggle_task it should raise an exception
@@ -127,7 +127,7 @@ async def test_toggle_task_not_disabled_from_manager(task_manager: RocketryContr
 
 
 @pytest.mark.asyncio
-async def test_toggle_task_disabled_from_manager(task_manager: RocketryController):
+async def test_toggle_task_disabled_from_manager(task_manager: ProcessController):
     new_task_1 = get_task(1)
     new_task_1.disabled = True
     await task_manager.add_task(task_function, new_task_1)
@@ -137,7 +137,7 @@ async def test_toggle_task_disabled_from_manager(task_manager: RocketryControlle
 
 
 @pytest.mark.asyncio
-async def test_toggle_task_not_found_from_manager(task_manager: RocketryController):
+async def test_toggle_task_not_found_from_manager(task_manager: ProcessController):
     new_task_1 = get_task(1)
     await task_manager.add_task(task_function, new_task_1)
     # if any problem is encountered during toggle_task it should raise an exception
