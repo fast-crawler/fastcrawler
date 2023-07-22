@@ -6,6 +6,7 @@ from rocketry.conditions.api import cron  # type: ignore
 
 from fastcrawler.exceptions import TaskNotFound
 
+from .contracts import ApplicationProto
 from .schema import Task
 
 
@@ -46,9 +47,16 @@ class RocketryApplication:
         self.task_lib.session.shut_down()
         return None
 
+    async def inject_string_condition_to_task(self, cond: str, task: Task) -> Task:
+        if cond.count(" ") == 4:
+            task.start_cond = cron(cond)
+        else:
+            task.start_cond = cond
+        return task
 
-class RocketryController:
-    def __init__(self, app: RocketryApplication):
+
+class ProcessController:
+    def __init__(self, app: ApplicationProto):
         self.app = app
 
     async def all(self) -> set[Task]:
@@ -79,23 +87,23 @@ class RocketryController:
         """
         for task in await self.app.get_all_tasks():
             if task.name == task_name:
-                if schedule.count(" ") == 4:
-                    task.start_cond = cron(schedule)
-                else:
-                    task.start_cond = schedule  # type: ignore
+                self.app.inject_string_condition_to_task(cond=schedule, task=task)
                 return None
         raise TaskNotFound(task_name)
 
-    async def toggle_task(self, task_name: str) -> None:
+    async def toggle_task(self, task_name: str, new_status=None) -> None:
         """
         Disables or enable one task
         """
         for task in await self.app.get_all_tasks():
             if task.name == task_name:
-                if task.disabled:
-                    task.disabled = False
+                if new_status is None:
+                    if task.disabled:
+                        task.disabled = False
+                    else:
+                        task.disabled = True
                 else:
-                    task.disabled = True
+                    task.disabled = new_status
                 return None
         raise TaskNotFound(task_name)
 
@@ -105,6 +113,11 @@ class RocketryController:
         """
         return None
 
+    async def shut_down(self) -> None:
+        """Shut down controller for crawler processor"""
+        await self.app.shut_down()
+        return None
+
     async def serve(self, *args, **kwargs):  # pragma: no cover
         """Proto to serve with uvicorn"""
         await self.start_up()
@@ -112,4 +125,5 @@ class RocketryController:
         return None
 
     def run(self):
+        """Run the crawler processor without uvicorn"""
         return self.app.run()

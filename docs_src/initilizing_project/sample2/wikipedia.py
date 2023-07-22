@@ -1,7 +1,7 @@
 # pylint: disable-all
 
 
-from fastcrawler import BaseModel, Crawler, CSSField, Spider, XPATHField
+from fastcrawler import BaseModel, CSSField, Process, Spider, XPATHField
 from fastcrawler.engine import AioHttpEngine
 
 
@@ -36,4 +36,4 @@ class WikiArticleRetirever(WikiBaseSpider):
         ...  # save parsed data to database
 
 
-wiki_spider = Crawler(WikiArticleFinder >> WikiArticleRetirever)
+wiki_spider = Process(WikiArticleFinder >> WikiArticleRetirever)
