@@ -1,4 +1,5 @@
 import asyncio
+from typing import Callable
 
 from fastcrawler.exceptions import NoCrawlerFoundError
 from fastcrawler.schedule.adopter import ProcessController, RocketryApplication
@@ -42,33 +43,39 @@ class FastCrawler:
             raise NoCrawlerFoundError
 
     @property
-    def get_all_serves(self):
+    def get_all_serves(self) -> list[Callable]:
         """get all application to be served"""
         return [
             self.controller.app.serve(),
         ]
 
-    async def serve(self) -> list[callable]:
+    async def serve(self) -> None:
         """Serve protocol for uvicorn"""
         await asyncio.gather(*self.get_all_serves)
+        return None
 
-    async def start(self, silent=True):
+    async def start(self, silent=True) -> None:
         """Start all crawlers in background explictly without schedule"""
         await asyncio.gather(*[crawler.start(silent) for crawler in self.crawlers])
+        return None
 
-    async def run(self):
+    async def run(self) -> None:
         """Run all crawlers in background explictly with schedule"""
         for crawler in self.crawlers:
             await crawler.add_spiders()
         await self.serve()
+        return None
 
-    async def startup(self):
+    async def startup(self) -> None:
         """Start up event for application crawler"""
+        return None
 
-    async def shutdown(self):
+    async def shutdown(self) -> None:
         """Shut down event for application crawler"""
+        return None
 
-    async def _shutdown(self):
+    async def _shutdown(self) -> None:
         """Safe shut down event for application crawler"""
         await self.shutdown()
         await self.controller.shut_down()
+        return None

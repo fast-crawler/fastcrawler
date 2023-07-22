@@ -49,27 +49,27 @@ class Spider:
         return self._is_stopped
 
     @is_stopped.setter
-    def is_stopped(self, value):
+    def is_stopped(self, value) -> bool:
         """Method to overwrite stop spider condition"""
         self._is_stopped = value
 
     @property
-    def crawled_urls(self) -> set:
+    def crawled_urls(self) -> set[str]:
         """Method to access crawled urls"""
         return self._crawled_urls
 
     @crawled_urls.setter
-    def crawled_urls(self, value):
+    def crawled_urls(self, value) -> set[str]:
         """Method to overwrite crawled urls"""
         self._crawled_urls = value
 
     @property
-    def pending_urls(self) -> set:
+    def pending_urls(self) -> set[str]:
         """Method to access pending urls"""
         return self._pending_urls
 
     @pending_urls.setter
-    def pending_urls(self, value):
+    def pending_urls(self, value) -> set[str]:
         """Method to overwrite pending urls"""
         self._pending_urls = value
 
@@ -85,7 +85,7 @@ class Spider:
         setattr(other, "instances", self.instances)
         return other
 
-    async def async_init(self):
+    async def async_init(self) -> None:
         """Async Method to initialize the spider"""
         if BaseModel not in self.data_model.__mro__:
             raise ParserInvalidModelType(model=self.data_model)
@@ -103,8 +103,9 @@ class Spider:
                     key,
                     await inject_func(getattr(self, key)),
                 )
+        return None
 
-    async def get_urls(self):
+    async def get_urls(self) -> set[str]:
         """Get the urls that are pending to be crawled"""
         result = getattr(self, "pending_urls", None)
         if not result:
@@ -112,20 +113,20 @@ class Spider:
             self.start_url = set()
         return self.pending_urls
 
-    def update_crawl_urls(self, urls):
+    def update_crawl_urls(self, urls) -> None:
         """Add the urls to crawled urls"""
         self.crawled_urls.update(urls)
         return None
 
-    def remove_url_from_crawl_memory(self):
+    def remove_url_from_crawl_memory(self) -> None:
         self.crawled_urls.clear()
 
-    def remove_url_from_pending(self, response: Response):
+    def remove_url_from_pending(self, response: Response) -> None:
         """Remove the url from pending urls"""
         self.pending_urls.remove(response.url)
         return None
 
-    def add_url_to_pending(self, urls):
+    def add_url_to_pending(self, urls: set[str]) -> None:
         """Add the urls to pending urls"""
         for url in urls:
             if url not in self.crawled_urls:
@@ -146,7 +147,7 @@ class Spider:
                     self.instances[-1].start_url.add(url)
         return None
 
-    def parse(self, data):
+    def parse(self, data: str) -> BaseModel:
         """Parse the data from the response w.t.r data model"""
         parsing: HTMLParser = self.parser(data)
         result = parsing.parse(self.data_model)
@@ -155,11 +156,13 @@ class Spider:
         return result
 
     async def save(self, all_data: BaseModel) -> None:
-        """Save the data to somewhere
-        Must be implemented in order to save the data"""
+        """
+        Save the data to somewhere
+        Must be implemented in order to save the data
+        """
         return None
 
-    def parse_response(self, response: Response):
+    def parse_response(self, response: Response) -> BaseModel | None:
         """Parse the response from the request"""
         try:
             result = self.parse(response.text)
@@ -196,13 +199,15 @@ class Spider:
             and (current_depth >= self.depth or len(await self.get_urls()) > 0)
         )
 
-    async def run_next_spider(self):
+    async def run_next_spider(self) -> None:
+        """Method to call next spider, if it exists"""
         if hasattr(self, "instances"):
             next_index = self.instances.index(self) + 1
             if len(self.instances) > next_index - 1:
                 await self.instances[next_index].start()
+        return None
 
-    async def start(self, silent: bool = True):
+    async def start(self, silent: bool = True) -> None:
         """Start the crawling process, this method is called by the scheduler.
         Batch by batch, it send requests, process responses and save the results
         """
@@ -238,16 +243,19 @@ class Spider:
                 raise error from error
         return None
 
-    async def _shutdown(self):
+    async def _shutdown(self) -> None:
         """Safe Shut down the spider"""
         self.start_url = self.__class__.start_url
         self.remove_url_from_crawl_memory()
         await self.shut_down()
         print("Spider is shuting down ...")
+        return None
 
-    async def start_up(self):
+    async def start_up(self) -> None:
         """Start up event for the spider"""
         print("Spider is starting up ...")
+        return None
 
-    async def shut_down(self):
+    async def shut_down(self) -> None:
         """Shut down event for spider"""
+        return None

@@ -38,7 +38,7 @@ class Process:
         self.spider: Spider = spider
         self.controller = controller
 
-    async def start(self, silent: bool = True):
+    async def start(self, silent: bool = True) -> None:
         """
         Start the crawling process explictly.
         This method will disable scheduler temporarily to avoid duplicate running
@@ -48,14 +48,16 @@ class Process:
         await self.spider.start(silent=silent)
         if self.controller:
             await self.controller.toggle_task(self.task.name, new_status=True)
+        return None
 
-    async def stop(self):
+    async def stop(self) -> None:
         """Stop the crawling process"""
         self.spider.is_stopped = True
         if self.controller:
             self.controller.toggle_task(self.task.name, new_status=False)
+        return None
 
-    async def add_spiders(self):
+    async def add_spiders(self) -> None:
         """
         Run the crawling process
         """
@@ -64,3 +66,4 @@ class Process:
         else:
             # TODO: raise custom error
             raise Exception("No condition found")
+        return None

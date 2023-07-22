@@ -10,7 +10,7 @@ from .contracts import ApplicationProto
 from .schema import Task
 
 
-def make_callable(method):
+def make_callable(method: Callable | type):
     if hasattr(method, "__self__"):
         if method.__self__ is not None:
             return partial(method)
@@ -23,31 +23,35 @@ def make_callable(method):
 
 class RocketryApplication:
     def __init__(self, *args, **kwargs):
+        """Initilize A Rocketry Application to process crawlers"""
         self.task_lib: Rocketry = Rocketry(*args, **kwargs)
 
-    async def serve(self, *args, **kwargs):
+    def run(self, *args, **kwargs) -> None:
+        self.task_lib.run(*args, **kwargs)
+        return None
+
+    async def serve(self, *args, **kwargs) -> None:
+        """Proto to serve with Uvicorn"""
         await self.task_lib.serve(*args, **kwargs)
         return None
 
-    def run(self, *args, **kwargs):
-        return self.task_lib.run(*args, **kwargs)
-
     async def get_all_tasks(self) -> set[Task]:
+        """Returns all tasks that exists in application"""
         return self.task_lib.session.tasks
 
     async def add_task(self, task_func: Callable, settings: Task) -> None:
-        """
-        ...
-        """
+        """Dynamically add a task to application"""
         task_func = make_callable(task_func)
         self.task_lib.task(**settings.model_dump(exclude_unset=True))(task_func)
         return None
 
     async def shut_down(self) -> None:
+        """Execute shut down"""
         self.task_lib.session.shut_down()
         return None
 
     async def inject_string_condition_to_task(self, cond: str, task: Task) -> Task:
+        """Inject condition to a task. Like a cron or a string condition"""
         if cond.count(" ") == 4:
             task.start_cond = cron(cond)
         else:
@@ -57,6 +61,11 @@ class RocketryApplication:
 
 class ProcessController:
     def __init__(self, app: ApplicationProto):
+        """Initialize task application
+
+        Args:
+            app (TaskProcessor): _description_
+        """
         self.app = app
 
     async def all(self) -> set[Task]:

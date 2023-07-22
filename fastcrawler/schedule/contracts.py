@@ -11,6 +11,9 @@ class ApplicationProto(Protocol):  # pragma: no cover
     def __init__(self, *args, **kwargs):
         """Initialize task application"""
 
+    def run(self) -> None:
+        """Run the task application"""
+
     async def serve(self, *args, **kwargs):
         """Proto to serve with Uvicorn"""
 
@@ -20,14 +23,8 @@ class ApplicationProto(Protocol):  # pragma: no cover
     async def add_task(self, *args, **kwargs) -> None:
         """Dynamically add a task to application"""
 
-    async def start_up(self) -> None:
-        """Execute start up"""
-
     async def shut_down(self) -> None:
         """Execute shut down"""
-
-    async def run(self) -> None:
-        """Run the task application"""
 
     async def inject_string_condition_to_task(self, cond: str, task: Task) -> Task:
         """Inject condition to a task. Like a cron or a string condition"""
@@ -77,3 +74,6 @@ class ControllerProto(Protocol):  # pragma: no cover
 
     async def serve(self) -> None:
         """Run the task application from controller level"""
+
+    def run(self):
+        """Run the crawler processor without uvicorn"""
