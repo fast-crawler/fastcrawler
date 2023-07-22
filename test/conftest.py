@@ -1,4 +1,5 @@
 # pylint: skip-file
+import logging
 
 from fastcrawler import Logger
 from test.shared.engine import (
@@ -71,4 +72,4 @@ def task_manager(task_app):
 
 @pytest.fixture(scope="function")
 def logger():
-    return Logger()
+    return Logger(level=logging.DEBUG, formatter="%(asctime)s")
