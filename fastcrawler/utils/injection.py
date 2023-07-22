@@ -10,17 +10,23 @@ class _Depends:
     def __init__(
         self,
         dependency: Callable[..., Any],
-        *,
         use_cache: bool = False,
+        *args,
+        **kwargs,
     ):
         self.dependency = dependency
         self.use_cache = use_cache
         self.result = ...
+        self.args = args
+        self.kwargs = kwargs
 
     async def async_eval(self):
         """Run async callable dependnecy and store it as cache entry"""
         if self.result is ...:
-            self.result = await self.dependency()
+            if asyncio.iscoroutinefunction(self.dependency):
+                self.result = await self.dependency()
+            else:
+                self.result = self.dependency()
         return self.result
 
     def sync_eval(self):
@@ -43,14 +49,14 @@ class _Depends:
     async def inject(func: "_Depends"):
         if asyncio.iscoroutinefunction(func.dependency):
             sig = inspect.signature(func.dependency)
-            bound = sig.bind_partial()
+            bound = sig.bind_partial(*func.args, **func.kwargs)
             bound.apply_defaults()
             for name, value in bound.arguments.items():
                 if isinstance(value, _Depends):
                     if value.use_cache:
                         bound.arguments[name] = await value.async_eval()
                     else:
-                        new_dependency = Depends(value.dependency, use_cache=False)
+                        new_dependency: _Depends = Depends(value.dependency, use_cache=False)
                         bound.arguments[name] = await new_dependency.async_eval()
                 else:
                     bound.arguments[name] = value
@@ -58,14 +64,14 @@ class _Depends:
 
         else:
             sig = inspect.signature(func.dependency)
-            bound = sig.bind_partial()
+            bound = sig.bind_partial(*func.args, **func.kwargs)
             bound.apply_defaults()
             for name, value in bound.arguments.items():
                 if isinstance(value, _Depends):
                     if value.use_cache:
                         bound.arguments[name] = value.sync_eval()
                     else:
-                        new_dependency = Depends(value.dependency, use_cache=False)
+                        new_dependency: _Depends = Depends(value.dependency, use_cache=False)
                         bound.arguments[name] = new_dependency.sync_eval()
                 else:
                     bound.arguments[name] = value
@@ -90,7 +96,7 @@ def dependency_injector(func):
                     if value.use_cache:
                         bound.arguments[name] = await value.async_eval()
                     else:
-                        new_dependency = Depends(value.dependency, use_cache=False)
+                        new_dependency: _Depends = Depends(value.dependency, use_cache=False)
                         bound.arguments[name] = await new_dependency.async_eval()
                 else:
                     bound.arguments[name] = value
@@ -112,7 +118,7 @@ def dependency_injector(func):
                     if value.use_cache:
                         bound.arguments[name] = value.sync_eval()
                     else:
-                        new_dependency = Depends(value.dependency, use_cache=False)
+                        new_dependency: _Depends = Depends(value.dependency, use_cache=False)
                         bound.arguments[name] = new_dependency.sync_eval()
                 else:
                     bound.arguments[name] = value
