@@ -27,16 +27,21 @@ class ProxySetting(pydantic.BaseModel):
 
 
 class Response(pydantic.BaseModel):
+    id: str | None = None
     text: str | None = None
     status_code: int | None = None
     headers: dict | None = None
-    cookie: dict | None = None
+    cookies: SetCookieParam | None = None
     url: str | None = None
 
 
 class Request(pydantic.BaseModel):
     url: str
+    proxy: ProxySetting | None = None
     data: dict | str | None = None
+    method: str | None = None
+    headers: dict | None = None
+    cookies: SetCookieParam | None = None
 
 
 class EngineProto(Protocol):

@@ -124,7 +124,13 @@ class AioHttpEngine:
             await self.session.close()
 
     async def base(
-        self, url: pydantic.AnyUrl, method: str, data: dict | None, **kwargs
+        self,
+        url: pydantic.AnyUrl,
+        method: str,
+        data: dict | None,
+        headers: dict | None = None,
+        cookies: dict | None = None,
+        verify_ssl=False,
     ) -> Response | None:
         """Base Method for protocol to retrieve a list of URL."""
         if self.session:
@@ -132,46 +138,56 @@ class AioHttpEngine:
                 method,
                 str(url),
                 data=data,
-                headers=self.headers,
-                verify_ssl=False,
+                headers=headers or self.headers,
+                cookies=self._get_morsel_cookie(cookies) if cookies else self.cookies,
+                verify_ssl=verify_ssl,
                 **self._proxy,
-                **kwargs,
             ) as response:
-                return await self.translate_to_response(response)
+                return await self.translate_to_response(response, url)
         return None
 
-    async def get(self, requests: list[Request], **kwargs) -> list[Response]:
+    async def batch(self, requests: list[Request], method: str) -> dict[str, Response]:
+        """Batch Method for protocol to retrieve a list of URL."""
+        for request in requests:
+            request.method = method
+        tasks = {request.url: None for request in requests}
+        results = await asyncio.gather(
+            *[
+                self.base(
+                    request.url,
+                    request.method,
+                    data=request.data,
+                    headers=request.headers,
+                    cookies=request.cookies,
+                )
+                for request in requests
+            ]
+        )
+        return {url: result for url, result in zip(tasks.keys(), results)}
+
+    async def get(self, requests: list[Request]) -> dict[str, Response]:
         """GET HTTP Method for protocol to retrieve a list of URL."""
-        tasks = [self.base(request.url, "GET", None, **kwargs) for request in requests]
-        return await asyncio.gather(*tasks)
+        return await self.batch(requests, "GET")
 
-    async def post(self, requests: list[Request], **kwargs) -> list[Response]:
+    async def post(self, requests: list[Request]) -> dict[str, Response]:
         """POST HTTP Method for protocol to crawl a list of URL."""
-        tasks = [
-            self.base(request.url, "POST", data=request.data, **kwargs) for request in requests
-        ]
-        return await asyncio.gather(*tasks)
+        return await self.batch(requests, "POST")
 
-    async def put(self, requests: list[Request], **kwargs) -> list[Response]:
+    async def put(self, requests: list[Request]) -> dict[str, Response]:
         """PUT HTTP Method for protocol to crawl a list of URL."""
-        tasks = [
-            self.base(request.url, "PUT", data=request.data, **kwargs) for request in requests
-        ]
-        return await asyncio.gather(*tasks)
+        return await self.batch(requests, "PUT")
 
-    async def delete(self, requests: list[Request], **kwargs) -> list[Response]:
+    async def delete(self, requests: list[Request]) -> dict[str, Response]:
         """DELETE HTTP Method for protocol to crawl a list of URL."""
-        tasks = [
-            self.base(request.url, "DELETE", data=request.data, **kwargs) for request in requests
-        ]
-        return await asyncio.gather(*tasks)
+        return await self.batch(requests, "DELETE")
 
-    async def translate_to_response(self, response_obj: ClientResponse) -> Response:
+    async def translate_to_response(self, response_obj: ClientResponse, url: str) -> Response:
         """Translate aiohttp response object to Response object"""
         return self.response_cls(
             text=await response_obj.text(),
             status_code=response_obj.status,
             headers=response_obj.headers,
-            cookie=response_obj.cookies,
+            cookies=response_obj.cookies,
             url=str(response_obj.url),
+            id=str(url),
         )
