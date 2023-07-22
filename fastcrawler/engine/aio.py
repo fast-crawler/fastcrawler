@@ -99,14 +99,15 @@ class AioHttpEngine:
         }
         return SetCookieParam(**cookie_params)
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "AioHttpEngine":
         """Async context manager support for engine -> ENTER"""
         await self.setup()
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
         """Async context manager support for engine -> EXIT"""
         await self.teardown()
+        return None
 
     async def setup(self, **kwargs) -> None:
         """Set-up up the engine for crawling purpose."""
@@ -117,11 +118,13 @@ class AioHttpEngine:
             trust_env=True,
             **kwargs,
         )
+        return None
 
     async def teardown(self) -> None:
         """Cleans up the engine."""
         if self.session:
             await self.session.close()
+        return None
 
     async def base(
         self,
