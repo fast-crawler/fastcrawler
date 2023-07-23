@@ -1,13 +1,13 @@
 # pylint: disable-all
 
 
-from fastcrawler import BaseModel, CSSField, Process, Spider, XPATHField
+from fastcrawler import BaseModel, Crawler, CSSField, Spider, XPATHField
 from fastcrawler.engine import AioHttpEngine
 
 
 class PageResolver(BaseModel):
     class Config:
-        url_resolver = XPATHField("//a[contains(@href, 'en.wikipedia')]/@href")
+        url_resolver = XPATHField("//a[contains(@href, 'en.Imdbpedia')]/@href")
 
 
 class ArticleData(BaseModel):
@@ -15,25 +15,22 @@ class ArticleData(BaseModel):
     body: str = CSSField("div.mw-body-content > div.mw-parser-output")  # gets inner HTML
 
 
-class WikiBaseSpider(Spider):
+class ImdbBaseSpider(Spider):
     engine = AioHttpEngine
     concurrency = 100
 
 
-class WikiArticleFinder(WikiBaseSpider):
+class ImdbArticleFinder(ImdbBaseSpider):
     data_model = PageResolver
     req_count = 1_000_000
     start_url = [
-        "https://meta.wikimedia.org/wiki/List_of_Wikipedias",
+        "https://meta.Imdbmedia.org/Imdb/List_of_Imdbpedias",
     ]
 
 
-class WikiArticleRetirever(WikiBaseSpider):
+class ImdbArticleRetirever(ImdbBaseSpider):
     data_model = ArticleData
     req_count = 1_000_000
 
     async def save_data(self, data: ArticleData):
         ...  # save parsed data to database
-
-
-wiki_spider = Process(WikiArticleFinder >> WikiArticleRetirever)

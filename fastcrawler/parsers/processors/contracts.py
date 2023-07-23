@@ -26,7 +26,7 @@ class ElementProtocol(Protocol):
         """
 
 
-class ProcessorProcotol(Protocol):
+class ProcessorProtocol(Protocol):
     base_element: ElementProtocol
 
     @staticmethod

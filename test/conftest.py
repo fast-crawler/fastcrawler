@@ -4,7 +4,7 @@ from test.shared.engine import (
     get_cookies,
     get_headers,
     get_proxy_setting,
-    get_random_useragent,
+    get_random_user_agent,
 )
 from test.shared.mock_html import get_corrupted_html, get_html
 from test.shared.mock_json import get_json_data
@@ -12,7 +12,7 @@ from test.shared.mock_json import get_json_data
 import pytest
 import pytest_asyncio
 
-from fastcrawler.schedule.adopter import RocketryApplication, RocketryController
+from fastcrawler.schedule.adopter import ProcessController, RocketryApplication
 
 
 @pytest.fixture
@@ -37,7 +37,7 @@ def proxy_setting():
 
 @pytest.fixture
 def user_agent():
-    return get_random_useragent()
+    return get_random_user_agent()
 
 
 @pytest.fixture
@@ -64,4 +64,4 @@ def task_app():
 
 @pytest.fixture(scope="function")
 def task_manager(task_app):
-    yield RocketryController(task_app)
+    yield ProcessController(task_app)
