@@ -55,5 +55,6 @@ repos:
             "-o",
             "requirements-dev.txt",
             "--without-hashes",
-            "--dev"
+            "--with",
+            "dev"
           ]
