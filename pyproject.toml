@@ -2,14 +2,119 @@
 build-backend = "setuptools.build_meta"
 requires = ["setuptools", "wheel", "flit_core >=2,<3"]
 
+[tool.poetry]
+authors = ["Your Name <you@example.com>"]
+description = "fastest Web crawling framework based on asyncio."
+homepage = "https://github.com/fast-crawler/fastcrawler"
+license = "MIT"
+name = "fastcrawler"
+readme = "README.md"
+version = "0.0.1"
+
+documentation = "https://github.com/fast-crawler/fastcrawler"
+keywords = [
+  "crawler",
+  "scraping",
+  "crawling",
+  "scrape",
+  "pydantic",
+]
+repository = "https://github.com/fast-crawler/fastcrawler"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+aiohttp = "^3.8.4"
+cssselect = "^1.2.0"
+lxml = "^4.9.3"
+pydantic = "^2.0.2"
+redbird = {git = "https://github.com/ManiMozaffar/red-bird.git", branch = "v2_but_v1"}
+rocketry = {git = "https://github.com/ManiMozaffar/rocketry.git", branch = "master"}
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+sphinx = "^4.1"
+sphinx-autobuild = "^2021.3.14"
+
+[tool.poetry.group.test]
+optional = true
+
+[tool.poetry.group.test.dependencies]
+fastapi = "^0.100.0"
+pydantic-settings = "^2.0.2"
+pytest = "^7.3.1"
+pytest-cov = "^3.0"
+pytest_asyncio = "^0.21.1"
+uvicorn = {extras = ["standard"], version = "^0.23.0"}
+
+[tool.poetry.group.types]
+optional = true
+
+[tool.poetry.group.types.dependencies]
+lxml-stubs = "*"
+types-colorama = "*"
+types-termcolor = "*"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.7.0"
+fastapi = "^0.100.0"
+flake8 = "^6.0.0"
+flake8-bugbear = "^23.7.10"
+lxml-stubs = "*"
+mypy = "^1.4.1"
+pre-commit = "^2.20.0"
+pydantic-settings = "^2.0.2"
+pytest = "^7.3.1"
+pytest-cov = "^3.0"
+pytest_asyncio = "^0.21.1"
+types-colorama = "*"
+types-termcolor = "*"
+uvicorn = {extras = ["standard"], version = "^0.23.0"}
+
+[tool.poetry.extras]
+# cli = ["fastcrawler-cli"]
+# playwright = ["fastcrawler-playwright"]
+
+
 [tool.black]
 line-length = 99
-target-version = ['py311']
 
-[tool.flit.metadata.requires-extra]
-all = [
-  "typer >=0.7.0,<1.0.0",
-  "colorama >=0.4.3,<0.5.0",
-  "shellingham >=1.3.0,<2.0.0",
-  "rich >=10.11.0,<14.0.0",
+[tool.flake8]
+max-line-length = 99
+
+[tool.mypy]
+check_untyped_defs = true
+exclude = ["docs_src/*"]
+namespace_packages = true
+pretty = true
+python_version = "3.11"
+show_error_context = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+addopts = "-v --cov=fastcrawler --cov-report term-missing --disable-warnings"
+markers = [
+  "asyncio",
 ]
+minversion = "7.3"
+python_files = ["test_*.py", "*_test.py"]
+testpaths = ["test"]
+
+[tool.coverage.run]
+branch = true
+omit = ["*/contracts.py", "*/modest.py", "*/playwright.py"]
+source = "fastcrawler"
+
+[tool.coverage.report]
+fail_under = 9.0
+show_missing = true
+skip_covered = true
+
+[tool.coverage.paths]
+source = ["fastcrawler", "*/site-packages/fastcrawler"]
+
+[tool.tox]
+envlist = "py311"
+isolated_build = true

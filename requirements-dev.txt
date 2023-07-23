@@ -1,14 +1,62 @@
-pytest
-pytest-asyncio
-cssselect==1.2.0
-pytest-cov
-pydantic_core==2.1.2
-pydantic_settings
-lxml
-aiohttp
-fastapi
-uvicorn
-colorama
-pyyaml
-redbird @ git+https://github.com/ManiMozaffar/red-bird@v2_but_v1
-rocketry @ git+https://github.com/ManiMozaffar/rocketry@master
+aiohttp==3.8.5 ; python_version >= "3.11" and python_version < "4.0"
+aiosignal==1.3.1 ; python_version >= "3.11" and python_version < "4.0"
+annotated-types==0.5.0 ; python_version >= "3.11" and python_version < "4.0"
+anyio==3.7.1 ; python_version >= "3.11" and python_version < "4.0"
+async-timeout==4.0.2 ; python_version >= "3.11" and python_version < "4.0"
+attrs==23.1.0 ; python_version >= "3.11" and python_version < "4.0"
+black==23.7.0 ; python_version >= "3.11" and python_version < "4.0"
+cfgv==3.3.1 ; python_version >= "3.11" and python_version < "4.0"
+charset-normalizer==3.2.0 ; python_version >= "3.11" and python_version < "4.0"
+click==8.1.6 ; python_version >= "3.11" and python_version < "4.0"
+colorama==0.4.6 ; python_version >= "3.11" and python_version < "4.0" and (sys_platform == "win32" or platform_system == "Windows")
+coverage[toml]==7.2.7 ; python_version >= "3.11" and python_version < "4.0"
+cssselect==1.2.0 ; python_version >= "3.11" and python_version < "4.0"
+distlib==0.3.7 ; python_version >= "3.11" and python_version < "4.0"
+fastapi==0.100.0 ; python_version >= "3.11" and python_version < "4.0"
+filelock==3.12.2 ; python_version >= "3.11" and python_version < "4.0"
+flake8-bugbear==23.7.10 ; python_version >= "3.11" and python_version < "4.0"
+flake8==6.0.0 ; python_version >= "3.11" and python_version < "4.0"
+frozenlist==1.4.0 ; python_version >= "3.11" and python_version < "4.0"
+h11==0.14.0 ; python_version >= "3.11" and python_version < "4.0"
+httptools==0.6.0 ; python_version >= "3.11" and python_version < "4.0"
+identify==2.5.26 ; python_version >= "3.11" and python_version < "4.0"
+idna==3.4 ; python_version >= "3.11" and python_version < "4.0"
+iniconfig==2.0.0 ; python_version >= "3.11" and python_version < "4.0"
+lxml-stubs==0.4.0 ; python_version >= "3.11" and python_version < "4.0"
+lxml==4.9.3 ; python_version >= "3.11" and python_version < "4.0"
+mccabe==0.7.0 ; python_version >= "3.11" and python_version < "4.0"
+multidict==6.0.4 ; python_version >= "3.11" and python_version < "4.0"
+mypy-extensions==1.0.0 ; python_version >= "3.11" and python_version < "4.0"
+mypy==1.4.1 ; python_version >= "3.11" and python_version < "4.0"
+nodeenv==1.8.0 ; python_version >= "3.11" and python_version < "4.0"
+packaging==23.1 ; python_version >= "3.11" and python_version < "4.0"
+pathspec==0.11.1 ; python_version >= "3.11" and python_version < "4.0"
+platformdirs==3.9.1 ; python_version >= "3.11" and python_version < "4.0"
+pluggy==1.2.0 ; python_version >= "3.11" and python_version < "4.0"
+pre-commit==2.21.0 ; python_version >= "3.11" and python_version < "4.0"
+pycodestyle==2.10.0 ; python_version >= "3.11" and python_version < "4.0"
+pydantic-core==2.3.0 ; python_version >= "3.11" and python_version < "4.0"
+pydantic-settings==2.0.2 ; python_version >= "3.11" and python_version < "4.0"
+pydantic==2.0.3 ; python_version >= "3.11" and python_version < "4.0"
+pyflakes==3.0.1 ; python_version >= "3.11" and python_version < "4.0"
+pytest-asyncio==0.21.1 ; python_version >= "3.11" and python_version < "4.0"
+pytest-cov==3.0.0 ; python_version >= "3.11" and python_version < "4.0"
+pytest==7.4.0 ; python_version >= "3.11" and python_version < "4.0"
+python-dateutil==2.8.2 ; python_version >= "3.11" and python_version < "4.0"
+python-dotenv==1.0.0 ; python_version >= "3.11" and python_version < "4.0"
+pyyaml==6.0.1 ; python_version >= "3.11" and python_version < "4.0"
+redbird @ git+https://github.com/ManiMozaffar/red-bird.git@v2_but_v1 ; python_version >= "3.11" and python_version < "4.0"
+rocketry @ git+https://github.com/ManiMozaffar/rocketry.git@master ; python_version >= "3.11" and python_version < "4.0"
+setuptools==68.0.0 ; python_version >= "3.11" and python_version < "4.0"
+six==1.16.0 ; python_version >= "3.11" and python_version < "4.0"
+sniffio==1.3.0 ; python_version >= "3.11" and python_version < "4.0"
+starlette==0.27.0 ; python_version >= "3.11" and python_version < "4.0"
+types-colorama==0.4.15.12 ; python_version >= "3.11" and python_version < "4.0"
+types-termcolor==1.1.6.2 ; python_version >= "3.11" and python_version < "4.0"
+typing-extensions==4.7.1 ; python_version >= "3.11" and python_version < "4.0"
+uvicorn[standard]==0.23.1 ; python_version >= "3.11" and python_version < "4.0"
+uvloop==0.17.0 ; (sys_platform != "win32" and sys_platform != "cygwin") and platform_python_implementation != "PyPy" and python_version >= "3.11" and python_version < "4.0"
+virtualenv==20.24.1 ; python_version >= "3.11" and python_version < "4.0"
+watchfiles==0.19.0 ; python_version >= "3.11" and python_version < "4.0"
+websockets==11.0.3 ; python_version >= "3.11" and python_version < "4.0"
+yarl==1.9.2 ; python_version >= "3.11" and python_version < "4.0"
