@@ -1,29 +1,22 @@
 # pragma: no cover
+
 import logging
-from typing import Mapping, Type, TypeVar
+from abc import ABC, abstractmethod
+from typing import Mapping, Type
 
-from redbird.logging import RepoHandler
-from redbird.repos import MemoryRepo
-from redbird.templates import TemplateRepo
-
-ERROR = 40
-WARNING = 30
-INFO = 20
-DEBUG = 10
-NOTSET = 0
-CRITICAL = 50
-
-Repo = TypeVar("Repo", bound=TemplateRepo)
-BaseRepoHandler = TypeVar("BaseRepoHandler", bound=RepoHandler)
+from _contracts import NOTSET, BaseRepoHandler, Repo, RepoHandler, TemplateRepo
 
 
-class Logger:
+class LoggerProto(ABC):
     """
     Colored logger class that uses redbird logging and the Python logging module.
 
     Attributes:
         _logger (logging.Logger): The underlying logger instance from the logging module.
-        formatter (str): The log message format. Default format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
+        formatter (str): The log message format.
+        Default format:
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
+
         repo (Repo): The redbird repository to store log records.
         repo_handler (RepoHandler): The redbird repository handler to manage log records.
 
@@ -54,11 +47,12 @@ class Logger:
     repo: Repo = None
     repo_handler: RepoHandler = None
 
+    @abstractmethod
     def __init__(
         self,
         name: str = "FastCrawler",
         level: int = NOTSET,
-        redbird_repo: Type[Repo] = MemoryRepo,
+        redbird_repo: Type[Repo] = TemplateRepo,
         repo_handler: Type[BaseRepoHandler] = RepoHandler,
         formatter: str | None = None,
     ):
@@ -68,13 +62,20 @@ class Logger:
         Args:
             name (str, optional): The logger name. Defaults to "FastCrawler".
             level (int, optional): The logging module log level. Defaults to NOTSET.
-            redbird_repo (Type[Repo], optional): The redbird repository to store log records. Defaults to MemoryRepo.
-            repo_handler (Type[BaseRepoHandler], optional): The redbird repository handler to manage log records.
+
+            redbird_repo (Type[Repo], optional):
+                The redbird repository to store log records. Defaults to MemoryRepo.
+
+            repo_handler (Type[BaseRepoHandler], optional):
+                The redbird repository handler to manage log records.
                 Defaults to RepoHandler.
-            formatter (str | None, optional): The log message format. If None, the default format will be used.
+
+            formatter (str | None, optional): The log message format.
+            If None, the default format will be used.
                 Defaults to None.
         """
 
+    @abstractmethod
     def log(
         self,
         msg: str,
@@ -94,6 +95,7 @@ class Logger:
             The `stacklevel` is set to 3 to trace the logging line number correctly.
         """
 
+    @abstractmethod
     def info(self, msg: str, *args) -> None:
         """
         Log an info-level message.
@@ -103,6 +105,7 @@ class Logger:
             *args: Additional arguments to be passed to the log message.
         """
 
+    @abstractmethod
     def debug(self, msg: str, *args) -> None:
         """
         Log a debug-level message.
@@ -112,6 +115,7 @@ class Logger:
             *args: Additional arguments to be passed to the log message.
         """
 
+    @abstractmethod
     def error(self, msg: str, *args) -> None:
         """
         Log an error-level message.
@@ -121,6 +125,7 @@ class Logger:
             *args: Additional arguments to be passed to the log message.
         """
 
+    @abstractmethod
     def warning(self, msg: str, *args) -> None:
         """
         Log a warning-level message.
@@ -130,6 +135,7 @@ class Logger:
             *args: Additional arguments to be passed to the log message.
         """
 
+    @abstractmethod
     def add_handler(self, handler: logging.Handler, formatter: str | None = None) -> None:
         """
         Add a custom handler to the logger.
