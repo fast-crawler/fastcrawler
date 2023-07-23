@@ -19,7 +19,7 @@ class Process:
         *args,
         **kwargs,
     ):
-        """Initilize the crawler class
+        """Initialize the crawler class
 
         Args:
             spider (Spider): _description_
@@ -40,7 +40,7 @@ class Process:
 
     async def start(self, silent: bool = True) -> None:
         """
-        Start the crawling process explictly.
+        Start the crawling process explicitly.
         This method will disable scheduler temporarily to avoid duplicate running
         """
         if self.controller:

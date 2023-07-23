@@ -23,7 +23,7 @@ def make_callable(method: Callable | type):
 
 class RocketryApplication:
     def __init__(self, *args, **kwargs):
-        """Initilize A Rocketry Application to process crawlers"""
+        """Initialize A Rocketry Application to process crawlers"""
         self.task_lib: Rocketry = Rocketry(*args, **kwargs)
 
     def run(self, *args, **kwargs) -> None:

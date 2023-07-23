@@ -49,8 +49,8 @@ async def headers(request: Request):
     return request.headers
 
 
-@app.get("/throtlled/{seconds}/")
-async def throtlled(request: Request, seconds: int):
+@app.get("/throttled/{seconds}/")
+async def throttled(request: Request, seconds: int):
     await asyncio.sleep(seconds)
     return {
         "response": "OK",

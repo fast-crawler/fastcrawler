@@ -5,7 +5,7 @@ import pytest
 from fastcrawler.utils import Depends, _Depends, dependency_injector
 
 
-def test_sync_depedencacy_injection():
+def test_sync_dependency_injection():
     global outer_sync_value
     outer_sync_value = 0
 
@@ -31,7 +31,7 @@ def test_sync_depedencacy_injection():
 
 
 @pytest.mark.asyncio
-async def test_async_depedencacy_injection():
+async def test_async_dependency_injection():
     global out_async_value
     out_async_value = 0
 

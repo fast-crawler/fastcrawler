@@ -49,7 +49,7 @@ class ProcessorNotSupported(BaseModelError):
         self.model = model
         self.message = (
             f"The provided processor {model} is not supported.\n"
-            "To support the process, please explictly map the processor"
+            "To support the process, please explicitly map the processor"
             "inside the XPATH/CSS/Base selector, as a method called 'interface_mapper'"
             "\nWe support full duck typing which means you can inject whatever"
             "you need."

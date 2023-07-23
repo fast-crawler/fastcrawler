@@ -18,11 +18,11 @@ class AioHttpEngine:
         self,
         cookies: list[SetCookieParam] | None = None,
         headers: dict | None = None,
-        useragent: str | None = None,
+        user_agent: str | None = None,
         proxy: ProxySetting | None = None,
         connection_limit: int | None = None,
     ):
-        """Initialize a new engine instance with given cookie, header, useragent, and proxy"""
+        """Initialize a new engine instance with given cookie, header, user_agent, and proxy"""
         self.session: None | ClientSession = None
         self._cookies = (
             [(cookie.name, self._get_morsel_cookie(cookie)) for cookie in cookies]
@@ -31,8 +31,8 @@ class AioHttpEngine:
         )
 
         self._headers = headers or {}
-        if useragent:
-            self._headers["User-Agent"] = useragent
+        if user_agent:
+            self._headers["User-Agent"] = user_agent
 
         self._connector = TCPConnector(
             limit_per_host=connection_limit or self.default_request_limit

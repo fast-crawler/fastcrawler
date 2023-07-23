@@ -5,7 +5,7 @@ from typing import Any, Callable
 
 
 class _Depends:
-    """Dependancy injection to run callable as a dependency"""
+    """Dependency injection to run callable as a dependency"""
 
     def __init__(
         self,
@@ -21,7 +21,7 @@ class _Depends:
         self.kwargs = kwargs
 
     async def async_eval(self):
-        """Run async callable dependnecy and store it as cache entry"""
+        """Run async callable dependency and store it as cache entry"""
         if self.result is ...:
             if asyncio.iscoroutinefunction(self.dependency):
                 self.result = await self.dependency()

@@ -10,7 +10,7 @@ from .process import Process
 
 class FastCrawler:
     """The client interface to start all crawlers.
-    Initilize all crawlers
+    Initialize all crawlers
 
 
     Usage:
@@ -29,7 +29,7 @@ class FastCrawler:
         crawlers: list[Process] | Process,
         controller: ControllerProto | None = None,
     ):
-        """Initilize FastCrawler with defined crawlers"""
+        """Initialize FastCrawler with defined crawlers"""
         ...
         if isinstance(crawlers, Process):
             self.crawlers = [
@@ -55,12 +55,12 @@ class FastCrawler:
         return None
 
     async def start(self, silent=True) -> None:
-        """Start all crawlers in background explictly without schedule"""
+        """Start all crawlers in background explicitly without schedule"""
         await asyncio.gather(*[crawler.start(silent) for crawler in self.crawlers])
         return None
 
     async def run(self) -> None:
-        """Run all crawlers in background explictly with schedule"""
+        """Run all crawlers in background explicitly with schedule"""
         for crawler in self.crawlers:
             await crawler.add_spiders()
         await self.serve()

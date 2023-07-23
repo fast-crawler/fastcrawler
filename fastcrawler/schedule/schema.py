@@ -6,7 +6,7 @@ from rocketry.core import BaseCondition as _BaseCondition  # type: ignore
 
 
 class BaseCondition(_BaseCondition):  # pylint: disable=abstract-method
-    """A condition is a thing/occurence that should happen in
+    """A condition is a thing/occurrence that should happen in
     order to something happen.
 
     Conditions are used to determine whether a task can be started,

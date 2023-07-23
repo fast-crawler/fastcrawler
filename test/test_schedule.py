@@ -13,12 +13,12 @@ async def task_function(sleep_sec=5):
 
 sample_tasks = [
     Task(
-        name="tast_1",
+        name="task_1",
         description="Task 1 Description",
         logger_name="test_task_1",
     ),
     Task(
-        name="tast_2",
+        name="task_2",
         description="Task 2 Description",
         logger_name="test_task_2",
     ),
@@ -142,4 +142,4 @@ async def test_toggle_task_not_found_from_manager(task_manager: ProcessControlle
     await task_manager.add_task(task_function, new_task_1)
     # if any problem is encountered during toggle_task it should raise an exception
     with pytest.raises(TaskNotFound):
-        await task_manager.toggle_task("wromg_task_name")
+        await task_manager.toggle_task("wrong_task_name")

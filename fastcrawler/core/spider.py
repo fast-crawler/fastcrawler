@@ -174,7 +174,7 @@ class Spider:
     async def requests(self, session: EngineProto, requests: list[Request]) -> dict[str, Response]:
         """Send a batch of requests
         Args:
-            engine (EngineProto): Engine initaited for sending requests
+            engine (EngineProto): Engine initiated for sending requests
             requests (list[Request]): list of requests to be sent
 
         Returns:
