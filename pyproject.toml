@@ -42,6 +42,7 @@ sphinx-autobuild = "^2021.3.14"
 optional = true
 
 [tool.poetry.group.test.dependencies]
+faker = "*"
 fastapi = "^0.100.0"
 pydantic-settings = "^2.0.2"
 pytest = "^7.3.1"
@@ -59,6 +60,7 @@ types-termcolor = "*"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.7.0"
+faker = "*"
 fastapi = "^0.100.0"
 flake8 = "^6.0.0"
 flake8-bugbear = "^23.7.10"

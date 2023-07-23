@@ -2,7 +2,11 @@ import asyncio
 
 import pytest
 
-from fastcrawler.schedule.adopter import ProcessController, RocketryApplication, TaskNotFound
+from fastcrawler.schedule.adopter import (
+    ProcessController,
+    RocketryApplication,
+    TaskNotFound,
+)
 from fastcrawler.schedule.schema import Task
 
 
