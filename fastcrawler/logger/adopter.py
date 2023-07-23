@@ -1,4 +1,3 @@
-# pragma: no cover
 import logging
 from typing import Mapping, Type, TypeVar
 
@@ -26,7 +25,11 @@ class Logger:
 
     Attributes:
         _logger (logging.Logger): The underlying logger instance from the logging module.
-        formatter (str): The log message format. Default format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
+        formatter (str): The log message format.
+
+        Default format:
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
+
         repo (Repo): The redbird repository to store log records.
         repo_handler (RepoHandler): The redbird repository handler to manage log records.
 
@@ -73,11 +76,15 @@ class Logger:
         Args:
             name (str, optional): The logger name. Defaults to "FastCrawler".
             level (int, optional): The logging module log level. Defaults to NOTSET.
-            redbird_repo (Type[Repo], optional): The redbird repository to store log records. Defaults to MemoryRepo.
-            repo_handler (Type[BaseRepoHandler], optional): The redbird repository handler to manage log records.
-                Defaults to RepoHandler.
-            formatter (str | None, optional): The log message format. If None, the default format will be used.
-                Defaults to None.
+
+            redbird_repo (Type[Repo], optional): The redbird repository to store log records.
+                Defaults to MemoryRepo.
+
+            repo_handler (Type[BaseRepoHandler], optional): The redbird repository handler to
+                manage log records. Defaults to RepoHandler.
+
+            formatter (str | None, optional): The log message format. If None,
+                the default format will be used. Defaults to None.
         """
         if formatter:
             self.formatter = formatter
