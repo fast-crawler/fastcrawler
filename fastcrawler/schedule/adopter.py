@@ -37,7 +37,7 @@ class RocketryApplication:
 
     async def get_all_tasks(self) -> set[Task]:
         """Returns all tasks that exists in application"""
-        return self.task_lib.session.tasks
+        return set(Task(**task.json()) for task in self.task_lib.session.tasks)
 
     async def add_task(self, task_func: Callable, settings: Task) -> None:
         """Dynamically add a task to application"""
