@@ -62,6 +62,7 @@ class FastCrawler:
     async def run(self) -> None:
         """Run all crawlers in background explicitly with schedule"""
         for crawler in self.crawlers:
+            crawler.controller = self.controller
             await crawler.add_spiders()
         await self.serve()
         return None
