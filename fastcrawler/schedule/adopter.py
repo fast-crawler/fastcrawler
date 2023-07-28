@@ -35,9 +35,9 @@ class RocketryApplication:
         await self.task_lib.serve(*args, **kwargs)
         return None
 
-    async def get_all_tasks(self) -> set[Task]:
+    async def get_all_tasks(self) -> list[Task]:
         """Returns all tasks that exists in application"""
-        return set(Task(**task.json()) for task in self.task_lib.session.tasks)
+        return list(Task(**task.dict()) for task in self.task_lib.session.tasks)
 
     async def add_task(self, task_func: Callable, settings: Task) -> None:
         """Dynamically add a task to application"""
@@ -68,7 +68,7 @@ class ProcessController:
         """
         self.app = app
 
-    async def all(self) -> set[Task]:
+    async def all(self) -> list[Task]:
         """
         Return all tasks from internal
         """

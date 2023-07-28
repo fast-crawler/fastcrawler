@@ -17,7 +17,7 @@ class ApplicationProto(Protocol):  # pragma: no cover
     async def serve(self, *args, **kwargs):
         """Proto to serve with Uvicorn"""
 
-    async def get_all_tasks(self) -> set[Task]:
+    async def get_all_tasks(self) -> list[Task]:
         """Returns all tasks that exists in application"""
 
     async def add_task(self, *args, **kwargs) -> None:
@@ -40,7 +40,7 @@ class ControllerProto(Protocol):  # pragma: no cover
             app (TaskProcessor): _description_
         """
 
-    async def all(self) -> set[Task]:
+    async def all(self) -> list[Task]:
         """
         Return all tasks from internal on controller level
         """
