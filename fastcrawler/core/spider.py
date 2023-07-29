@@ -24,6 +24,7 @@ class Spider:
     data_model: BaseModel | None = None
     depth: int = 1_000
     _is_stopped = False
+    batch_size: int | None = None
 
     def __init__(
         self,
@@ -72,6 +73,10 @@ class Spider:
     def pending_urls(self, value) -> set[str]:
         """Method to overwrite pending urls"""
         self._pending_urls = value
+
+    @property
+    def get_batch_size(self) -> int:
+        return self.batch_size or self.engine_request_limit * 2
 
     def __rshift__(self, other: "Spider") -> "Spider":
         """
@@ -164,8 +169,8 @@ class Spider:
 
     async def save_cycle(self, all_data: list[RequestCycle]) -> None:
         """
-        Save the data to somewhere
-        Must be implemented in order to save the data
+        Save the flow of request (request cycle)
+        Must be overwritten if you wish to save more than just the parsed data
         """
         await self.save([data.parsed_data for data in all_data])
         return None
@@ -229,8 +234,8 @@ class Spider:
                 while await self.control_condition(current_depth):
                     current_depth += 1
                     urls = list(await self.get_urls())
-                    for idx in range(0, len(urls), self.engine_request_limit):
-                        end_index = idx + self.engine_request_limit
+                    for idx in range(0, len(urls), self.get_batch_size):
+                        end_index = idx + self.get_batch_size
                         batch_urls = urls[idx:end_index]
                         requests = [Request(url=url) for url in batch_urls]
                         responses = await self.requests(session, requests)
@@ -243,7 +248,7 @@ class Spider:
                             for response in responses.values()
                             if response
                         ]
-                        await self.save(results)
+                        await self.save_cycle(results)
                     self.pending_urls.clear()
             await self._shutdown()
             await self.run_next_spider()
