@@ -36,7 +36,7 @@ async def test_aiohttp_with_statement(user_agent):
     async with AioHttpEngine(user_agent=user_agent, connection_limit=5) as engine:
         responses = await engine.get(urls)
     for response in responses.values():
-        assert isinstance(response.text, str)
+        assert isinstance(response.response.text, str)
     assert len(responses.keys()) == len(urls)
 
 
@@ -49,9 +49,9 @@ async def test_aiohttp_proxy(user_agent):
     async with engine:
         responses = (await engine.get(urls)).values()
     for response in responses:
-        assert isinstance(response.text, str)
+        assert isinstance(response.response.text, str)
     assert response is not None
-    assert proxy.server in response.text
+    assert proxy.server in response.response.text
 
 
 @pytest.mark.asyncio
@@ -64,7 +64,7 @@ async def test_aiohttp_get_request(user_agent, cookies):
     async with AioHttpEngine(user_agent=user_agent, cookies=cookies) as engine:
         responses = await engine.get(Request(url=url) for url in urls)
     for response in responses.values():
-        assert isinstance(response.text, str)
+        assert isinstance(response.response.text, str)
 
 
 @pytest.mark.asyncio
@@ -75,7 +75,7 @@ async def test_aiohttp_get_wo_user_agent_and_cookies_request():
     async with AioHttpEngine() as engine:
         responses = await engine.get(Request(url=url) for url in urls)
     for response in responses.values():
-        assert isinstance(response.text, str)
+        assert isinstance(response.response.text, str)
 
 
 @pytest.mark.asyncio
@@ -86,7 +86,7 @@ async def test_aiohttp_post_request(aiohttp_engine: AioHttpEngine):
         Request(url=url, data=data) for url, data in zip(urls, datas)
     )
     for response in responses.values():
-        assert isinstance(response.text, str)
+        assert isinstance(response.response.text, str)
 
 
 @pytest.mark.asyncio
@@ -97,7 +97,7 @@ async def test_aiohttp_put_request(aiohttp_engine: AioHttpEngine):
         Request(url=url, data=data) for url, data in zip(urls, datas)
     )
     for response in responses.values():
-        assert isinstance(response.text, str)
+        assert isinstance(response.response.text, str)
 
 
 @pytest.mark.asyncio
@@ -108,7 +108,7 @@ async def test_aiohttp_delete_request(aiohttp_engine: AioHttpEngine):
         Request(url=url, data=data) for url, data in zip(urls, datas)
     )
     for response in responses.values():
-        assert isinstance(response.text, str)
+        assert isinstance(response.response.text, str)
 
 
 @pytest.mark.asyncio
