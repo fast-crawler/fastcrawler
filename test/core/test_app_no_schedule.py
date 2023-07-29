@@ -20,6 +20,7 @@ async def get_urls():
 
 class MySpider(Spider):
     engine_request_limit = 10
+    batch_size = 10
     data_model = PersonPage
     start_url = Depends(get_urls)
 

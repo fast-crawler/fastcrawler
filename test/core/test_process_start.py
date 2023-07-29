@@ -21,12 +21,13 @@ async def get_urls():
 
 class MySpider(Spider):
     engine_request_limit = 10
+    batch_size = 20
     data_model = PersonPage
     start_url = Depends(get_urls)
 
     async def save(self, all_data: list[PersonPage]):
         assert all_data is not None
-        assert len(all_data) == 10
+        assert len(all_data) == 20
         global total_crawled
         total_crawled += 1
 
@@ -41,4 +42,4 @@ async def test_process():
     await process.add_spiders()
     assert len(await process.controller.app.get_all_tasks()) == 1
     await process.start(silent=False)
-    assert total_crawled == 2, "Not all has been crawled"
+    assert total_crawled == 1, "Not all has been crawled, batching doesn't work fine"
