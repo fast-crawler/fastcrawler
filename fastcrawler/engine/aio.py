@@ -1,12 +1,11 @@
 import asyncio
 from typing import Any
 
-import pydantic
 from aiohttp import BasicAuth, ClientSession, TCPConnector
 from aiohttp.client import ClientResponse
 from aiohttp.cookiejar import Morsel
 
-from .contracts import ProxySetting, Request, Response, SetCookieParam
+from .contracts import ProxySetting, Request, RequestCycle, Response, SetCookieParam
 
 
 class AioHttpEngine:
@@ -128,69 +127,59 @@ class AioHttpEngine:
 
     async def base(
         self,
-        url: pydantic.AnyUrl,
-        method: str,
-        data: dict | None,
-        headers: dict | None = None,
-        cookies: dict | None = None,
+        request: Request,
         verify_ssl=False,
-    ) -> Response | None:
+    ) -> RequestCycle | None:
         """Base Method for protocol to retrieve a list of URL."""
         if self.session:
             async with self.session.request(
-                method,
-                str(url),
-                data=data,
-                headers=headers or self.headers,
-                cookies=self._get_morsel_cookie(cookies) if cookies else self.cookies,
+                request.method,
+                request.url,
+                data=request.data,
+                headers=request.headers or self.headers,
+                cookies=self._get_morsel_cookie(request.cookies)
+                if request.cookies
+                else self.cookies,
                 verify_ssl=verify_ssl,
                 **self._proxy,
             ) as response:
-                return await self.translate_to_response(response, url)
+                return await self.translate_to_response(response, request)
         return None
 
-    async def batch(self, requests: list[Request], method: str) -> dict[str, Response]:
+    async def batch(self, requests: list[Request], method: str) -> dict[str, RequestCycle]:
         """Batch Method for protocol to retrieve a list of URL."""
         for request in requests:
             request.method = method
         tasks = {request.url: None for request in requests}
-        results = await asyncio.gather(
-            *[
-                self.base(
-                    request.url,
-                    request.method,
-                    data=request.data,
-                    headers=request.headers,
-                    cookies=request.cookies,
-                )
-                for request in requests
-            ]
-        )
+        results = await asyncio.gather(*[self.base(request=request) for request in requests])
         return {url: result for url, result in zip(tasks.keys(), results)}
 
-    async def get(self, requests: list[Request]) -> dict[str, Response]:
+    async def get(self, requests: list[Request]) -> dict[str, RequestCycle]:
         """GET HTTP Method for protocol to retrieve a list of URL."""
         return await self.batch(requests, "GET")
 
-    async def post(self, requests: list[Request]) -> dict[str, Response]:
+    async def post(self, requests: list[Request]) -> dict[str, RequestCycle]:
         """POST HTTP Method for protocol to crawl a list of URL."""
         return await self.batch(requests, "POST")
 
-    async def put(self, requests: list[Request]) -> dict[str, Response]:
+    async def put(self, requests: list[Request]) -> dict[str, RequestCycle]:
         """PUT HTTP Method for protocol to crawl a list of URL."""
         return await self.batch(requests, "PUT")
 
-    async def delete(self, requests: list[Request]) -> dict[str, Response]:
+    async def delete(self, requests: list[Request]) -> dict[str, RequestCycle]:
         """DELETE HTTP Method for protocol to crawl a list of URL."""
         return await self.batch(requests, "DELETE")
 
-    async def translate_to_response(self, response_obj: ClientResponse, url: str) -> Response:
+    async def translate_to_response(
+        self, response_obj: ClientResponse, request: Request
+    ) -> RequestCycle:
         """Translate aiohttp response object to Response object"""
-        return self.response_cls(
+        response = self.response_cls(
             text=await response_obj.text(),
             status_code=response_obj.status,
             headers=response_obj.headers,
             cookies=response_obj.cookies,
             url=str(response_obj.url),
-            id=str(url),
+            id=str(request.url),
         )
+        return RequestCycle(response=response, request=request)

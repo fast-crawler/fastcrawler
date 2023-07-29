@@ -1,7 +1,7 @@
 # pragma: no cover
 # pylint: disable=pointless-string-statement
 
-from typing import Literal, Protocol
+from typing import Any, Literal, Protocol
 
 import pydantic
 
@@ -44,6 +44,12 @@ class Request(pydantic.BaseModel):
     cookies: SetCookieParam | None = None
 
 
+class RequestCycle(pydantic.BaseModel):
+    request: Request
+    response: Response
+    parsed_data: Any | pydantic.BaseModel | None = None
+
+
 class EngineProto(Protocol):
     default_request_limit: int
 
@@ -81,23 +87,27 @@ class EngineProto(Protocol):
     async def teardown(self) -> None:
         """Cleans up the engine."""
 
-    async def base(self, url: pydantic.AnyUrl, method: str, data: dict) -> Response | None:
+    async def base(self, url: pydantic.AnyUrl, method: str, data: dict) -> RequestCycle | None:
         """Base Method for protocol to retrieve a list of URL."""
 
-    async def batch(self, requests: list[Request], method: str) -> dict[str, Response]:
+    async def batch(self, requests: list[Request], method: str) -> dict[str, RequestCycle]:
         """Batch Method for protocol to retrieve a list of URL."""
 
-    async def get(self, urls: list[pydantic.AnyUrl]) -> dict[str, Response]:
+    async def get(self, urls: list[pydantic.AnyUrl]) -> dict[str, RequestCycle]:
         """GET HTTP Method for protocol to retrieve a list of URL."""
 
-    async def post(self, urls: list[pydantic.AnyUrl], datas: list[dict]) -> dict[str, Response]:
+    async def post(
+        self, urls: list[pydantic.AnyUrl], datas: list[dict]
+    ) -> dict[str, RequestCycle]:
         """POST HTTP Method for protocol to crawl a list of URL."""
 
-    async def put(self, urls: list[pydantic.AnyUrl], datas: list[dict]) -> dict[str, Response]:
+    async def put(self, urls: list[pydantic.AnyUrl], datas: list[dict]) -> dict[str, RequestCycle]:
         """POST HTTP Method for protocol to crawl a list of URL."""
 
-    async def delete(self, urls: list[pydantic.AnyUrl], datas: list[dict]) -> dict[str, Response]:
+    async def delete(
+        self, urls: list[pydantic.AnyUrl], datas: list[dict]
+    ) -> dict[str, RequestCycle]:
         """DELETE HTTP Method for protocol to crawl a list of URL."""
 
-    async def translate_to_response(self, response_obj: type) -> Response:
+    async def translate_to_response(self, response_obj: type) -> RequestCycle:
         """Translate the response object to a Response object"""
