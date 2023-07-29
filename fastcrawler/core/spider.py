@@ -1,5 +1,5 @@
 from fastcrawler.engine.aio import AioHttpEngine
-from fastcrawler.engine.contracts import EngineProto, Request, Response
+from fastcrawler.engine.contracts import EngineProto, Request, RequestCycle
 from fastcrawler.exceptions import ParserInvalidModelType, ParserValidationError
 from fastcrawler.parsers.contracts import ParserProtocol
 from fastcrawler.parsers.html import HTMLParser
@@ -121,9 +121,9 @@ class Spider:
     def remove_url_from_crawl_memory(self) -> None:
         self.crawled_urls.clear()
 
-    def remove_url_from_pending(self, response: Response) -> None:
+    def remove_url_from_pending(self, response: RequestCycle) -> None:
         """Remove the url from pending urls"""
-        self.pending_urls.remove(response.url)
+        self.pending_urls.remove(response.response.url)
         return None
 
     def add_url_to_pending(self, urls: set[str]) -> None:
@@ -155,23 +155,33 @@ class Spider:
         self.pass_url_to_next_spider(parsing)
         return result
 
-    async def save(self, all_data: BaseModel) -> None:
+    async def save(self, all_data: list[BaseModel]) -> None:
         """
         Save the data to somewhere
         Must be implemented in order to save the data
         """
         return None
 
-    def parse_response(self, response: Response) -> BaseModel | None:
+    async def save_cycle(self, all_data: list[RequestCycle]) -> None:
+        """
+        Save the data to somewhere
+        Must be implemented in order to save the data
+        """
+        await self.save([data.parsed_data for data in all_data])
+        return None
+
+    def parse_response(self, response: RequestCycle) -> RequestCycle | None:
         """Parse the response from the request"""
         try:
-            result = self.parse(response.text)
-            return result
+            response.parsed_data = self.parse(response.response.text)
+            return response
         except ParserValidationError as error:
             print(error)
             return None
 
-    async def requests(self, session: EngineProto, requests: list[Request]) -> dict[str, Response]:
+    async def requests(
+        self, session: EngineProto, requests: list[Request]
+    ) -> dict[str, RequestCycle]:
         """Send a batch of requests
         Args:
             engine (EngineProto): Engine initiated for sending requests
@@ -180,9 +190,9 @@ class Spider:
         Returns:
             list[Response]: list of responses from the requests
         """
-        result: dict[str, Response] = await getattr(session, self.data_model.Config.http_method)(
-            requests=requests
-        )
+        result: dict[str, RequestCycle] = await getattr(
+            session, self.data_model.Config.http_method
+        )(requests=requests)
         return result
 
     async def control_condition(self, current_depth) -> bool:
