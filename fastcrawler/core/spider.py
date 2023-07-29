@@ -1,3 +1,5 @@
+import asyncio
+
 from fastcrawler.engine.aio import AioHttpEngine
 from fastcrawler.engine.contracts import EngineProto, Request, RequestCycle
 from fastcrawler.exceptions import ParserInvalidModelType, ParserValidationError
@@ -26,6 +28,8 @@ class Spider:
     _is_stopped = False
     batch_size: int | None = None
     request_sleep_interval: float | None = None
+    cycle_sleep_interval: float | None = None
+    max_request_count: int | None = None
 
     def __init__(
         self,
@@ -39,6 +43,7 @@ class Spider:
         self._crawled_urls = set()
         self._pending_urls = set()
         self.engine_request_limit = self.engine_request_limit or self._engine.default_request_limit
+        self.request_sent = 0
 
     @property
     def engine(self) -> EngineProto:
@@ -199,6 +204,8 @@ class Spider:
         result: dict[str, RequestCycle] = await getattr(
             session, self.data_model.Config.http_method
         )(requests=requests)
+        if result:
+            self.request_sent += 1
         return result
 
     async def control_condition(self, current_depth) -> bool:
@@ -214,6 +221,15 @@ class Spider:
             return False
 
         elif isinstance(self.max_depth, int) and current_depth >= self.max_depth:
+            return False
+
+        elif (
+            isinstance(self.max_request_count, int) and self.request_sent >= self.max_request_count
+        ):
+            # BUG: we may send more request sent than max_request_count in middle of batch
+            # because this check is not done after each request, but before each batch
+
+            # TODO: Fix the above bug.
             return False
 
         else:
@@ -259,6 +275,8 @@ class Spider:
                             ]
                             await self.save_cycle(results)
                     self.pending_urls.clear()
+                    if self.cycle_sleep_interval:
+                        await asyncio.sleep(self.cycle_sleep_interval)
             await self._shutdown()
             await self.run_next_spider()
         except Exception as error:
