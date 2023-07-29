@@ -22,7 +22,7 @@ class Spider:
     parser: ParserProtocol
     start_url: set[str] | _Depends
     data_model: BaseModel | None = None
-    depth: int = 1_000
+    max_depth: int | None = None
     _is_stopped = False
     batch_size: int | None = None
 
@@ -209,10 +209,14 @@ class Spider:
         Returns:
             bool: True if the crawler should continue, False otherwise
         """
-        return bool(
-            (not self.is_stopped)
-            and (current_depth >= self.depth or len(await self.get_urls()) > 0)
-        )
+        if self.is_stopped:
+            return False
+
+        elif isinstance(self.max_depth, int) and current_depth >= self.max_depth:
+            return False
+
+        else:
+            return len(await self.get_urls()) > 0
 
     async def run_next_spider(self) -> None:
         """Method to call next spider, if it exists"""
@@ -232,23 +236,24 @@ class Spider:
             current_depth = 0
             async with self.engine(connection_limit=self.engine_request_limit) as session:
                 while await self.control_condition(current_depth):
-                    current_depth += 1
                     urls = list(await self.get_urls())
                     for idx in range(0, len(urls), self.get_batch_size):
-                        end_index = idx + self.get_batch_size
-                        batch_urls = urls[idx:end_index]
-                        requests = [Request(url=url) for url in batch_urls]
-                        responses = await self.requests(session, requests)
-                        self.update_crawl_urls(batch_urls)
-                        for response in responses.values():
-                            self.remove_url_from_pending(response)
+                        if await self.control_condition(current_depth):
+                            current_depth += 1
+                            end_index = idx + self.get_batch_size
+                            batch_urls = urls[idx:end_index]
+                            requests = [Request(url=url) for url in batch_urls]
+                            responses = await self.requests(session, requests)
+                            self.update_crawl_urls(batch_urls)
+                            for response in responses.values():
+                                self.remove_url_from_pending(response)
 
-                        results = [
-                            self.parse_response(response)
-                            for response in responses.values()
-                            if response
-                        ]
-                        await self.save_cycle(results)
+                            results = [
+                                self.parse_response(response)
+                                for response in responses.values()
+                                if response
+                            ]
+                            await self.save_cycle(results)
                     self.pending_urls.clear()
             await self._shutdown()
             await self.run_next_spider()
