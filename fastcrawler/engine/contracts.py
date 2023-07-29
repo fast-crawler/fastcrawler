@@ -42,6 +42,7 @@ class Request(pydantic.BaseModel):
     method: str | None = None
     headers: dict | None = None
     cookies: SetCookieParam | None = None
+    sleep_interval: float | None = None
 
 
 class RequestCycle(pydantic.BaseModel):

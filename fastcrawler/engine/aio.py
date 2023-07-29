@@ -150,9 +150,26 @@ class AioHttpEngine:
         """Batch Method for protocol to retrieve a list of URL."""
         for request in requests:
             request.method = method
-        tasks = {request.url: None for request in requests}
-        results = await asyncio.gather(*[self.base(request=request) for request in requests])
-        return {url: result for url, result in zip(tasks.keys(), results)}
+        tasks = []
+        urls = []
+
+        for request in requests:
+            task = asyncio.create_task(self.base(request=request))
+            tasks.append(task)
+            urls.append(request.url)
+            if request.sleep_interval:
+                await asyncio.sleep(request.sleep_interval)
+
+        results = await asyncio.gather(*tasks)
+        return {url: result for url, result in zip(urls, results)}
+
+    # async def batch(self, requests: list[Request], method: str) -> dict[str, RequestCycle]:
+    #     """Batch Method for protocol to retrieve a list of URL."""
+    #     for request in requests:
+    #         request.method = method
+    #     tasks = {request.url: None for request in requests}
+    #     results = await asyncio.gather(*[self.base(request=request) for request in requests])
+    #     return {url: result for url, result in zip(tasks.keys(), results)}
 
     async def get(self, requests: list[Request]) -> dict[str, RequestCycle]:
         """GET HTTP Method for protocol to retrieve a list of URL."""

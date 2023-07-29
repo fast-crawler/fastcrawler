@@ -25,6 +25,7 @@ class Spider:
     max_depth: int | None = None
     _is_stopped = False
     batch_size: int | None = None
+    request_sleep_interval: float | None = None
 
     def __init__(
         self,
@@ -242,7 +243,10 @@ class Spider:
                             current_depth += 1
                             end_index = idx + self.get_batch_size
                             batch_urls = urls[idx:end_index]
-                            requests = [Request(url=url) for url in batch_urls]
+                            requests = [
+                                Request(url=url, sleep_interval=self.request_sleep_interval)
+                                for url in batch_urls
+                            ]
                             responses = await self.requests(session, requests)
                             self.update_crawl_urls(batch_urls)
                             for response in responses.values():
