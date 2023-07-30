@@ -132,10 +132,18 @@ class AioHttpEngine:
     ) -> RequestCycle | None:
         """Base Method for protocol to retrieve a list of URL."""
         if self.session:
+            if isinstance(request.data, dict):
+                json = request.data
+                data = None
+            else:
+                json = None
+                data = request.data
+
             async with self.session.request(
                 request.method,
                 request.url,
-                data=request.data,
+                json=json,
+                data=data,
                 headers=request.headers or self.headers,
                 cookies=self._get_morsel_cookie(request.cookies)
                 if request.cookies
