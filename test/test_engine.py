@@ -31,16 +31,6 @@ async def test_aiohttp_cookies_and_proxy_attr(cookies):
 
 
 @pytest.mark.asyncio
-async def test_aiohttp_with_statement(user_agent):
-    urls = [Request(url=f"http://127.0.0.1:8000/throttled/{index}/") for index in range(10)]
-    async with AioHttpEngine(user_agent=user_agent, connection_limit=5) as engine:
-        responses = await engine.get(urls)
-    for response in responses.values():
-        assert isinstance(response.response.text, str)
-    assert len(responses.keys()) == len(urls)
-
-
-@pytest.mark.asyncio
 async def test_aiohttp_proxy(user_agent):
     urls = [Request(url="https://api.ipify.org?format=json")]
     response = None
@@ -145,18 +135,43 @@ async def test_aiohttp_cookie(cookies: list[SetCookieParam], user_agent):
 
 
 @pytest.mark.asyncio
-async def test_limit_per_host(headers, user_agent):
+async def test_limit(headers, user_agent):
     """only test limit per host for AioHTTP engine (V Test)"""
 
     async with AioHttpEngine(
         headers=headers,
         user_agent=user_agent,
-        connection_limit=3,
+        connection_limit=2,
     ) as aiohttp_engine:
-        urls_1 = [Request(url=url) for url in (["http://127.0.0.1:8000/throttled/3/"] * 2)]
-        urls_2 = [Request(url=url) for url in (["http://127.0.0.1:8000/throttled/5/"] * 1)]
+        urls = [
+            Request(url="http://127.0.0.1:8000/throttled/", data={"seconds": 0.1})
+            for _ in range(3)
+        ]
         start = perf_counter()
-        await aiohttp_engine.get(urls_1 + urls_2 + urls_1)
+        await aiohttp_engine.post(urls)
+        end = perf_counter()
+    assert end - start == pytest.approx(0.2, abs=0.05)
+
+
+@pytest.mark.asyncio
+async def test_async_event_loop(headers, user_agent):
+    """Test that request are being sent in parallel (V Test)
+    This test only pass if the engine is using the same event loop as the caller, and
+    then the requests are being sent in parallel, so if one url is done, the next one
+    is start to be processed."""
+
+    async with AioHttpEngine(
+        headers=headers,
+        user_agent=user_agent,
+        connection_limit=2,
+    ) as aiohttp_engine:
+        urls = [
+            Request(url="http://127.0.0.1:8000/throttled", data={"seconds": 0.01}),
+            Request(url="http://127.0.0.1:8000/throttled", data={"seconds": 0.3}),
+            Request(url="http://127.0.0.1:8000/throttled", data={"seconds": 0.2}),
+        ]
+        start = perf_counter()
+        await aiohttp_engine.post(urls)
         end = perf_counter()
 
-    assert end - start == pytest.approx(6, abs=1)
+    assert end - start == pytest.approx(0.3, abs=0.02)

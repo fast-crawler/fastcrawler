@@ -4,6 +4,7 @@ from datetime import datetime
 from faker import Faker
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -49,9 +50,13 @@ async def headers(request: Request):
     return request.headers
 
 
-@app.get("/throttled/{seconds}/")
-async def throttled(request: Request, seconds: int):
-    await asyncio.sleep(seconds)
+class ThrottleRequest(BaseModel):
+    seconds: float
+
+
+@app.post("/throttled/")
+async def throttled(data: ThrottleRequest):
+    await asyncio.sleep(data.seconds)
     return {
         "response": "OK",
     }
