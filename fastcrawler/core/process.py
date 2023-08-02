@@ -54,7 +54,7 @@ class Process:
         """Stop the crawling process"""
         self.spider.is_stopped = True
         if self.controller:
-            self.controller.toggle_task(self.task.name, new_status=False)
+            await self.controller.toggle_task(self.task.name, new_status=False)
         return None
 
     async def add_spiders(self) -> None:
