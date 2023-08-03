@@ -1,7 +1,7 @@
-from .core import Crawler, FastCrawler, Spider
+from .core import FastCrawler, Process, Spider
 from .engine import AioHttpEngine
 from .parsers import BaseModel, CSSField, RegexField, XPATHField
-from .schedule import RocketryApplication, RocketryController
+from .schedule import ProcessController, RocketryApplication
 from .utils import Depends
 from .logger import Logger
 
@@ -12,10 +12,10 @@ __all__ = [
     "RegexField",
     "Depends",
     "Spider",
-    "Crawler",
+    "Process",
     "FastCrawler",
     "RocketryApplication",
-    "RocketryController",
+    "ProcessController",
     "AioHttpEngine",
     "Logger",
 ]

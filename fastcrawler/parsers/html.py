@@ -14,7 +14,7 @@ class HTMLParser:
     """
     HTMLParser first initiate the scraped data, then it parses a given HTML document
         based on the specified model. Using Pydantic model with XPATHField or CSSField.
-        Notice that this behavior is to seperate the process of saving in memory (Memory Bound)
+        Notice that this behavior is to separate the process of saving in memory (Memory Bound)
         and process/clean the data (CPU Bound)
 
 
@@ -41,6 +41,7 @@ class HTMLParser:
         """
         self.scraped_data = scraped_data
         self.resolver: URLs | None = None
+        self.next_resolver: URLs | None = None
 
     def parse(self, model: Type[BaseModelType]) -> BaseModelType:
         """

@@ -6,7 +6,7 @@ from fastcrawler.parsers.html import HTMLParser
 from fastcrawler.parsers.schema import BaseModelType
 from fastcrawler.parsers.utils import _UNSET
 
-from ..processors.contracts import ProcessorProcotol
+from ..processors.contracts import ProcessorProtocol
 from .base import BaseSelector
 
 
@@ -30,7 +30,7 @@ class _XPATHField(BaseSelector):
 # pylint: disable=invalid-name
 def XPATHField(
     query: str,
-    processor: None | ProcessorProcotol = None,
+    processor: None | ProcessorProtocol = None,
     parser=HTMLParser,
     extract: str | None = None,
     many: bool = False,

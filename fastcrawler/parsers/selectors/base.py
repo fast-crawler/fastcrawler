@@ -7,7 +7,7 @@ from fastcrawler.parsers.contracts import ParserProtocol
 from fastcrawler.parsers.schema import BaseModelType, MappedAttr, MappedResult
 from fastcrawler.parsers.utils import _UNSET
 
-from ..processors.contracts import ElementProtocol, ProcessorProcotol
+from ..processors.contracts import ElementProtocol, ProcessorProtocol
 from ..processors.lxml import LxmlProcessor
 
 
@@ -18,7 +18,7 @@ class BaseSelector:
         self,
         query: str,
         parser: Callable[..., ParserProtocol] | None = None,
-        processor: ProcessorProcotol | None = None,
+        processor: ProcessorProtocol | None = None,
         extract: str | None = None,
         many: bool = False,
         model: BaseModelType | list[BaseModelType | Any] | None = None,
@@ -41,7 +41,7 @@ class BaseSelector:
 
     def resolve(self, scraped_data, model):
         """Must be implemented by outer classes.
-        Resolves the selector spefinalized by 'XPATH' or 'CSS' or etc
+        Resolves the selector specialized by 'XPATH' or 'CSS' or etc
         """
         raise NotImplementedError(
             "Resolves must be overwritten by subclass"
@@ -57,7 +57,7 @@ class BaseSelector:
         """
 
         if self.many:
-            results = [(self.get_from_exctract(result)) for result in results]
+            results = [(self.get_from_extract(result)) for result in results]
             if self.model:
                 results = [
                     self.parser(self.processor.to_string(el)).parse(self.model)  # type: ignore
@@ -65,7 +65,7 @@ class BaseSelector:
                 ]
             return results
 
-        results = self.get_from_exctract(results[0])
+        results = self.get_from_extract(results[0])
         return results
 
     def interface_mapper(self, cls: object) -> MappedResult:
@@ -75,7 +75,7 @@ class BaseSelector:
             so it was not possible at this time to monkey patch them.
 
         Best solution to force same interface with them is to design
-            a mapper that does it explictly, this may be deprecated later
+            a mapper that does it explicitly, this may be deprecated later
             if the library maintainer help us by allowing us to monkey patch
             as we need
         """
@@ -99,7 +99,7 @@ class BaseSelector:
             else getattr(result, mapped.attr_name)
         )
 
-    def get_from_exctract(self, result: ElementProtocol) -> Any:
+    def get_from_extract(self, result: ElementProtocol) -> Any:
         """
         Resolve the extract from string, to get text from etree.ElementBase
             or to get other attributes or the string of HTML by default

@@ -1,9 +1,9 @@
 from .app import FastCrawler
-from .registery import Crawler
+from .process import Process
 from .spider import Spider
 
 __all__ = [
-    "Crawler",
+    "Process",
     "Spider",
     "FastCrawler",
 ]

@@ -6,7 +6,7 @@ from fastcrawler.parsers.contracts import ParserProtocol
 from fastcrawler.parsers.schema import BaseModelType
 from fastcrawler.parsers.utils import _UNSET
 
-from ..processors.contracts import ProcessorProcotol
+from ..processors.contracts import ProcessorProtocol
 
 
 class SelectorProto(Protocol):
@@ -16,7 +16,7 @@ class SelectorProto(Protocol):
         self,
         query: str,
         parser: Callable[..., ParserProtocol] | None = None,
-        processor: ProcessorProcotol | None = None,
+        processor: ProcessorProtocol | None = None,
         extract: str | None = None,
         many: bool = False,
         model: Callable[..., BaseModelType] | None = None,
@@ -29,5 +29,5 @@ class SelectorProto(Protocol):
 
     def resolve(self, scraped_data, model):
         """Must be implemented by outer classes.
-        Resolves the selector spefinalized by 'XPATH' or 'CSS' or etc
+        Resolves the selector specialized by 'XPATH' or 'CSS' or etc
         """

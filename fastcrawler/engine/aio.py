@@ -6,19 +6,23 @@ from aiohttp import BasicAuth, ClientSession, TCPConnector
 from aiohttp.client import ClientResponse
 from aiohttp.cookiejar import Morsel
 
-from fastcrawler.engine.contracts import ProxySetting, Response, SetCookieParam
+from .contracts import ProxySetting, Request, Response, SetCookieParam
 
 
 class AioHttpEngine:
+    default_request_limit = 1
+    request_cls = Request
+    response_cls = Response
+
     def __init__(
         self,
         cookies: list[SetCookieParam] | None = None,
         headers: dict | None = None,
-        useragent: str | None = None,
+        user_agent: str | None = None,
         proxy: ProxySetting | None = None,
-        connection_limit: int = 100,
+        connection_limit: int | None = None,
     ):
-        """Initialize a new engine instance with given cookie, header, useragent, and proxy"""
+        """Initialize a new engine instance with given cookie, header, user_agent, and proxy"""
         self.session: None | ClientSession = None
         self._cookies = (
             [(cookie.name, self._get_morsel_cookie(cookie)) for cookie in cookies]
@@ -27,10 +31,12 @@ class AioHttpEngine:
         )
 
         self._headers = headers or {}
-        if useragent:
-            self._headers["User-Agent"] = useragent
+        if user_agent:
+            self._headers["User-Agent"] = user_agent
 
-        self._connector = TCPConnector(limit_per_host=connection_limit)
+        self._connector = TCPConnector(
+            limit_per_host=connection_limit or self.default_request_limit
+        )
 
         self._proxy: dict[Any, Any] = {}
         self.proxy_dct = proxy
@@ -93,14 +99,15 @@ class AioHttpEngine:
         }
         return SetCookieParam(**cookie_params)
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "AioHttpEngine":
         """Async context manager support for engine -> ENTER"""
         await self.setup()
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
         """Async context manager support for engine -> EXIT"""
         await self.teardown()
+        return None
 
     async def setup(self, **kwargs) -> None:
         """Set-up up the engine for crawling purpose."""
@@ -111,54 +118,79 @@ class AioHttpEngine:
             trust_env=True,
             **kwargs,
         )
+        return None
 
     async def teardown(self) -> None:
         """Cleans up the engine."""
         if self.session:
             await self.session.close()
+        return None
 
     async def base(
-        self, url: pydantic.AnyUrl, method: str, data: dict | None, **kwargs
+        self,
+        url: pydantic.AnyUrl,
+        method: str,
+        data: dict | None,
+        headers: dict | None = None,
+        cookies: dict | None = None,
+        verify_ssl=False,
     ) -> Response | None:
         """Base Method for protocol to retrieve a list of URL."""
         if self.session:
             async with self.session.request(
-                method, str(url), data=data, headers=self.headers, **self._proxy, **kwargs
+                method,
+                str(url),
+                data=data,
+                headers=headers or self.headers,
+                cookies=self._get_morsel_cookie(cookies) if cookies else self.cookies,
+                verify_ssl=verify_ssl,
+                **self._proxy,
             ) as response:
-                return await self.translate_to_response(response)
+                return await self.translate_to_response(response, url)
         return None
 
-    async def get(self, urls: list[pydantic.AnyUrl], **kwargs) -> list[Response]:
+    async def batch(self, requests: list[Request], method: str) -> dict[str, Response]:
+        """Batch Method for protocol to retrieve a list of URL."""
+        for request in requests:
+            request.method = method
+        tasks = {request.url: None for request in requests}
+        results = await asyncio.gather(
+            *[
+                self.base(
+                    request.url,
+                    request.method,
+                    data=request.data,
+                    headers=request.headers,
+                    cookies=request.cookies,
+                )
+                for request in requests
+            ]
+        )
+        return {url: result for url, result in zip(tasks.keys(), results)}
+
+    async def get(self, requests: list[Request]) -> dict[str, Response]:
         """GET HTTP Method for protocol to retrieve a list of URL."""
-        tasks = [self.base(url, "GET", None, **kwargs) for url in urls]
-        return await asyncio.gather(*tasks)
+        return await self.batch(requests, "GET")
 
-    async def post(
-        self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs
-    ) -> list[Response]:
+    async def post(self, requests: list[Request]) -> dict[str, Response]:
         """POST HTTP Method for protocol to crawl a list of URL."""
-        tasks = [self.base(url, "POST", data=data, **kwargs) for url, data in zip(urls, datas)]
-        return await asyncio.gather(*tasks)
+        return await self.batch(requests, "POST")
 
-    async def put(
-        self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs
-    ) -> list[Response]:
+    async def put(self, requests: list[Request]) -> dict[str, Response]:
         """PUT HTTP Method for protocol to crawl a list of URL."""
-        tasks = [self.base(url, "PUT", data=data, **kwargs) for url, data in zip(urls, datas)]
-        return await asyncio.gather(*tasks)
+        return await self.batch(requests, "PUT")
 
-    async def delete(
-        self, urls: list[pydantic.AnyUrl], datas: list[dict], **kwargs
-    ) -> list[Response]:
+    async def delete(self, requests: list[Request]) -> dict[str, Response]:
         """DELETE HTTP Method for protocol to crawl a list of URL."""
-        tasks = [self.base(url, "DELETE", data=data, **kwargs) for url, data in zip(urls, datas)]
-        return await asyncio.gather(*tasks)
+        return await self.batch(requests, "DELETE")
 
-    async def translate_to_response(self, response_obj: ClientResponse) -> Response:
+    async def translate_to_response(self, response_obj: ClientResponse, url: str) -> Response:
         """Translate aiohttp response object to Response object"""
-        return Response(
+        return self.response_cls(
             text=await response_obj.text(),
             status_code=response_obj.status,
             headers=response_obj.headers,
-            cookie=response_obj.cookies,
+            cookies=response_obj.cookies,
+            url=str(response_obj.url),
+            id=str(url),
         )

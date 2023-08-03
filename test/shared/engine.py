@@ -19,7 +19,7 @@ sample_cookies = [
     ),
 ]
 
-useragents = [
+user_agents = [
     (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
         "Chrome/58.0.3029.110 Safari/537.3"
@@ -58,8 +58,8 @@ def get_headers():
     return {"Accept": "*/*", "Accept-Encoding": "gzip, deflate, br"}
 
 
-def get_random_useragent():
-    return choice(useragents)
+def get_random_user_agent():
+    return choice(user_agents)
 
 
 def get_cookies():
@@ -71,7 +71,7 @@ async def get_aiohttp_engine():
     engine = AioHttpEngine(
         cookies=get_cookies(),
         headers=headers,
-        useragent=get_random_useragent(),
+        user_agent=get_random_user_agent(),
     )
     await engine.setup()
     return engine

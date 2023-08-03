@@ -1,6 +1,6 @@
-from .adopter import RocketryApplication, RocketryController
+from .adopter import ProcessController, RocketryApplication
 
 __all__ = [
     "RocketryApplication",
-    "RocketryController",
+    "ProcessController",
 ]
