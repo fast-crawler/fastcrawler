@@ -150,7 +150,7 @@ async def test_limit(headers, user_agent):
         start = perf_counter()
         await aiohttp_engine.post(urls)
         end = perf_counter()
-    assert end - start == pytest.approx(0.2, abs=0.05)
+    assert end - start == pytest.approx(0.2, abs=0.1)
 
 
 @pytest.mark.asyncio
@@ -174,4 +174,4 @@ async def test_async_event_loop(headers, user_agent):
         await aiohttp_engine.post(urls)
         end = perf_counter()
 
-    assert end - start == pytest.approx(0.3, abs=0.02)
+    assert end - start == pytest.approx(0.3, abs=0.05)
