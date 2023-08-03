@@ -148,7 +148,7 @@ class AioHttpEngine:
                 cookies=self._get_morsel_cookie(request.cookies)
                 if request.cookies
                 else self.cookies,
-                verify_ssl=verify_ssl,
+                ssl=verify_ssl,
                 **self._proxy,
             ) as response:
                 return await self.translate_to_response(response, request)
