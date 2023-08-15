@@ -18,6 +18,9 @@ class ApplicationProto(Protocol):  # pragma: no cover
         """Proto to serve with Uvicorn"""
 
     async def get_all_tasks(self) -> list[Task]:
+        """Returns a copy of all tasks that exists in application"""
+
+    def get_all_session_tasks(self) -> list:
         """Returns all tasks that exists in application"""
 
     async def add_task(self, *args, **kwargs) -> None:

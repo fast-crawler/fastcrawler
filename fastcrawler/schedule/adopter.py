@@ -36,8 +36,12 @@ class RocketryApplication:
         return None
 
     async def get_all_tasks(self) -> list[Task]:
-        """Returns all tasks that exists in application"""
+        """Returns a copy of all tasks that exists in application"""
         return list(Task(**task.dict()) for task in self.task_lib.session.tasks)
+
+    def get_all_session_tasks(self) -> list:
+        """Returns all tasks that exists in application"""
+        return self.task_lib.session.tasks
 
     async def add_task(self, task_func: Callable, settings: Task) -> None:
         """Dynamically add a task to application"""
@@ -94,7 +98,7 @@ class ProcessController:
                 - can be cron
                     `*/2 * * * *`
         """
-        for task in await self.app.get_all_tasks():
+        for task in self.app.get_all_session_tasks():
             if task.name == task_name:
                 self.app.inject_string_condition_to_task(cond=schedule, task=task)
                 return None
@@ -104,7 +108,7 @@ class ProcessController:
         """
         Disables or enable one task
         """
-        for task in await self.app.get_all_tasks():
+        for task in self.app.get_all_session_tasks():
             if task.name == task_name:
                 if new_status is None:
                     if task.disabled:
