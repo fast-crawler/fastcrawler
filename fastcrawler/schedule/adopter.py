@@ -111,10 +111,7 @@ class ProcessController:
         for task in self.app.get_all_session_tasks():
             if task.name == task_name:
                 if new_status is None:
-                    if task.disabled:
-                        task.disabled = False
-                    else:
-                        task.disabled = True
+                    task.disabled = not task.disabled
                 else:
                     task.disabled = new_status
                 return None
