@@ -113,7 +113,7 @@ class ProcessController:
                 if new_status is None:
                     task.disabled = not task.disabled
                 else:
-                    task.disabled = new_status
+                    task.disabled = not new_status
                 return None
         raise TaskNotFound(task_name)
 
