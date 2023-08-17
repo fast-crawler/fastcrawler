@@ -100,8 +100,7 @@ class ProcessController:
         """
         for task in self.app.get_all_session_tasks():
             if task.name == task_name:
-                self.app.inject_string_condition_to_task(cond=schedule, task=task)
-                return None
+                return await self.app.inject_string_condition_to_task(cond=schedule, task=task)
         raise TaskNotFound(task_name)
 
     async def toggle_task(self, task_name: str, new_status=None) -> None:

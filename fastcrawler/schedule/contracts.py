@@ -54,7 +54,7 @@ class ControllerProto(Protocol):  # pragma: no cover
         On controller level
         """
 
-    async def change_task_schedule(self, task_name: str, schedule: str) -> None:
+    async def change_task_schedule(self, task_name: str, schedule: str) -> Task:
         """
         Reschedule a task
             schedule:
