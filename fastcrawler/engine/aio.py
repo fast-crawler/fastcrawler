@@ -1,9 +1,9 @@
 import asyncio
+from http.cookies import Morsel
 from typing import Any
 
 from aiohttp import BasicAuth, ClientSession, TCPConnector
 from aiohttp.client import ClientResponse
-from aiohttp.cookiejar import Morsel
 
 from .contracts import ProxySetting, Request, RequestCycle, Response, SetCookieParam
 
@@ -131,6 +131,8 @@ class AioHttpEngine:
         verify_ssl=False,
     ) -> RequestCycle | None:
         """Base Method for protocol to retrieve a list of URL."""
+        assert request.method is not None
+
         if self.session:
             if isinstance(request.data, dict):
                 json = request.data
@@ -194,8 +196,8 @@ class AioHttpEngine:
         response = self.response_cls(
             text=await response_obj.text(),
             status_code=response_obj.status,
-            headers=response_obj.headers,
-            cookies=response_obj.cookies,
+            headers=dict(response_obj.headers),
+            cookies=SetCookieParam(**response_obj.cookies),  # type: ignore
             url=str(response_obj.url),
             id=str(request.url),
         )
