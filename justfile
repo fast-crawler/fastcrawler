@@ -11,10 +11,11 @@ help:
 
 # Task to run tests using pytest
 test:
-    @echo "Running tests..."
-    python -m pytest
+    python test/shared/_fastapi.py & P1=$! & sleep 3
+
+    python -m pytest & P2=$!
+    wait $P1 $P2
 
 # Task to run pre-commit checks
 precommit:
-    @echo "Running pre-commit checks..."
     pre-commit run --all-files
