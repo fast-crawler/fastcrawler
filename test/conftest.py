@@ -1,4 +1,7 @@
 # pylint: skip-file
+import logging
+
+from fastcrawler import Logger
 from test.shared.engine import (
     get_aiohttp_engine,
     get_cookies,
@@ -65,3 +68,8 @@ def task_app():
 @pytest.fixture(scope="function")
 def task_manager(task_app):
     yield ProcessController(task_app)
+
+
+@pytest.fixture(scope="function")
+def logger():
+    return Logger(level=logging.DEBUG, formatter="%(asctime)s")
