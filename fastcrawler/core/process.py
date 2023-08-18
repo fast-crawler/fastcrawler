@@ -44,23 +44,24 @@ class Process:
         This method will disable scheduler temporarily to avoid duplicate running
         """
         if self.controller:
-            await self.controller.toggle_task(self.task.name, new_status=False)
+            await self.controller.toggle_task(str(self.task.name), new_status=False)
         await self.spider.start(silent=silent)
         if self.controller:
-            await self.controller.toggle_task(self.task.name, new_status=True)
+            await self.controller.toggle_task(str(self.task.name), new_status=True)
         return None
 
     async def stop(self) -> None:
         """Stop the crawling process"""
         self.spider.is_stopped = True
         if self.controller:
-            await self.controller.toggle_task(self.task.name, new_status=False)
+            await self.controller.toggle_task(str(self.task.name), new_status=False)
         return None
 
-    async def add_spiders(self) -> None:
+    async def add_spiders_to_controller(self) -> None:
         """
         Run the crawling process
         """
+        assert self.controller is not None
         if self.task:
             await self.controller.add_task(self.spider.start, self.task)
         else:
