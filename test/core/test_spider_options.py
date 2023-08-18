@@ -28,7 +28,7 @@ async def test_spider_depth():
         cond="every 1 second",
         controller=ProcessController(app=RocketryApplication()),
     )
-    await process.add_spiders()
+    await process.add_spiders_to_controller()
     assert len(await process.controller.app.get_all_tasks()) == 1
     await process.start(silent=False)
     assert total_crawled == 1, "Depth was not being respected"
@@ -55,7 +55,7 @@ async def test_spider_request_sleep():
         cond="every 1 second",
         controller=ProcessController(app=RocketryApplication()),
     )
-    await process.add_spiders()
+    await process.add_spiders_to_controller()
     assert len(await process.controller.app.get_all_tasks()) == 1
     await process.start(silent=False)
     end_time = time.time()

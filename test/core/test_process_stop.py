@@ -27,7 +27,7 @@ async def test_process():
         cond="every 1 second",
         controller=ProcessController(app=RocketryApplication()),
     )
-    await process.add_spiders()
+    await process.add_spiders_to_controller()
     assert len(await process.controller.app.get_all_tasks()) == 1
     asyncio.create_task(process.start(silent=False))
     await process.stop()

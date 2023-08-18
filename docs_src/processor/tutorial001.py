@@ -33,7 +33,7 @@ async def main():
         cond="every 1 second",
         controller=ProcessController(app=RocketryApplication()),
     )
-    await process.add_spiders()
+    await process.add_spiders_to_controller()
     assert len(await process.controller.app.get_all_tasks()) == 1
     await process.start(silent=False)
 
