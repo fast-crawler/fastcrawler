@@ -55,3 +55,7 @@ class ProcessorNotSupported(BaseModelError):
             "you need."
         )
         super().__init__(self.message)
+
+
+class SpiderBadConfiguraton(BaseModelError):
+    ...
