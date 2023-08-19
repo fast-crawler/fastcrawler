@@ -7,7 +7,7 @@ from rocketry.core.task import Task as RocketryTask
 
 from fastcrawler.exceptions import TaskNotFound
 
-from .contracts import ApplicationABC, ControllerProto
+from .contracts import ApplicationABC, ControllerABC
 from .schema import Task
 
 
@@ -63,7 +63,7 @@ class RocketryApplication(ApplicationABC):
         return task
 
 
-class ProcessController(ControllerProto):
+class ProcessController(ControllerABC):
     def __init__(self, app: ApplicationABC):
         """Initialize task application
 

@@ -3,7 +3,7 @@ from typing import Any, Coroutine
 
 from fastcrawler.exceptions import NoCrawlerFoundError
 from fastcrawler.schedule.adopter import ProcessController, RocketryApplication
-from fastcrawler.schedule.contracts import ControllerProto
+from fastcrawler.schedule.contracts import ControllerABC
 
 from .process import Process
 
@@ -29,12 +29,12 @@ class FastCrawler:
 
     """
 
-    controller: ControllerProto | None = None
+    controller: ControllerABC | None = None
 
     def __init__(
         self,
         crawlers: list[Process] | Process,
-        controller: ControllerProto | None = None,
+        controller: ControllerABC | None = None,
     ):
         """Initialize FastCrawler with defined crawlers"""
         self.crawlers = list_process(crawlers)

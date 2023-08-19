@@ -36,7 +36,7 @@ class ApplicationABC(ABC):  # pragma: no cover
         """Inject condition to a task. Like a cron or a string condition"""
 
 
-class ControllerProto(ABC):  # pragma: no cover
+class ControllerABC(ABC):  # pragma: no cover
     app: ApplicationABC
 
     @abstractmethod

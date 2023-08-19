@@ -1,7 +1,7 @@
 from uuid import uuid4
 
 from fastcrawler.core.spider import Spider
-from fastcrawler.schedule.contracts import ControllerProto
+from fastcrawler.schedule.contracts import ControllerABC
 from fastcrawler.schedule.schema import Task
 
 
@@ -14,7 +14,7 @@ class Process:
     def __init__(
         self,
         spider: Spider,
-        controller: ControllerProto | None = None,
+        controller: ControllerABC | None = None,
         cond: str | Task | None = None,
         *args,
         **kwargs,
@@ -23,7 +23,7 @@ class Process:
 
         Args:
             spider (Spider): _description_
-            controller (None | ControllerProto, optional): _description_. Defaults to None.
+            controller (None | ControllerABC, optional): _description_. Defaults to None.
             cond (Task | None, optional): _description_. Defaults to None.
         """
         if isinstance(cond, Task):
