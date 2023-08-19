@@ -34,14 +34,6 @@ class TaskNotFound(BaseModelError):
         )
 
 
-class BadTaskException(BaseModelError):
-    def __init__(self, task_name):
-        super().__init__(
-            f"The Task with name={task_name} has not been found",
-            "\nPlease check your input and be sure the task name is correct",
-        )
-
-
 class NoCrawlerFound(BaseModelError):
     def __init__(self):
         super().__init__(

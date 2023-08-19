@@ -5,19 +5,19 @@ from rocketry import Rocketry  # type: ignore
 from rocketry.conditions.api import cron  # type: ignore
 from rocketry.core.task import Task as RocketryTask
 
-from fastcrawler.exceptions import BadTaskException, TaskNotFound
+from fastcrawler.exceptions import TaskNotFound
 
 from .contracts import ApplicationABC, ControllerProto
 from .schema import Task
 
 
-def callable_to_partial(method: Callable) -> partial | None:
+def callable_to_partial(method: Callable) -> partial | Callable:
     if hasattr(method, "__self__"):
         if method.__self__ is not None:
             return partial(method)
         instance = method.__self__.__class__()
         return partial(method, instance)
-    return None
+    return method
 
 
 class RocketryApplication(ApplicationABC):
@@ -45,8 +45,6 @@ class RocketryApplication(ApplicationABC):
     async def add_task(self, task_func: Callable, settings: Task) -> None:
         """Dynamically add a task to application"""
         task_as_callable = callable_to_partial(task_func)
-        if task_as_callable is None:
-            raise BadTaskException(task_func)
         self.task_lib.task(**settings.model_dump(exclude_unset=True))(task_as_callable)
         return None
 
