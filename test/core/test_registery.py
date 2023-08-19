@@ -2,19 +2,23 @@
 
 import pytest
 
-from fastcrawler import FastCrawler, Process, Spider
+from fastcrawler import BaseModel, FastCrawler, Process, Spider
 from fastcrawler.exceptions import NoCrawlerFoundError
+
+
+class Nothing(BaseModel):
+    ...
 
 
 def test_crawler_with_task():
     class cls_A(Spider):
-        pass
+        data_model = Nothing
 
     class cls_B(Spider):
-        pass
+        data_model = Nothing
 
     class cls_C(Spider):
-        pass
+        data_model = Nothing
 
     obj1 = cls_A()
     obj2 = cls_B()

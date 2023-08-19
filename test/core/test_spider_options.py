@@ -42,6 +42,7 @@ async def test_spider_request_sleep():
     class MySpider(Spider):
         engine_request_limit = 20
         request_sleep_interval = 0.1
+        batch_size = 20
         data_model = PersonPage
         start_url = Depends(get_urls)
 
