@@ -5,7 +5,7 @@ from rocketry import Rocketry  # type: ignore
 from rocketry.conditions.api import cron  # type: ignore
 from rocketry.core.task import Task as RocketryTask
 
-from fastcrawler.exceptions import TaskNotFound
+from fastcrawler.exceptions import TaskNotFoundError
 
 from .contracts import ApplicationABC, ControllerABC
 from .schema import Task
@@ -102,7 +102,7 @@ class ProcessController(ControllerABC):
             if task.name == task_name:
                 await self.app.inject_string_condition_to_task(cond=schedule, task=task)
                 return None
-        raise TaskNotFound(task_name)
+        raise TaskNotFoundError(task_name)
 
     async def toggle_task(self, task_name: str, new_status=None) -> None:
         """
@@ -115,7 +115,7 @@ class ProcessController(ControllerABC):
                 else:
                     task.disabled = not new_status
                 return None
-        raise TaskNotFound(task_name)
+        raise TaskNotFoundError(task_name)
 
     async def start_up(self) -> None:
         """

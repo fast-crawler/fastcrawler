@@ -6,7 +6,7 @@ from fastcrawler.engine.contracts import EngineProto, Request, RequestCycle
 from fastcrawler.exceptions import (
     ParserInvalidModelType,
     ParserValidationError,
-    SpiderBadConfiguraton,
+    SpiderBadConfiguratonError,
 )
 from fastcrawler.parsers.contracts import ParserProtocol
 from fastcrawler.parsers.html import HTMLParser
@@ -44,10 +44,10 @@ class Spider:
         self._engine: Type[EngineProto] = engine or AioHttpEngine  # type: ignore
 
         if model is None and self.data_model is None:
-            raise SpiderBadConfiguraton("A data model must be specified")
+            raise SpiderBadConfiguratonError("A data model must be specified")
 
         if self.engine_request_limit is None and self._engine.default_request_limit is None:
-            raise SpiderBadConfiguraton("Request limit must be specified")
+            raise SpiderBadConfiguratonError("Request limit must be specified")
 
         self.parser = parser or HTMLParser
         self._data_model: Type[BaseModel] = model or self.data_model  # type: ignore
@@ -109,7 +109,7 @@ class Spider:
             return self.batch_size
         elif self._engine_request_limit:
             return self._engine_request_limit * 2
-        raise SpiderBadConfiguraton(
+        raise SpiderBadConfiguratonError(
             "batch size and engine_request_limit is not initialized"
             ", please make sure one is initialized"
         )
@@ -131,7 +131,7 @@ class Spider:
             if type(obj) == _Depends:
                 inject_func = getattr(getattr(self, key), "inject", None)
                 if inject_func is None:
-                    raise SpiderBadConfiguraton(
+                    raise SpiderBadConfiguratonError(
                         "Depends on the class variable is not correctly defined"
                     )
 

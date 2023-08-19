@@ -2,7 +2,7 @@ class BaseModelError(Exception):
     """Base class for exceptions in this module."""
 
 
-class NoCrawlerFoundError(BaseModelError):
+class NoCrawlerFoundErrorError(BaseModelError):
     """No crawler is found in starting application"""
 
     def __init__(self):
@@ -26,7 +26,7 @@ class ParserInvalidModelType(BaseModelError):
         super().__init__(self.message)
 
 
-class TaskNotFound(BaseModelError):
+class TaskNotFoundError(BaseModelError):
     def __init__(self, task_name):
         super().__init__(
             f"The Task with name={task_name} has not been found",
@@ -34,7 +34,7 @@ class TaskNotFound(BaseModelError):
         )
 
 
-class NoCrawlerFound(BaseModelError):
+class NoCrawlerFoundError(BaseModelError):
     def __init__(self):
         super().__init__(
             "No task has been registered in the application."
@@ -44,7 +44,7 @@ class NoCrawlerFound(BaseModelError):
         )
 
 
-class ProcessorNotSupported(BaseModelError):
+class ProcessorNotSupportedError(BaseModelError):
     def __init__(self, model):
         self.model = model
         self.message = (
@@ -57,5 +57,5 @@ class ProcessorNotSupported(BaseModelError):
         super().__init__(self.message)
 
 
-class SpiderBadConfiguraton(BaseModelError):
+class SpiderBadConfiguratonError(BaseModelError):
     ...

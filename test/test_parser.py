@@ -16,7 +16,7 @@ import pytest
 from fastcrawler.exceptions import (
     ParserInvalidModelType,
     ParserValidationError,
-    ProcessorNotSupported,
+    ProcessorNotSupportedError,
 )
 from fastcrawler.parsers import HTMLParser, JsonParser
 from fastcrawler.parsers.selectors.base import BaseSelector
@@ -125,7 +125,7 @@ def test_unset():
 
 
 def test_not_supported_processor(html):
-    with pytest.raises(ProcessorNotSupported):
+    with pytest.raises(ProcessorNotSupportedError):
         html_parser = HTMLParser(html)
         html_parser.parse(NotSupportedProcessor)
 

@@ -1,7 +1,7 @@
 import asyncio
 from typing import Any, Coroutine
 
-from fastcrawler.exceptions import NoCrawlerFoundError
+from fastcrawler.exceptions import NoCrawlerFoundErrorError
 from fastcrawler.schedule.adopter import ProcessController, RocketryApplication
 from fastcrawler.schedule.contracts import ControllerABC
 
@@ -40,7 +40,7 @@ class FastCrawler:
         self.crawlers = list_process(crawlers)
         self.controller = controller or ProcessController(app=RocketryApplication())
         if not self.crawlers or len(self.crawlers) == 0:
-            raise NoCrawlerFoundError
+            raise NoCrawlerFoundErrorError
 
     @property
     def get_all_serves(self) -> list[Coroutine[Any, Any, None]]:
