@@ -151,3 +151,4 @@ class Task(BaseModel):
         arbitrary_types_allowed = True
         protected_namespaces = ()
         validate_assignment = True
+        frozen = True

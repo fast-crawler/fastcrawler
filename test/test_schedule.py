@@ -22,6 +22,12 @@ sample_tasks = [
         description="Task 2 Description",
         logger_name="test_task_2",
     ),
+    Task(
+        name="task_2",
+        description="Task 2 Description",
+        logger_name="test_task_2",
+        disabled=True,
+    ),
 ]
 
 
@@ -128,10 +134,8 @@ async def test_toggle_task_not_disabled_from_manager(task_manager: ProcessContro
 
 @pytest.mark.asyncio
 async def test_toggle_task_disabled_from_manager(task_manager: ProcessController):
-    new_task_1 = get_task(1)
-    new_task_1.disabled = True
+    new_task_1 = get_task(3)
     await task_manager.add_task(task_function, new_task_1)
-    # if any problem is encountered during toggle_task it should raise an exception
     await task_manager.toggle_task(new_task_1.name)
     assert True
 
