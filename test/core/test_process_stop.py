@@ -2,23 +2,12 @@ import asyncio
 
 import pytest
 
-from fastcrawler import BaseModel, Depends, Process, Spider, XPATHField
+from fastcrawler import Depends, Process, Spider
 from fastcrawler.schedule import ProcessController, RocketryApplication
 
+from ..shared.core import PersonPage, get_urls
+
 total_crawled = 0
-
-
-class PersonData(BaseModel):
-    name: str = XPATHField(query="//td[1]", extract="text")
-    age: int = XPATHField(query="//td[2]", extract="text")
-
-
-class PersonPage(BaseModel):
-    person: list[PersonData] = XPATHField(query="//table//tr", many=True)
-
-
-async def get_urls():
-    return {f"http://localhost:8000/persons/{id}" for id in range(20)}
 
 
 class MySpider(Spider):
@@ -38,7 +27,7 @@ async def test_process():
         cond="every 1 second",
         controller=ProcessController(app=RocketryApplication()),
     )
-    await process.add_spiders()
+    await process.add_spiders_to_controller()
     assert len(await process.controller.app.get_all_tasks()) == 1
     asyncio.create_task(process.start(silent=False))
     await process.stop()

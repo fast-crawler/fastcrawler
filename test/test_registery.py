@@ -2,19 +2,23 @@
 
 import pytest
 
-from fastcrawler import FastCrawler, Process, Spider
-from fastcrawler.exceptions import NoCrawlerFoundError
+from fastcrawler import BaseModel, FastCrawler, Process, Spider
+from fastcrawler.exceptions import NoCrawlerFoundErrorError
+
+
+class Nothing(BaseModel):
+    ...
 
 
 def test_crawler_with_task():
     class cls_A(Spider):
-        pass
+        data_model = Nothing
 
     class cls_B(Spider):
-        pass
+        data_model = Nothing
 
     class cls_C(Spider):
-        pass
+        data_model = Nothing
 
     obj1 = cls_A()
     obj2 = cls_B()
@@ -29,5 +33,5 @@ def test_crawler_with_task():
         ]
     )
     assert client_one.crawlers == client_two.crawlers
-    with pytest.raises(NoCrawlerFoundError):
+    with pytest.raises(NoCrawlerFoundErrorError):
         FastCrawler(crawlers=None)

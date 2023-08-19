@@ -1,7 +1,7 @@
 from uuid import uuid4
 
 from fastcrawler.core.spider import Spider
-from fastcrawler.schedule.contracts import ControllerProto
+from fastcrawler.schedule.contracts import ControllerABC
 from fastcrawler.schedule.schema import Task
 
 
@@ -14,7 +14,7 @@ class Process:
     def __init__(
         self,
         spider: Spider,
-        controller: ControllerProto | None = None,
+        controller: ControllerABC | None = None,
         cond: str | Task | None = None,
         *args,
         **kwargs,
@@ -23,7 +23,7 @@ class Process:
 
         Args:
             spider (Spider): _description_
-            controller (None | ControllerProto, optional): _description_. Defaults to None.
+            controller (None | ControllerABC, optional): _description_. Defaults to None.
             cond (Task | None, optional): _description_. Defaults to None.
         """
         if isinstance(cond, Task):
@@ -31,7 +31,7 @@ class Process:
         else:
             self.task = Task(
                 start_cond=cond or "every 1 second",
-                name=spider.__class__.__name__ + str(uuid4()),
+                name=f"{uuid4()}@{spider.__class__.__name__}",
             )
         self.args = args
         self.kwargs = kwargs
@@ -44,23 +44,26 @@ class Process:
         This method will disable scheduler temporarily to avoid duplicate running
         """
         if self.controller:
-            await self.controller.toggle_task(self.task.name, new_status=False)
+            await self.controller.toggle_task(str(self.task.name), new_status=False)
         await self.spider.start(silent=silent)
         if self.controller:
-            await self.controller.toggle_task(self.task.name, new_status=True)
+            await self.controller.toggle_task(str(self.task.name), new_status=True)
         return None
 
     async def stop(self) -> None:
         """Stop the crawling process"""
-        self.spider.is_stopped = True
+        for instance in self.spider.instances:
+            instance.is_stopped = True
+
         if self.controller:
-            self.controller.toggle_task(self.task.name, new_status=False)
+            await self.controller.toggle_task(str(self.task.name), new_status=False)
         return None
 
-    async def add_spiders(self) -> None:
+    async def add_spiders_to_controller(self) -> None:
         """
         Run the crawling process
         """
+        assert self.controller is not None
         if self.task:
             await self.controller.add_task(self.spider.start, self.task)
         else:

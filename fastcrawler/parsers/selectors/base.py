@@ -2,7 +2,7 @@ from typing import Any, Callable
 
 from pydantic.fields import FieldInfo
 
-from fastcrawler.exceptions import ProcessorNotSupported
+from fastcrawler.exceptions import ProcessorNotSupportedError
 from fastcrawler.parsers.contracts import ParserProtocol
 from fastcrawler.parsers.schema import BaseModelType, MappedAttr, MappedResult
 from fastcrawler.parsers.utils import _UNSET
@@ -90,7 +90,7 @@ class BaseSelector:
                 text=MappedAttr(is_property=False, attr_name="text"),
             )
         else:
-            raise ProcessorNotSupported(cls.__class__)
+            raise ProcessorNotSupportedError(cls.__class__)
 
     def call_from_mapper(self, result, mapped: MappedAttr, *args, **kwargs):
         return (

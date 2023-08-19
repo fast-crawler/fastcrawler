@@ -3,25 +3,24 @@ from typing import Callable
 
 from rocketry import Rocketry  # type: ignore
 from rocketry.conditions.api import cron  # type: ignore
+from rocketry.core.task import Task as RocketryTask
 
-from fastcrawler.exceptions import TaskNotFound
+from fastcrawler.exceptions import TaskNotFoundError
 
-from .contracts import ApplicationProto
+from .contracts import ApplicationABC, ControllerABC
 from .schema import Task
 
 
-def make_callable(method: Callable | type):
+def callable_to_partial(method: Callable) -> partial | Callable:
     if hasattr(method, "__self__"):
         if method.__self__ is not None:
             return partial(method)
-        else:
-            instance = method.__self__.__class__()
-            return partial(method, instance)
-    else:
-        return method
+        instance = method.__self__.__class__()
+        return partial(method, instance)
+    return method
 
 
-class RocketryApplication:
+class RocketryApplication(ApplicationABC):
     def __init__(self, *args, **kwargs):
         """Initialize A Rocketry Application to process crawlers"""
         self.task_lib: Rocketry = Rocketry(*args, **kwargs)
@@ -35,14 +34,18 @@ class RocketryApplication:
         await self.task_lib.serve(*args, **kwargs)
         return None
 
-    async def get_all_tasks(self) -> set[Task]:
+    async def get_all_tasks(self) -> list[Task]:
+        """Returns a copy of all tasks that exists in application"""
+        return list(Task(**task.dict()) for task in self.task_lib.session.tasks)
+
+    def get_all_session_tasks(self) -> set[RocketryTask]:
         """Returns all tasks that exists in application"""
         return self.task_lib.session.tasks
 
     async def add_task(self, task_func: Callable, settings: Task) -> None:
         """Dynamically add a task to application"""
-        task_func = make_callable(task_func)
-        self.task_lib.task(**settings.model_dump(exclude_unset=True))(task_func)
+        task_as_callable = callable_to_partial(task_func)
+        self.task_lib.task(**settings.model_dump(exclude_unset=True))(task_as_callable)
         return None
 
     async def shut_down(self) -> None:
@@ -50,7 +53,8 @@ class RocketryApplication:
         self.task_lib.session.shut_down()
         return None
 
-    async def inject_string_condition_to_task(self, cond: str, task: Task) -> Task:
+    @staticmethod
+    async def inject_string_condition_to_task(cond: str, task: Task) -> Task:
         """Inject condition to a task. Like a cron or a string condition"""
         if cond.count(" ") == 4:
             task.start_cond = cron(cond)
@@ -59,8 +63,8 @@ class RocketryApplication:
         return task
 
 
-class ProcessController:
-    def __init__(self, app: ApplicationProto):
+class ProcessController(ControllerABC):
+    def __init__(self, app: ApplicationABC):
         """Initialize task application
 
         Args:
@@ -68,7 +72,7 @@ class ProcessController:
         """
         self.app = app
 
-    async def all(self) -> set[Task]:
+    async def all(self) -> list[Task]:
         """
         Return all tasks from internal
         """
@@ -94,27 +98,24 @@ class ProcessController:
                 - can be cron
                     `*/2 * * * *`
         """
-        for task in await self.app.get_all_tasks():
+        for task in self.app.get_all_session_tasks():
             if task.name == task_name:
-                self.app.inject_string_condition_to_task(cond=schedule, task=task)
+                await self.app.inject_string_condition_to_task(cond=schedule, task=task)
                 return None
-        raise TaskNotFound(task_name)
+        raise TaskNotFoundError(task_name)
 
     async def toggle_task(self, task_name: str, new_status=None) -> None:
         """
         Disables or enable one task
         """
-        for task in await self.app.get_all_tasks():
+        for task in self.app.get_all_session_tasks():
             if task.name == task_name:
                 if new_status is None:
-                    if task.disabled:
-                        task.disabled = False
-                    else:
-                        task.disabled = True
+                    task.disabled = not task.disabled
                 else:
-                    task.disabled = new_status
+                    task.disabled = not new_status
                 return None
-        raise TaskNotFound(task_name)
+        raise TaskNotFoundError(task_name)
 
     async def start_up(self) -> None:
         """
