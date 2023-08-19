@@ -2,7 +2,7 @@
 # pylint: disable=pointless-string-statement
 
 from dataclasses import dataclass
-from typing import Any, Literal, Protocol
+from typing import Any, Literal, NewType, Protocol
 
 import pydantic
 
@@ -57,6 +57,9 @@ class RequestCycle:
     parsed_data: Any | pydantic.BaseModel | None = None
 
 
+Url = NewType("Url", str)
+
+
 class EngineProto(Protocol):
     default_request_limit: int
 
@@ -105,31 +108,31 @@ class EngineProto(Protocol):
         self,
         requests: list[Request],
         method: str,
-    ) -> dict[str, RequestCycle]:  # type: ignore
+    ) -> dict[Url, RequestCycle]:  # type: ignore
         """Batch Method for protocol to retrieve a list of URL."""
 
     async def get(
         self,
         requests: list[Request],
-    ) -> dict[str, RequestCycle]:  # type: ignore
+    ) -> dict[Url, RequestCycle]:  # type: ignore
         """GET HTTP Method for protocol to retrieve a list of URL."""
 
     async def post(
         self,
         requests: list[Request],
-    ) -> dict[str, RequestCycle]:  # type: ignore
+    ) -> dict[Url, RequestCycle]:  # type: ignore
         """POST HTTP Method for protocol to crawl a list of URL."""
 
     async def put(
         self,
         requests: list[Request],
-    ) -> dict[str, RequestCycle]:  # type: ignore
+    ) -> dict[Url, RequestCycle]:  # type: ignore
         """PUT HTTP Method for protocol to crawl a list of URL."""
 
     async def delete(
         self,
         requests: list[Request],
-    ) -> dict[str, RequestCycle]:  # type: ignore
+    ) -> dict[Url, RequestCycle]:  # type: ignore
         """DELETE HTTP Method for protocol to crawl a list of URL."""
 
     async def translate_to_response(

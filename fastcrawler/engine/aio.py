@@ -5,7 +5,7 @@ from typing import Any
 from aiohttp import BasicAuth, ClientSession, TCPConnector
 from aiohttp.client import ClientResponse
 
-from .contracts import ProxySetting, Request, RequestCycle, Response, SetCookieParam
+from .contracts import ProxySetting, Request, RequestCycle, Response, SetCookieParam, Url
 
 
 class AioHttpEngine:
@@ -156,7 +156,7 @@ class AioHttpEngine:
                 return await self.translate_to_response(response, request)
         return None
 
-    async def batch(self, requests: list[Request], method: str) -> dict[str, RequestCycle]:
+    async def batch(self, requests: list[Request], method: str) -> dict[Url, RequestCycle]:
         """Batch Method for protocol to retrieve a list of URL."""
         for request in requests:
             request.method = method
@@ -173,19 +173,19 @@ class AioHttpEngine:
         results = await asyncio.gather(*tasks)
         return {url: result for url, result in zip(urls, results)}
 
-    async def get(self, requests: list[Request]) -> dict[str, RequestCycle]:
+    async def get(self, requests: list[Request]) -> dict[Url, RequestCycle]:
         """GET HTTP Method for protocol to retrieve a list of URL."""
         return await self.batch(requests, "GET")
 
-    async def post(self, requests: list[Request]) -> dict[str, RequestCycle]:
+    async def post(self, requests: list[Request]) -> dict[Url, RequestCycle]:
         """POST HTTP Method for protocol to crawl a list of URL."""
         return await self.batch(requests, "POST")
 
-    async def put(self, requests: list[Request]) -> dict[str, RequestCycle]:
+    async def put(self, requests: list[Request]) -> dict[Url, RequestCycle]:
         """PUT HTTP Method for protocol to crawl a list of URL."""
         return await self.batch(requests, "PUT")
 
-    async def delete(self, requests: list[Request]) -> dict[str, RequestCycle]:
+    async def delete(self, requests: list[Request]) -> dict[Url, RequestCycle]:
         """DELETE HTTP Method for protocol to crawl a list of URL."""
         return await self.batch(requests, "DELETE")
 
