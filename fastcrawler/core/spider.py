@@ -1,9 +1,13 @@
 import asyncio
-from typing import Any, Type
+from typing import Any, Self, Type
 
 from fastcrawler.engine.aio import AioHttpEngine
 from fastcrawler.engine.contracts import EngineProto, Request, RequestCycle
-from fastcrawler.exceptions import ParserInvalidModelType, ParserValidationError
+from fastcrawler.exceptions import (
+    ParserInvalidModelType,
+    ParserValidationError,
+    SpiderBadConfiguraton,
+)
 from fastcrawler.parsers.contracts import ParserProtocol
 from fastcrawler.parsers.html import HTMLParser
 from fastcrawler.parsers.schema import BaseModel
@@ -20,7 +24,6 @@ class Spider:
     that is connected to current spider class
     """
 
-    instances: list["Spider"]
     engine_request_limit: int | None = None
     parser: Type[ParserProtocol] | None
     start_url: set[str] | _Depends
@@ -39,17 +42,36 @@ class Spider:
         model: Type[BaseModel] | None = None,
     ):
         self._engine: Type[EngineProto] = engine or AioHttpEngine  # type: ignore
+
+        if model is None and self.data_model is None:
+            raise SpiderBadConfiguraton("A data model must be specified")
+
+        if self.engine_request_limit is None and self._engine.default_request_limit is None:
+            raise SpiderBadConfiguraton("Request limit must be specified")
+
         self.parser = parser or HTMLParser
-        self.data_model = model or self.data_model
+        self._data_model: Type[BaseModel] = model or self.data_model  # type: ignore
         self._crawled_urls = set()
         self._pending_urls = set()
-        self.engine_request_limit = self.engine_request_limit or self._engine.default_request_limit
+        self._engine_request_limit: int = (
+            self.engine_request_limit or self._engine.default_request_limit
+        )
         self.request_sent = 0
 
     @property
     def engine(self) -> Type[EngineProto]:
         """Method to access engine"""
         return self._engine
+
+    @property
+    def instances(self) -> list[Self | "Spider"]:
+        if not hasattr(self, "_instances"):
+            self._instances = [self]
+        return self._instances
+
+    @instances.setter
+    def instances(self, value: list["Spider"]):
+        self._instances = value
 
     @property
     def is_stopped(self) -> bool:
@@ -82,46 +104,38 @@ class Spider:
         self._pending_urls = value
 
     @property
-    def get_batch_size(self) -> int:  # type: ignore
+    def get_batch_size(self) -> int:
         if self.batch_size:
             return self.batch_size
-        elif self.engine_request_limit:
-            return self.engine_request_limit * 2
-        else:
-            # TODO: raise Error, update typing then
-            ...
+        elif self._engine_request_limit:
+            return self._engine_request_limit * 2
+        raise SpiderBadConfiguraton(
+            "batch size and engine_request_limit is not initialized"
+            ", please make sure one is initialized"
+        )
 
     def __rshift__(self, other: "Spider") -> "Spider":
         """
         leveraged RSHIFT method for magic in flow >>
         objA >> objB >> objC >> objD
         """
-        if not getattr(self, "instances", None):
-            self.instances = []
-            self.instances.append(self)
         self.instances.append(other)
         setattr(other, "instances", self.instances)
         return other
 
     async def async_init(self) -> None:
         """Async Method to initialize the spider"""
-        assert self.data_model is not None
-        if BaseModel not in self.data_model.__mro__:
-            raise ParserInvalidModelType(model=self.data_model)
+        if BaseModel not in self._data_model.__mro__:
+            raise ParserInvalidModelType(model=self._data_model)
         for key, obj in vars(self.__class__).items():
             if type(obj) == _Depends:
-                inject_func = getattr(
-                    getattr(self, key),
-                    "inject",
-                )
-                assert (
-                    inject_func is not None
-                ), "inject function must be defined"  # TODO: raise custom error
-                setattr(
-                    self,
-                    key,
-                    await inject_func(getattr(self, key)),
-                )
+                inject_func = getattr(getattr(self, key), "inject", None)
+                if inject_func is None:
+                    raise SpiderBadConfiguraton(
+                        "Depends on the class variable is not correctly defined"
+                    )
+
+                setattr(self, key, await inject_func(getattr(self, key)))
         return None
 
     async def get_urls(self) -> set[str]:
@@ -153,31 +167,35 @@ class Spider:
                 self.pending_urls.add(url)
         return None
 
-    def pass_url_to_current_spider(self, parsing: HTMLParser) -> None:
+    def pass_url_to_current_spider(self, urls: set[str]) -> None:
         """Pass the url to current spider to crawl them again"""
-        if hasattr(parsing, "resolver") and parsing.resolver:
-            self.add_url_to_pending(parsing.resolver)  # type: ignore
-            # TODO: use string, not URL
+        self.add_url_to_pending(urls)
         return None
 
-    def pass_url_to_next_spider(self, parsing: HTMLParser) -> None:
+    def pass_url_to_next_spider(self, urls) -> None:
         """Pass url to the next spider so that next spider can crawl them"""
-        if hasattr(parsing, "next_resolver") and parsing.next_resolver:
-            for url in parsing.next_resolver:
-                assert type(self.instances[-1].start_url) is set
-                if url not in self.instances[-1].start_url:
-                    self.instances[-1].start_url.add(str(url))
+        for url in urls:
+            assert type(self.instances[-1].start_url) is set
+            if url not in self.instances[-1].start_url:
+                self.instances[-1].start_url.add(str(url))
         return None
 
     def parse(self, data: str) -> BaseModel | None:
         """Parse the data from the response w.t.r data model"""
-        if self.parser and self.data_model:
+        if self.parser and self._data_model:
             parsing: HTMLParser = self.parser(data)  # type: ignore
             # TODO: investigate why HTMLParser doesn't respect proto
-            result = parsing.parse(self.data_model)
-            self.pass_url_to_current_spider(parsing)
-            self.pass_url_to_next_spider(parsing)
+            result = parsing.parse(self._data_model)
+
+            # TODO: handle logic for passing url to next/current spider
+            if hasattr(parsing, "resolver") and parsing.resolver:
+                self.pass_url_to_current_spider(parsing.resolver)  # type: ignore
+                # TODO: use string, not URL
+
+            if hasattr(parsing, "next_resolver") and parsing.next_resolver:
+                self.pass_url_to_next_spider(parsing.next_resolver)
             return result
+
         return None
 
     async def save(self, all_data: list[Any | BaseModel | None]) -> None:
@@ -187,24 +205,23 @@ class Spider:
         """
         return None
 
-    async def save_cycle(self, all_data: list[RequestCycle | None]) -> None:
+    async def save_cycle(self, all_data: list[RequestCycle]) -> None:
         """
         Save the flow of request (request cycle)
         Must be overwritten if you wish to save more than just the parsed data
         """
-        await self.save([data.parsed_data for data in all_data if data])
+        await self.save([data.parsed_data for data in all_data if data and data.parsed_data])
         return None
 
-    def parse_response(self, response: RequestCycle) -> RequestCycle | None:
+    def parse_response(self, response: RequestCycle) -> RequestCycle:
         """Parse the response from the request"""
         try:
             if response.response.text:
                 response.parsed_data = self.parse(response.response.text)
-                return response
         except ParserValidationError as error:
             print(error)
-            # todo: handle with error handler
-            return None
+            # TODO: handle with error handler
+        return response
 
     async def requests(
         self, session: EngineProto, requests: list[Request]
@@ -217,9 +234,8 @@ class Spider:
         Returns:
             list[Response]: list of responses from the requests
         """
-        assert self.data_model is not None
         result: dict[str, RequestCycle] = await getattr(
-            session, self.data_model.Config.http_method
+            session, self._data_model.Config.http_method
         )(requests=requests)
         if result:
             self.request_sent += 1
@@ -252,12 +268,9 @@ class Spider:
         else:
             return len(await self.get_urls()) > 0
 
-    async def run_next_spider(self) -> None:
+    async def run_spider_from_instances(self, index: int) -> None:
         """Method to call next spider, if it exists"""
-        if hasattr(self, "instances"):
-            next_index = self.instances.index(self) + 1
-            if len(self.instances) > next_index - 1:
-                await self.instances[next_index].start()
+        await self.instances[index].start()
         return None
 
     async def start(self, silent: bool = True) -> None:
@@ -268,8 +281,7 @@ class Spider:
             await self.start_up()
             await self.async_init()
             current_depth = 0
-            assert self.engine_request_limit is not None
-            async with self.engine(connection_limit=self.engine_request_limit) as session:
+            async with self.engine(connection_limit=self._engine_request_limit) as session:
                 while await self.control_condition(current_depth):
                     urls = list(await self.get_urls())
                     for idx in range(0, len(urls), self.get_batch_size):
@@ -296,7 +308,11 @@ class Spider:
                     if self.cycle_sleep_interval:
                         await asyncio.sleep(self.cycle_sleep_interval)
             await self._shutdown()
-            await self.run_next_spider()
+            if hasattr(self, "instances"):
+                next_index = self.instances.index(self) + 1
+                if len(self.instances) > next_index:
+                    await self.run_spider_from_instances(index=next_index)
+
         except Exception as error:
             print(error)
             if not silent:

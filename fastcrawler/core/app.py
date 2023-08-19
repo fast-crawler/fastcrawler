@@ -8,6 +8,13 @@ from fastcrawler.schedule.contracts import ControllerProto
 from .process import Process
 
 
+def list_process(crawlers: list[Process] | Process) -> list[Process]:
+    if isinstance(crawlers, Process):
+        return [crawlers]
+    else:
+        return crawlers
+
+
 class FastCrawler:
     """The client interface to start all crawlers.
     Initialize all crawlers
@@ -30,14 +37,7 @@ class FastCrawler:
         controller: ControllerProto | None = None,
     ):
         """Initialize FastCrawler with defined crawlers"""
-        ...
-        if isinstance(crawlers, Process):
-            self.crawlers = [
-                crawlers,
-            ]
-        else:
-            self.crawlers = crawlers
-
+        self.crawlers = list_process(crawlers)
         self.controller = controller or ProcessController(app=RocketryApplication())
         if not self.crawlers or len(self.crawlers) == 0:
             raise NoCrawlerFoundError
@@ -51,12 +51,18 @@ class FastCrawler:
         ]
 
     async def serve(self) -> None:
-        """Serve protocol for uvicorn"""
+        """
+        Serve protocol for uvicorn, useful with combination
+            with other tools if get_all_serves is customized
+        """
         await asyncio.gather(*self.get_all_serves)
         return None
 
     async def start(self, silent=True) -> None:
         """Start all crawlers in background explicitly without schedule"""
+
+        # TODO: make here multi processing, for more than one process!
+        # or use rocketry to trigger the tasks, if possible :)
         await asyncio.gather(*[crawler.start(silent) for crawler in self.crawlers])
         return None
 

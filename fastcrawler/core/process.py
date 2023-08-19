@@ -31,7 +31,7 @@ class Process:
         else:
             self.task = Task(
                 start_cond=cond or "every 1 second",
-                name=spider.__class__.__name__ + str(uuid4()),
+                name=f"{uuid4()}@{spider.__class__.__name__}",
             )
         self.args = args
         self.kwargs = kwargs
@@ -52,7 +52,9 @@ class Process:
 
     async def stop(self) -> None:
         """Stop the crawling process"""
-        self.spider.is_stopped = True
+        for instance in self.spider.instances:
+            instance.is_stopped = True
+
         if self.controller:
             await self.controller.toggle_task(str(self.task.name), new_status=False)
         return None
