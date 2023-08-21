@@ -51,8 +51,16 @@ nav:
 - features.md
 - fastcrawler-people.md
 # - python-types.md
-# - Tutorial - User Guide:
-#   - tutorial/index.md
+- Tutorial - Beginner guide:
+  - tutorial/index.md
+  - tutorial/setting-up-project.md
+  - tutorial/spider-and-process-with-saving-data.md
+  - tutorial/selectors.md
+  - tutorial/engine.md
+  - tutorial/logging.md
+  - tutorial/DIP-in-fastcrawler.md
+  - tutorial/testing.md
+
 #   - tutorial/first-steps.md
 #   - tutorial/path-params.md
 #   - tutorial/query-params.md
@@ -98,9 +106,12 @@ nav:
 #   - tutorial/static-files.md
 #   - tutorial/testing.md
 #   - tutorial/debugging.md
-# - Advanced User Guide:
-#   - advanced/index.md
-#   - advanced/path-operation-advanced-configuration.md
+- Advanced User Guide:
+  - advanced/index.md
+  - advanced/customizing-engine.md
+  - advanced/customizing-logging.md
+  - advanced/customizing-parser.md
+  - advanced/middleware.md
 #   - advanced/additional-status-codes.md
 #   - advanced/response-directly.md
 #   - advanced/custom-response.md
