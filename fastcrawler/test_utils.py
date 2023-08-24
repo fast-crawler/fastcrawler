@@ -27,7 +27,15 @@ class MockEngine:
         proxy: ProxySetting | None = None,
         connection_limit: int | None = None,
     ):
-        super().__init__(cookies, headers, user_agent, proxy, connection_limit)
+        ...
+
+    async def batch(
+        self,
+        requests: list[Request],
+        method: str,
+    ) -> dict[Url, RequestCycle]:  # type: ignore
+        """Batch Method for protocol to retrieve a list of URL."""
+        return ...
 
     async def get(self, requests: list[Request]) -> dict[Url, RequestCycle]:
         """GET HTTP Method for protocol to retrieve a list of URL."""
@@ -47,6 +55,8 @@ class MockEngine:
 
 
 class TestClient:
+    default_response = Response(text="404 not found", status_code=404)
+
     def __init__(
         self,
         mapped_routes: dict[tuple[Method, Request], Response],
@@ -55,16 +65,17 @@ class TestClient:
         self.mapped_routes = mapped_routes
         self.mock_engine = mock_engine
 
-        self.__default_response = Response(status_code=404)
-
     def get(self, request: Request):
-        return self.mapped_routes.get((Method.GET, request), self.__default_response)
+        return self.mapped_routes.get((Method.GET, request), self.default_response)
 
 
 # prepare test
 
 mapped_routes = {
-    (Method.GET, Request(url="/user/1")): Response(text=str({"id": 1, "username": "admin"})),
+    (Method.GET, Request(url="/user/{user_id}")): Response(
+        text=str({"id": "{user_id}", "username": "admin"}),
+        status_code=200,
+    ),
 }
 
 mock_engine = MockEngine()  # this just and only just mock the client
