@@ -1,4 +1,6 @@
 from enum import StrEnum
+import re
+from typing import Callable, Dict, Tuple
 
 from fastcrawler.engine.contracts import (
     ProxySetting,
@@ -7,7 +9,7 @@ from fastcrawler.engine.contracts import (
     Response,
     Url,
     Request,
-    EngineProto,
+    # EngineProto,
 )
 
 
@@ -54,31 +56,55 @@ class MockEngine:
         return await self.batch(requests, "DELETE")
 
 
-class TestClient:
-    default_response = Response(text="404 not found", status_code=404)
+class TestServer:
+    def __init__(self, default_response: Callable[[Request], Response]):
+        self.default_response = default_response
+        self.responses: Dict[Tuple[str, str], Callable[[Request], Response]] = {}
 
-    def __init__(
-        self,
-        mapped_routes: dict[tuple[Method, Request], Response],
-        mock_engine: EngineProto,
-    ) -> None:
-        self.mapped_routes = mapped_routes
-        self.mock_engine = mock_engine
+    def add_response(self, request: Request, response: Callable[[Request], Response]):
+        # Extract the names of the placeholders from the URL pattern
+        placeholder_names = re.findall(r"{([^}]+)}", request.url)
 
-    def get(self, request: Request):
-        return self.mapped_routes.get((Method.GET, request), self.default_response)
+        # Convert the URL pattern to a regular expression
+        url_pattern = request.url
+        for name in placeholder_names:
+            url_pattern = url_pattern.replace(f"{{{name}}}", f"(?P<{name}>[^/]+)")
+
+        self.responses[(f"{request.method}", url_pattern)] = response
+
+    def get_response(self, request: Request) -> Response:
+        for (method, url_pattern), response in self.responses.items():
+            match = re.fullmatch(url_pattern, request.url)
+            if method == f"{request.method}" and match:
+                return response(request)
+        return self.default_response(request)
 
 
-# prepare test
+def default_response(request: Request) -> Response:
+    return Response(text="404 not found", status_code=404)
 
-mapped_routes = {
-    (Method.GET, Request(url="/user/{user_id}")): Response(
-        text=str({"id": "{user_id}", "username": "admin"}),
-        status_code=200,
-    ),
-}
 
-mock_engine = MockEngine()  # this just and only just mock the client
-mock_client = TestClient(
-    mapped_routes, mock_engine
-)  # this is high level, for more behavior unsupported to mock the actual server and routing
+def user_details_response(request: Request) -> Response:
+    # Extract the user_id from the request URL
+    user_id = re.search(r"/user/([^/]+)", request.url).group(1)
+    return Response(text=f"User {user_id}", status_code=200)
+
+
+# Create a test server instance with a default response
+test_server = TestServer(default_response=default_response)
+
+# Create a request object with a URL pattern that includes a placeholder
+request = Request(url="/user/{user_id}", method="GET")
+
+# Add the user_details_response to the test server
+test_server.add_response(request, user_details_response)
+
+# Create a request object with a specific value for the user_id placeholder
+test_request = Request(url="/user/123", method="GET")
+
+# Get the response from the test server
+test_response = test_server.get_response(test_request)
+
+# Verify that the response is as expected
+assert test_response.status_code == 200
+assert test_response.text == "User 123"
