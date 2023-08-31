@@ -1,16 +1,16 @@
 from pathlib import Path
 from typing import Mapping, Any, NamedTuple
 
-from fastcrawler.test_utils import HTTPEndpoint, Route, HTMLResponse
+from fastcrawler.test_utils import BaseEndpoint, Route, StaticResponse, DynamicResponse, HTTPMethod
 from fastcrawler.engine.contracts import Response, Request
 
 
-class Homepage(HTTPEndpoint):
+class Homepage(BaseEndpoint):
     async def get(self, request, *args, **kwargs):
         return Response(text="Hello, world!", status_code=200)
 
 
-class User(HTTPEndpoint):
+class User(BaseEndpoint):
     async def get(self, request, *args, params=None, **kwargs):
         params = params or {}
         user_id = params.get("user_id")
@@ -42,13 +42,17 @@ routes = [
     Route("/", Homepage()),
     Route("/user/{user_id}/{post_id}?allow={allow}&q={query}", User()),
     Route("/user/{user_id}", User()),
-    Route("/html_file", HTMLResponse(html_file, status_code=200)),
+    Route("/html_file", StaticResponse(html_file, status_code=200)),
+    Route("/simple", DynamicResponse(method=HTTPMethod.GET, status_code=201)),
+    Route("/more_simple", DynamicResponse(method="GET", status_code=200)),
 ]
 
 
 class TestRequest(NamedTuple):
-    request: Request
-    attrs: Mapping[str, Any]
+    http_request: Request  # The HTTP request object to be tested
+    expected_response_attributes: Mapping[
+        str, Any
+    ]  # The expected attrs of the HTTP response object, such as status code, headers, text, etc.
 
 
 test_requests = [
@@ -71,5 +75,13 @@ test_requests = [
     TestRequest(
         Request(url="/html_file", method="GET"),
         {"status_code": 200, "text": read_html_file(html_file)},
+    ),
+    TestRequest(
+        Request(url="/simple", method="GET"),
+        {"status_code": 201},
+    ),
+    TestRequest(
+        Request(url="/more_simple", method="GET"),
+        {"status_code": 200},
     ),
 ]
