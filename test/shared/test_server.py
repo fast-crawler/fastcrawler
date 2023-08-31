@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Mapping, Any, NamedTuple
 
-from fastcrawler.test_utils import BaseEndpoint, Route, StaticResponse, DynamicResponse, HTTPMethod
+from fastcrawler.test_utils import BaseEndpoint, Route, StaticResponse, SimpleResponse, HTTPMethod
 from fastcrawler.engine.contracts import Response, Request
 
 
@@ -43,8 +43,8 @@ routes = [
     Route("/user/{user_id}/{post_id}?allow={allow}&q={query}", User()),
     Route("/user/{user_id}", User()),
     Route("/html_file", StaticResponse(html_file, status_code=200)),
-    Route("/simple", DynamicResponse(method=HTTPMethod.GET, status_code=201)),
-    Route("/more_simple", DynamicResponse(method="GET", status_code=200)),
+    Route("/simple", SimpleResponse(method=HTTPMethod.GET, status_code=201)),
+    Route("/more_simple", SimpleResponse(method="GET", status_code=200)),
 ]
 
 

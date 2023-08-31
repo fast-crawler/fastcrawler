@@ -145,8 +145,8 @@ class StaticResponse(BaseEndpoint):
         return content
 
 
-class DynamicResponse(BaseEndpoint):
-    """A class that represents a dynamic response.
+class SimpleResponse(BaseEndpoint):
+    """A class that represents a simple response.
 
     This class inherits from BaseEndpoint and handles a single HTTP method by
     returning a response with the given keyword arguments.
@@ -156,7 +156,7 @@ class DynamicResponse(BaseEndpoint):
     """
 
     def __init__(self, method: HTTPMethod | str, **response_kwargs) -> None:
-        """Initialize the dynamic response with an HTTP method and optional keyword arguments.
+        """Initialize the simple response with an HTTP method and optional keyword arguments.
 
         Args:
             method (Union[HTTPMethod, str]): The HTTP method to handle.

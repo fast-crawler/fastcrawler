@@ -1,4 +1,4 @@
-from .endpoints import BaseEndpoint, StaticResponse, DynamicResponse
+from .endpoints import BaseEndpoint, StaticResponse, SimpleResponse
 from .routes import Route
 from .test_server import TestServer
 from .utils import HTTPMethod
@@ -7,7 +7,7 @@ from .utils import HTTPMethod
 __all__ = [
     "BaseEndpoint",
     "StaticResponse",
-    "DynamicResponse",
+    "SimpleResponse",
     "Route",
     "TestServer",
     "HTTPMethod",
