@@ -13,18 +13,14 @@ class Homepage(BaseEndpoint):
 class User(BaseEndpoint):
     async def get(self, request, *args, params=None, **kwargs):
         params = params or {}
-        user_id = params.get("user_id")
-        post_id = params.get("post_id")
-        allow = params.get("allow")
-        query = params.get("query")
         text = "Hello"
-        if user_id:
+        if user_id := params.get("user_id"):
             text += f", {user_id}"
-        if post_id:
+        if post_id := params.get("post_id"):
             text += f" in {post_id}"
-        if allow:
+        if allow := params.get("allow"):
             text += f", allow is {allow}"
-        if query:
+        if query := params.get("query"):
             text += f", query for {query}"
         return Response(text=text, status_code=200)
 
