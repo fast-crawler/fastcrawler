@@ -3,8 +3,22 @@
 
 from dataclasses import dataclass
 from typing import Any, Literal, NewType, Protocol
+from enum import StrEnum
 
 import pydantic
+
+
+class HTTPMethod(StrEnum):
+    GET = "GET"
+    POST = "POST"
+    PUT = "PUT"
+    DELETE = "DELETE"
+    PATCH = "PATCH"
+    HEAD = "HEAD"
+    OPTIONS = "OPTIONS"
+
+    def __str__(self):
+        return self.value
 
 
 @dataclass
@@ -42,9 +56,9 @@ class Response:
 @dataclass
 class Request:
     url: str
+    method: HTTPMethod
     proxy: ProxySetting | None = None
     data: dict | str | None = None
-    method: str | None = None
     headers: dict | None = None
     cookies: SetCookieParam | None = None
     sleep_interval: float | None = None
@@ -67,11 +81,11 @@ class EngineProto(Protocol):
         self,
         cookies: list[SetCookieParam] | None = None,
         headers: dict | None = None,
-        useragent: str | None = None,
+        user_agent: str | None = None,
         proxy: ProxySetting | None = None,
         connection_limit: int = 100,
     ):
-        "Initialize a new engine instance with given cookie(s), header(s), useragent, and proxy"
+        "Initialize a new engine instance with given cookie(s), header(s), user_agent, and proxy"
 
     @property
     def cookies(self) -> list[SetCookieParam] | None:

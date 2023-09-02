@@ -1,8 +1,15 @@
 from pathlib import Path
 from typing import Mapping, Any, NamedTuple
 
-from fastcrawler.test_utils import BaseEndpoint, Route, StaticResponse, SimpleResponse, HTTPMethod
-from fastcrawler.engine.contracts import Response, Request
+from fastcrawler.test_utils import (
+    BaseEndpoint,
+    Route,
+    StaticResponse,
+    SimpleResponse,
+    HTMLPath,
+    HTMLPathType,
+)
+from fastcrawler.engine.contracts import Response, Request, HTTPMethod
 
 
 class Homepage(BaseEndpoint):
@@ -25,13 +32,13 @@ class User(BaseEndpoint):
         return Response(text=text, status_code=200)
 
 
-def read_html_file(html_file):
+def read_html_file(html_file: HTMLPathType):
     with open(html_file) as html:
         html_content = html.read()
     return html_content
 
 
-html_file = Path(__file__).parent / "sample_html_file.html"
+html_file = HTMLPath(Path(__file__).parent / "sample_html_file.html")
 
 
 routes = [
@@ -53,31 +60,31 @@ class TestRequest(NamedTuple):
 
 test_requests = [
     TestRequest(
-        Request(url="/user/123/3?allow=all&q=username", method="GET"),
+        Request(url="/user/123/3?allow=all&q=username", method=HTTPMethod.GET),
         {"status_code": 200, "text": "Hello, 123 in 3, allow is all, query for username"},
     ),
     TestRequest(
-        Request(url="/user/123", method="GET"),
+        Request(url="/user/123", method=HTTPMethod.GET),
         {"status_code": 200, "text": "Hello, 123"},
     ),
     TestRequest(
-        Request(url="/", method="GET"),
+        Request(url="/", method=HTTPMethod.GET),
         {"status_code": 200, "text": "Hello, world!"},
     ),
     TestRequest(
-        Request(url="/", method="POST"),
+        Request(url="/", method=HTTPMethod.POST),
         {"status_code": 405, "text": "Method Not Allowed"},
     ),
     TestRequest(
-        Request(url="/html_file", method="GET"),
+        Request(url="/html_file", method=HTTPMethod.GET),
         {"status_code": 200, "text": read_html_file(html_file)},
     ),
     TestRequest(
-        Request(url="/simple", method="GET"),
+        Request(url="/simple", method=HTTPMethod.GET),
         {"status_code": 201},
     ),
     TestRequest(
-        Request(url="/more_simple", method="GET"),
+        Request(url="/more_simple", method=HTTPMethod.GET),
         {"status_code": 200},
     ),
 ]

@@ -1,11 +1,19 @@
 import asyncio
 from http.cookies import Morsel
-from typing import Any
+from typing import Any, Iterable
 
 from aiohttp import BasicAuth, ClientSession, TCPConnector
 from aiohttp.client import ClientResponse
 
-from .contracts import ProxySetting, Request, RequestCycle, Response, SetCookieParam, Url
+from .contracts import (
+    ProxySetting,
+    Request,
+    RequestCycle,
+    Response,
+    SetCookieParam,
+    Url,
+    HTTPMethod,
+)
 
 
 class AioHttpEngine:
@@ -15,7 +23,7 @@ class AioHttpEngine:
 
     def __init__(
         self,
-        cookies: list[SetCookieParam] | None = None,
+        cookies: Iterable[SetCookieParam] | None = None,
         headers: dict | None = None,
         user_agent: str | None = None,
         proxy: ProxySetting | None = None,
@@ -142,7 +150,7 @@ class AioHttpEngine:
                 data = request.data
 
             async with self.session.request(
-                request.method,
+                str(request.method),
                 request.url,
                 json=json,
                 data=data,
@@ -156,10 +164,10 @@ class AioHttpEngine:
                 return await self.translate_to_response(response, request)
         return None
 
-    async def batch(self, requests: list[Request], method: str) -> dict[Url, RequestCycle]:
+    async def batch(self, requests: Iterable[Request], method: str) -> dict[Url, RequestCycle]:
         """Batch Method for protocol to retrieve a list of URL."""
         for request in requests:
-            request.method = method
+            request.method = HTTPMethod[method]
         tasks = []
         urls = []
 
@@ -171,21 +179,21 @@ class AioHttpEngine:
                 await asyncio.sleep(request.sleep_interval)
 
         results = await asyncio.gather(*tasks)
-        return {url: result for url, result in zip(urls, results)}
+        return {Url(url): result for url, result in zip(urls, results)}
 
-    async def get(self, requests: list[Request]) -> dict[Url, RequestCycle]:
+    async def get(self, requests: Iterable[Request]) -> dict[Url, RequestCycle]:
         """GET HTTP Method for protocol to retrieve a list of URL."""
         return await self.batch(requests, "GET")
 
-    async def post(self, requests: list[Request]) -> dict[Url, RequestCycle]:
+    async def post(self, requests: Iterable[Request]) -> dict[Url, RequestCycle]:
         """POST HTTP Method for protocol to crawl a list of URL."""
         return await self.batch(requests, "POST")
 
-    async def put(self, requests: list[Request]) -> dict[Url, RequestCycle]:
+    async def put(self, requests: Iterable[Request]) -> dict[Url, RequestCycle]:
         """PUT HTTP Method for protocol to crawl a list of URL."""
         return await self.batch(requests, "PUT")
 
-    async def delete(self, requests: list[Request]) -> dict[Url, RequestCycle]:
+    async def delete(self, requests: Iterable[Request]) -> dict[Url, RequestCycle]:
         """DELETE HTTP Method for protocol to crawl a list of URL."""
         return await self.batch(requests, "DELETE")
 

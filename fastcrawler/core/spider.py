@@ -2,11 +2,11 @@ import asyncio
 from typing import Any, Self, Type
 
 from fastcrawler.engine.aio import AioHttpEngine
-from fastcrawler.engine.contracts import EngineProto, Request, RequestCycle
+from fastcrawler.engine.contracts import EngineProto, Request, RequestCycle, HTTPMethod
 from fastcrawler.exceptions import (
     ParserInvalidModelType,
     ParserValidationError,
-    SpiderBadConfiguratonError,
+    SpiderBadConfigurationError,
 )
 from fastcrawler.parsers.contracts import ParserProtocol
 from fastcrawler.parsers.html import HTMLParser
@@ -44,15 +44,15 @@ class Spider:
         self._engine: Type[EngineProto] = engine or AioHttpEngine  # type: ignore
 
         if model is None and self.data_model is None:
-            raise SpiderBadConfiguratonError("A data model must be specified")
+            raise SpiderBadConfigurationError("A data model must be specified")
 
         if self.engine_request_limit is None and self._engine.default_request_limit is None:
-            raise SpiderBadConfiguratonError("Request limit must be specified")
+            raise SpiderBadConfigurationError("Request limit must be specified")
 
         self.parser = parser or HTMLParser
         self._data_model: Type[BaseModel] = model or self.data_model  # type: ignore
-        self._crawled_urls = set()
-        self._pending_urls = set()
+        self._crawled_urls: set = set()
+        self._pending_urls: set = set()
         self._engine_request_limit: int = (
             self.engine_request_limit or self._engine.default_request_limit
         )
@@ -64,13 +64,13 @@ class Spider:
         return self._engine
 
     @property
-    def instances(self) -> list[Self | "Spider"]:
+    def instances(self) -> list[Self]:
         if not hasattr(self, "_instances"):
             self._instances = [self]
         return self._instances
 
     @instances.setter
-    def instances(self, value: list["Spider"]):
+    def instances(self, value: list[Self]):
         self._instances = value
 
     @property
@@ -109,12 +109,12 @@ class Spider:
             return self.batch_size
         elif self._engine_request_limit:
             return self._engine_request_limit * 2
-        raise SpiderBadConfiguratonError(
+        raise SpiderBadConfigurationError(
             "batch size and engine_request_limit is not initialized"
             ", please make sure one is initialized"
         )
 
-    def __rshift__(self, other: "Spider") -> "Spider":
+    def __rshift__(self, other: Self) -> Self:
         """
         leveraged RSHIFT method for magic in flow >>
         objA >> objB >> objC >> objD
@@ -131,7 +131,7 @@ class Spider:
             if type(obj) == _Depends:
                 inject_func = getattr(getattr(self, key), "inject", None)
                 if inject_func is None:
-                    raise SpiderBadConfiguratonError(
+                    raise SpiderBadConfigurationError(
                         "Depends on the class variable is not correctly defined"
                     )
 
@@ -290,7 +290,11 @@ class Spider:
                             end_index = idx + self.get_batch_size
                             batch_urls = urls[idx:end_index]
                             requests = [
-                                Request(url=url, sleep_interval=self.request_sleep_interval)
+                                Request(
+                                    url=url,
+                                    sleep_interval=self.request_sleep_interval,
+                                    method=HTTPMethod.GET,
+                                )
                                 for url in batch_urls
                             ]
                             responses = await self.requests(session, requests)

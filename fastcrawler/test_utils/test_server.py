@@ -36,7 +36,7 @@ class TestServer:
         Raises:
             NoMatchFound: If no route matches the request.
         """
-
+        assert request.method
         response_function = self._find_response_function(request.url, request.method)
 
         if response_function is None:

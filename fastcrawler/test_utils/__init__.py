@@ -1,7 +1,6 @@
-from .endpoints import BaseEndpoint, StaticResponse, SimpleResponse
+from .endpoints import BaseEndpoint, StaticResponse, SimpleResponse, HTMLPath, HTMLPathType
 from .routes import Route
 from .test_server import TestServer
-from .utils import HTTPMethod
 
 
 __all__ = [
@@ -10,5 +9,6 @@ __all__ = [
     "SimpleResponse",
     "Route",
     "TestServer",
-    "HTTPMethod",
+    "HTMLPath",
+    "HTMLPathType",
 ]

@@ -32,10 +32,10 @@ user_agents = [
 
 
 class Setting(BaseSettings):
-    server: str
-    port: int
-    username: str
-    password: str
+    server: str = ""
+    port: int = -1
+    username: str = ""
+    password: str = ""
 
     class Config:
         env_file = ".env"

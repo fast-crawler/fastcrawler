@@ -1,11 +1,9 @@
 import os
-from typing import Any, Callable, Coroutine, Self
+from typing import Any, Callable, Coroutine, Self, TypeVar
 from functools import partial
 
 import aiofiles
-from fastcrawler.engine.contracts import Response
-
-from .utils import HTTPMethod
+from fastcrawler.engine.contracts import Response, HTTPMethod
 
 
 class HTMLPath(str):
@@ -34,6 +32,9 @@ class HTMLPath(str):
         if not (os.path.exists(file_name) and file_name.endswith(".html")):
             raise ValueError(f"{file_name} is not a valid HTML file or not found!")
         return super().__new__(cls, file_name)
+
+
+HTMLPathType = TypeVar("HTMLPathType", bound=HTMLPath)
 
 
 async def not_allowed(
@@ -114,11 +115,11 @@ class StaticResponse(BaseEndpoint):
         response_kwargs (dict): The keyword arguments to pass to the response object.
     """
 
-    def __init__(self, html_file: os.PathLike | str, **response_kwargs) -> None:
+    def __init__(self, html_file: HTMLPathType, **response_kwargs) -> None:
         """Initialize the static response with an HTML file and optional keyword arguments.
 
         Args:
-            html_file (Union[os.PathLike, str]): The HTML file path to read from.
+            html_file (HTMLPathType): The HTML file path to read from.
             **response_kwargs: The keyword arguments to pass to the response object.
         """
         super().__init__()
