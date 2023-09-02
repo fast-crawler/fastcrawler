@@ -1,6 +1,7 @@
 import asyncio
 from http.cookies import Morsel
-from typing import Any, Iterable
+from typing import Any, Iterable, Self
+from dataclasses import asdict
 
 from aiohttp import BasicAuth, ClientSession, TCPConnector
 from aiohttp.client import ClientResponse
@@ -12,7 +13,6 @@ from .contracts import (
     Response,
     SetCookieParam,
     Url,
-    HTTPMethod,
 )
 
 
@@ -104,9 +104,9 @@ class AioHttpEngine:
             "secure": cookie.get("secure"),
             "sameSite": cookie.get("samesite"),
         }
-        return SetCookieParam(**cookie_params)
+        return SetCookieParam(**cookie_params)  # type: ignore
 
-    async def __aenter__(self) -> "AioHttpEngine":
+    async def __aenter__(self) -> Self:
         """Async context manager support for engine -> ENTER"""
         await self.setup()
         return self
@@ -139,8 +139,6 @@ class AioHttpEngine:
         verify_ssl=False,
     ) -> RequestCycle | None:
         """Base Method for protocol to retrieve a list of URL."""
-        assert request.method is not None
-
         if self.session:
             if isinstance(request.data, dict):
                 json = request.data
@@ -155,19 +153,17 @@ class AioHttpEngine:
                 json=json,
                 data=data,
                 headers=request.headers or self.headers,
-                cookies=self._get_morsel_cookie(request.cookies)
+                cookies=dict(self._get_morsel_cookie(request.cookies))
                 if request.cookies
-                else self.cookies,
+                else [(cookie.name, asdict(cookie)) for cookie in (self.cookies or [])],
                 ssl=verify_ssl,
                 **self._proxy,
             ) as response:
                 return await self.translate_to_response(response, request)
         return None
 
-    async def batch(self, requests: Iterable[Request], method: str) -> dict[Url, RequestCycle]:
+    async def batch(self, requests: Iterable[Request]) -> dict[Url, RequestCycle]:
         """Batch Method for protocol to retrieve a list of URL."""
-        for request in requests:
-            request.method = HTTPMethod[method]
         tasks = []
         urls = []
 
@@ -180,22 +176,6 @@ class AioHttpEngine:
 
         results = await asyncio.gather(*tasks)
         return {Url(url): result for url, result in zip(urls, results)}
-
-    async def get(self, requests: Iterable[Request]) -> dict[Url, RequestCycle]:
-        """GET HTTP Method for protocol to retrieve a list of URL."""
-        return await self.batch(requests, "GET")
-
-    async def post(self, requests: Iterable[Request]) -> dict[Url, RequestCycle]:
-        """POST HTTP Method for protocol to crawl a list of URL."""
-        return await self.batch(requests, "POST")
-
-    async def put(self, requests: Iterable[Request]) -> dict[Url, RequestCycle]:
-        """PUT HTTP Method for protocol to crawl a list of URL."""
-        return await self.batch(requests, "PUT")
-
-    async def delete(self, requests: Iterable[Request]) -> dict[Url, RequestCycle]:
-        """DELETE HTTP Method for protocol to crawl a list of URL."""
-        return await self.batch(requests, "DELETE")
 
     async def translate_to_response(
         self, response_obj: ClientResponse, request: Request

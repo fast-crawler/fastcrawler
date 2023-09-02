@@ -2,7 +2,7 @@
 # pylint: disable=pointless-string-statement
 
 from dataclasses import dataclass
-from typing import Any, Literal, NewType, Protocol
+from typing import Any, Literal, NewType, Protocol, Iterable
 from enum import StrEnum
 
 import pydantic
@@ -120,34 +120,9 @@ class EngineProto(Protocol):
 
     async def batch(
         self,
-        requests: list[Request],
-        method: str,
+        requests: Iterable[Request],
     ) -> dict[Url, RequestCycle]:  # type: ignore
         """Batch Method for protocol to retrieve a list of URL."""
-
-    async def get(
-        self,
-        requests: list[Request],
-    ) -> dict[Url, RequestCycle]:  # type: ignore
-        """GET HTTP Method for protocol to retrieve a list of URL."""
-
-    async def post(
-        self,
-        requests: list[Request],
-    ) -> dict[Url, RequestCycle]:  # type: ignore
-        """POST HTTP Method for protocol to crawl a list of URL."""
-
-    async def put(
-        self,
-        requests: list[Request],
-    ) -> dict[Url, RequestCycle]:  # type: ignore
-        """PUT HTTP Method for protocol to crawl a list of URL."""
-
-    async def delete(
-        self,
-        requests: list[Request],
-    ) -> dict[Url, RequestCycle]:  # type: ignore
-        """DELETE HTTP Method for protocol to crawl a list of URL."""
 
     async def translate_to_response(
         self,

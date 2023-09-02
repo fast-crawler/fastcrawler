@@ -1,8 +1,8 @@
 import asyncio
-from typing import Any, Self, Type
+from typing import Any, Self, Type, Iterable
 
 from fastcrawler.engine.aio import AioHttpEngine
-from fastcrawler.engine.contracts import EngineProto, Request, RequestCycle, HTTPMethod
+from fastcrawler.engine.contracts import EngineProto, Request, RequestCycle, HTTPMethod, Url
 from fastcrawler.exceptions import (
     ParserInvalidModelType,
     ParserValidationError,
@@ -224,8 +224,8 @@ class Spider:
         return response
 
     async def requests(
-        self, session: EngineProto, requests: list[Request]
-    ) -> dict[str, RequestCycle]:
+        self, session: EngineProto, requests: Iterable[Request]
+    ) -> dict[Url, RequestCycle]:
         """Send a batch of requests
         Args:
             engine (EngineProto): Engine initiated for sending requests
@@ -234,9 +234,7 @@ class Spider:
         Returns:
             list[Response]: list of responses from the requests
         """
-        result: dict[str, RequestCycle] = await getattr(
-            session, self._data_model.Config.http_method
-        )(requests=requests)
+        result: dict[Url, RequestCycle] = await session.batch(requests=requests)
         if result:
             self.request_sent += 1
         return result

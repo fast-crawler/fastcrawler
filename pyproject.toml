@@ -15,4 +15,5 @@ all = [
 ]
 
 [tool.mypy]
+exclude = ["docs_src"]
 python_version = "3.11"
