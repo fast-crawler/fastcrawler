@@ -15,5 +15,6 @@ all = [
 ]
 
 [tool.mypy]
-exclude = ["docs_src"]
+exclude = ["docs_src", "test"]
 python_version = "3.11"
+check_untyped_defs = true
