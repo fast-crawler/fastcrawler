@@ -159,6 +159,7 @@ async def test_limit(headers, user_agent):
     assert end - start == pytest.approx(0.2, abs=0.1)
 
 
+@pytest.mark.asyncio
 async def test_async_event_loop(headers, user_agent):
     """Test that request are being sent in parallel (V Test)
     This test only pass if the engine is using the same event loop as the caller, and
@@ -174,21 +175,21 @@ async def test_async_event_loop(headers, user_agent):
             Request(
                 url="http://127.0.0.1:8000/throttled",
                 data={"seconds": 0.01},
-                method=HTTPMethod.GET,
+                method=HTTPMethod.POST,
             ),
             Request(
                 url="http://127.0.0.1:8000/throttled",
                 data={"seconds": 0.3},
-                method=HTTPMethod.GET,
+                method=HTTPMethod.POST,
             ),
             Request(
                 url="http://127.0.0.1:8000/throttled",
                 data={"seconds": 0.2},
-                method=HTTPMethod.GET,
+                method=HTTPMethod.POST,
             ),
         ]
         start = perf_counter()
         await aiohttp_engine.batch(urls)
         end = perf_counter()
 
-    assert end - start == pytest.approx(0.1, abs=0.06)
+    assert end - start == pytest.approx(0.3, abs=0.2)
