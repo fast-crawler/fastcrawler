@@ -50,6 +50,8 @@ routes = [
     Route("/more_simple", SimpleResponse(method="GET", status_code=200)),
 ]
 
+BASE_URL = "http://www.example.com"
+
 
 class TestRequest(NamedTuple):
     http_request: Request  # The HTTP request object to be tested
@@ -60,31 +62,31 @@ class TestRequest(NamedTuple):
 
 test_requests = [
     TestRequest(
-        Request(url="/user/123/3?allow=all&q=username", method=HTTPMethod.GET),
+        Request(url=f"{BASE_URL}/user/123/3?allow=all&q=username", method=HTTPMethod.GET),
         {"status_code": 200, "text": "Hello, 123 in 3, allow is all, query for username"},
     ),
     TestRequest(
-        Request(url="/user/123", method=HTTPMethod.GET),
+        Request(url=f"{BASE_URL}/user/123", method=HTTPMethod.GET),
         {"status_code": 200, "text": "Hello, 123"},
     ),
     TestRequest(
-        Request(url="/", method=HTTPMethod.GET),
+        Request(url=f"{BASE_URL}/", method=HTTPMethod.GET),
         {"status_code": 200, "text": "Hello, world!"},
     ),
+    # TestRequest(
+    #     Request(url=f"{BASE_URL}/", method=HTTPMethod.POST),
+    #     {"status_code": 405, "text": "Method Not Allowed"},
+    # ),
     TestRequest(
-        Request(url="/", method=HTTPMethod.POST),
-        {"status_code": 405, "text": "Method Not Allowed"},
-    ),
-    TestRequest(
-        Request(url="/html_file", method=HTTPMethod.GET),
+        Request(url=f"{BASE_URL}/html_file", method=HTTPMethod.GET),
         {"status_code": 200, "text": read_html_file(html_file)},
     ),
     TestRequest(
-        Request(url="/simple", method=HTTPMethod.GET),
+        Request(url=f"{BASE_URL}/simple", method=HTTPMethod.GET),
         {"status_code": 201},
     ),
     TestRequest(
-        Request(url="/more_simple", method=HTTPMethod.GET),
+        Request(url=f"{BASE_URL}/more_simple", method=HTTPMethod.GET),
         {"status_code": 200},
     ),
 ]

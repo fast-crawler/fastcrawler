@@ -6,7 +6,6 @@ import pytest_asyncio
 
 from fastcrawler import Logger
 from fastcrawler.schedule.adopter import ProcessController, RocketryApplication
-from fastcrawler.test_utils import TestServer
 
 from test.shared.engine import (
     get_aiohttp_engine,
@@ -17,7 +16,6 @@ from test.shared.engine import (
 )
 from test.shared.mock_html import get_corrupted_html, get_html
 from test.shared.mock_json import get_json_data
-from test.shared.test_server import routes, test_requests as __test_requests
 
 
 @pytest.fixture
@@ -75,13 +73,3 @@ def task_manager(task_app):
 @pytest.fixture(scope="function")
 def logger():
     yield Logger(level=logging.DEBUG, formatter="%(asctime)s")
-
-
-@pytest.fixture(scope="session")
-def test_server():
-    yield TestServer(routes=routes)
-
-
-@pytest.fixture(scope="session")
-def test_requests():
-    yield __test_requests
