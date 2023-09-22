@@ -66,7 +66,7 @@ class BaseEndpoint:
         """Initialize the base endpoint with the allowed methods."""
         self._allowed_methods = [
             method
-            for method in [str(member) for member in HTTPMethod.__members__.values()]
+            for method in [str(member) for member in HTTPMethod]
             if getattr(self, method.lower(), None) is not None
         ]
 
@@ -167,7 +167,7 @@ class SimpleResponse(BaseEndpoint):
             ValueError: If the method is not a member of HTTPMethod.
         """
 
-        async def http_method(self, *args, **kwargs) -> Response:
+        def http_method(self, *args, **kwargs) -> Response:
             """Handle the HTTP request and return a response with the given keyword arguments.
 
             Returns:

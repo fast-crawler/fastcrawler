@@ -35,7 +35,7 @@ class Route:
         self.response = response
         self.path_regex, self.path_format, self.param_convertors = compile_path(request_pattern)
 
-    def url_path_for(self, url: str, method: str) -> Callable[..., Response]:
+    def get_response_from_url(self, url: str, method: str) -> Callable[..., Response]:
         """Get a response for a given url and method.
 
         Args:

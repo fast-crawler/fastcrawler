@@ -1,4 +1,4 @@
-from typing import Optional, Callable
+from typing import Callable
 
 from fastcrawler.engine.contracts import Request, Response
 from fastcrawler.test_utils.routes import Route, NoMatchFound
@@ -13,7 +13,7 @@ class TestServer:
         routes (list[Route]): A list of routes that the server can handle.
     """
 
-    def __init__(self, routes: Optional[list[Route]] = None) -> None:
+    def __init__(self, routes: list[Route] | None) -> None:
         self.routes = routes or []
 
     def add_route(self, route: Route) -> None:
@@ -39,12 +39,9 @@ class TestServer:
         assert request.method
         response_function = self._find_response_function(request.url, request.method)
 
-        if response_function is None:
-            raise NoMatchFound(request.url, {})
-        # Otherwise, return the response from the route
         return response_function
 
-    def _find_response_function(self, url: str, method: str) -> Callable[..., Response] | None:
+    def _find_response_function(self, url: str, method: str) -> Callable[..., Response]:
         """Find a matching route for a given url and method.
 
         Args:
@@ -52,13 +49,15 @@ class TestServer:
             method (str): The method to match.
 
         Returns:
-            Optional[Route]: The matching route or None if not found.
+            Route: The matching route
+
+        Raises:
+            NoMatchFound: If no route matches the request.
         """
         # Loop through the routes and return the first response that matches
         for route in self.routes:
             try:
-                return route.url_path_for(url, method)
+                return route.get_response_from_url(url, method)
             except NoMatchFound:
                 pass
-        # If no route matches, return None
-        return None
+        raise NoMatchFound(url, {})

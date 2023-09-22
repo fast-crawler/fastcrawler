@@ -1,9 +1,14 @@
-from typing import Iterable
+from typing import Iterable, NamedTuple
 from copy import copy
 import asyncio
 
 from .test_server import TestServer
 from fastcrawler.engine.contracts import Request, Response, Url
+
+
+class UrlInfo(NamedTuple):
+    base_url: str
+    route: str
 
 
 class MockEngine:
@@ -14,16 +19,14 @@ class MockEngine:
         base_urls (str | Iterable[str]): The base urls of the requests.
     """
 
-    def __init__(
-        self, servers: TestServer | Iterable[TestServer], base_urls: str | Iterable[str]
-    ) -> None:
+    def __init__(self, servers: TestServer | Iterable[TestServer], base_urls: str | Iterable[str]):
         servers = servers if not isinstance(servers, TestServer) else [servers]
         base_urls = base_urls if not isinstance(base_urls, str) else [base_urls]
 
         self.servers = {base_url: server for base_url, server in zip(base_urls, servers)}
 
     @staticmethod
-    def _extract_base_url_and_route(url: str) -> tuple[str, str]:
+    def _extract_base_url_and_route(url: str) -> UrlInfo:
         """Splits a URL into base URL and route.
 
         The base URL has the protocol, domain, and port (if any).
@@ -35,7 +38,7 @@ class MockEngine:
             url (str): The URL to be processed.
 
         Returns:
-            tuple[str, str]: A tuple of the base URL and the route.
+            UrlInfo: A tuple of the base URL and the route.
         """
         if url.startswith("http"):
             # Split the URL by "/" and take the first three elements
@@ -49,7 +52,7 @@ class MockEngine:
             # and the route to the same as the URL
             base_url = ""
             route = url
-        return base_url, route
+        return UrlInfo(base_url, route)
 
     async def base(self, request: Request) -> Response:
         """The base method of the Engine protocol.
