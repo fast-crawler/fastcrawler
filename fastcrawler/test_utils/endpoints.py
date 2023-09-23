@@ -1,4 +1,6 @@
 import os
+import json
+from pathlib import Path
 from typing import Any, Callable, Coroutine, Self, TypeVar
 from functools import partial
 
@@ -6,8 +8,8 @@ import aiofiles
 from fastcrawler.engine.contracts import Response, HTTPMethod
 
 
-class HTMLPath(str):
-    """A class that represents a valid HTML file path.
+class FilePath(str):
+    """A class that represents a valid HTML/Json file path.
 
     This class inherits from str and validates the input file name.
 
@@ -23,18 +25,21 @@ class HTMLPath(str):
             file_name (Union[os.PathLike, str]): The file name to validate.
 
         Returns:
-            HTMLPath: The validated HTML file path.
+            FilePath: The validated HTML/Json file path.
         """
         if not isinstance(file_name, (os.PathLike, str)):
-            raise TypeError("Invalid html_file input format")
+            raise TypeError("Invalid file input format")
 
         file_name = str(file_name)
-        if not (os.path.exists(file_name) and file_name.endswith(".html")):
-            raise ValueError(f"{file_name} is not a valid HTML file or not found!")
+        if not (
+            os.path.exists(file_name)
+            and any([file_name.endswith(".html"), file_name.endswith(".json")])
+        ):
+            raise ValueError(f"{file_name} is not a valid HTML/Json file or not found!")
         return super().__new__(cls, file_name)
 
 
-HTMLPathType = TypeVar("HTMLPathType", bound=HTMLPath)
+FilePathType = TypeVar("FilePathType", bound=FilePath)
 
 
 async def not_allowed(
@@ -108,43 +113,56 @@ class BaseEndpoint:
 
 
 class StaticResponse(BaseEndpoint):
-    """A class that represents a static HTML response.
+    """A class that represents a static response.
 
-    This class handles GET requests by returning the content of an HTML file.
+    This class handles requests by returning the content of a HTML/Json file.
 
     Attributes:
-        html_file (HTMLPath): The HTML file path to read from.
+        file_path (FilePathType): The file path to read from.
         response_kwargs (dict): The keyword arguments to pass to the response object.
+        file_type (str): The type of the file ('html' or 'json').
     """
 
-    def __init__(self, html_file: HTMLPathType, **response_kwargs) -> None:
-        """Initialize the static response with an HTML file and optional keyword arguments.
+    def __init__(
+        self, file_path: FilePathType, method: HTTPMethod | str = HTTPMethod.GET, **response_kwargs
+    ) -> None:
+        """Initialize the static response with a file and optional keyword arguments.
 
         Args:
-            html_file (HTMLPathType): The HTML file path to read from.
+            file_path (FilePathType): The file path to read from.
+            method (Union[HTTPMethod, str]): The HTTP method to handle.
             **response_kwargs: The keyword arguments to pass to the response object.
         """
+        setattr(self, method.lower(), self.http_method)
         super().__init__()
-        self.html_file = HTMLPath(html_file)
+        self.file_path = Path(file_path)
+
+        self.file_type = self.file_path.suffix.replace(".", "", 1).lower()
         self.response_kwargs = response_kwargs
 
-    async def get(self, *args, **kwargs) -> Response:
-        """Handle a GET request and return a response with the HTML content.
+    async def http_method(self, *args, **kwargs) -> Response:
+        """Handle a request method and return a response with the content.
 
         Returns:
-            Response: The response object with the HTML content.
+            Response: The response object with the content.
         """
         content = await self.get_content()
         return Response(text=content, **self.response_kwargs)
 
     async def get_content(self) -> str:
-        """Read and return the HTML content from the file.
+        """Read and return the content from the file.
 
         Returns:
-            str: The HTML content as a string.
+            str: The content as a string.
         """
-        async with aiofiles.open(self.html_file, "r") as html_file:
-            content = await html_file.read()
+        async with aiofiles.open(self.file_path, "r") as file:
+            if self.file_type == "html":
+                content = await file.read()
+            elif self.file_type == "json":
+                content = json.dumps(json.loads(await file.read()))
+            else:
+                raise ValueError(f"Unsupported file type: {self.file_type}")
+
         return content
 
 

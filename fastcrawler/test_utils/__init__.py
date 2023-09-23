@@ -1,4 +1,4 @@
-from .endpoints import BaseEndpoint, StaticResponse, SimpleResponse, HTMLPath, HTMLPathType
+from .endpoints import BaseEndpoint, StaticResponse, SimpleResponse, FilePath, FilePathType
 from .routes import Route
 from .test_server import TestServer
 from .test_engine import MockEngine
@@ -11,6 +11,6 @@ __all__ = [
     "Route",
     "TestServer",
     "MockEngine",
-    "HTMLPath",
-    "HTMLPathType",
+    "FilePath",
+    "FilePathType",
 ]
