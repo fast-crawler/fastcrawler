@@ -70,7 +70,9 @@ class BaseEndpoint:
             if getattr(self, method.lower(), None) is not None
         ]
 
-    def dispatch(self, request_method: str) -> Any:
+    def dispatch(
+        self, request_method: str
+    ) -> Coroutine[Any, Any, Response] | Callable[..., Response]:
         """Dispatch the request to the appropriate method.
 
         Args:

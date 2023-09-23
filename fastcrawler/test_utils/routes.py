@@ -50,12 +50,15 @@ class Route:
         """
         match = self.path_regex.match(url)
         path_params: dict[str, Any] = {}
-        if not match:
+
+        if match is None:
             raise NoMatchFound(url, path_params)
 
-        matched_params = match.groupdict()
-        for key, value in matched_params.items():
-            matched_params[key] = self.param_convertors[key].convert(value)
+        matched_params = {
+            key: self.param_convertors[key].convert(value)
+            for key, value in match.groupdict().items()
+        }
+
         path_params.update(matched_params)
         method_func = self.response.dispatch(method.lower())
         return method_func(url, params=path_params)
