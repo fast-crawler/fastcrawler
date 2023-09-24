@@ -77,7 +77,7 @@ class BaseEndpoint:
 
     def dispatch(
         self, request_method: str
-    ) -> Coroutine[Any, Any, Response] | Callable[..., Response]:
+    ) -> Callable[..., Coroutine[Any, Any, Response] | Callable[..., Response]]:
         """Dispatch the request to the appropriate method.
 
         Args:
