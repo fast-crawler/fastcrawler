@@ -4,6 +4,20 @@ from functools import wraps
 from typing import Any, Callable
 
 
+class Container:
+    def __init__(self):
+        self.dependencies = {}
+
+    def __getitem__(self, dependency: Callable):
+        return self.dependencies[dependency]
+
+    def __setitem__(self, key: Callable, value: Callable):
+        self.dependencies[key] = value
+
+
+container = Container()
+
+
 class _Depends:
     """Dependency injection to run callable as a dependency"""
 
@@ -14,11 +28,17 @@ class _Depends:
         *args,
         **kwargs,
     ):
-        self.dependency = dependency
+        self._dependency = dependency
+        container.dependencies[dependency] = dependency
         self.use_cache = use_cache
         self.result = ...
         self.args = args
         self.kwargs = kwargs
+
+    def get_dependency(self):
+        return container[self._dependency]
+
+    dependency = property(get_dependency)
 
     async def async_eval(self):
         """Run async callable dependency and store it as cache entry"""
