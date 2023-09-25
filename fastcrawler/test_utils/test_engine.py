@@ -1,4 +1,5 @@
-from typing import Iterable, NamedTuple
+import re
+from typing import Iterable, NamedTuple, Self
 from copy import copy
 import asyncio
 
@@ -6,9 +7,36 @@ from .test_server import TestServer
 from fastcrawler.engine.contracts import Request, Response, Url
 
 
+_url_pattern = re.compile(r"((?:http[s]?://)?[^/#?]+)(.*)")
+
+
 class UrlInfo(NamedTuple):
     base_url: str
     route: str
+
+    @classmethod
+    def from_url(cls, url: str) -> Self:
+        """Splits a URL into base URL and route.
+
+        The base URL has the protocol, domain, and port (if any).
+        The route has the rest of the URL.
+        If the URL does not have "http" at the start,
+        then the base URL is empty and the route is the whole URL.
+
+        Args:
+            url (str): The URL to be processed.
+
+        Returns:
+            UrlInfo: A tuple of the base URL and the route.
+        """
+        match = _url_pattern.match(url)
+        if match:
+            base_url, route = match.groups()
+            return cls(base_url, route or "/")
+
+        # If the URL does not match regex, set the base URL to an empty string
+        # and the route to the same as the URL
+        return cls("", url)
 
 
 class MockEngine:
@@ -25,35 +53,6 @@ class MockEngine:
 
         self.servers = {base_url: server for base_url, server in zip(base_urls, servers)}
 
-    @staticmethod
-    def _extract_base_url_and_route(url: str) -> UrlInfo:
-        """Splits a URL into base URL and route.
-
-        The base URL has the protocol, domain, and port (if any).
-        The route has the rest of the URL.
-        If the URL does not have "http" at the start,
-        then the base URL is empty and the route is the whole URL.
-
-        Args:
-            url (str): The URL to be processed.
-
-        Returns:
-            UrlInfo: A tuple of the base URL and the route.
-        """
-        if url.startswith("http"):
-            # Split the URL by "/" and take the first three elements
-            base_url_parts = url.split("/", 3)[:3]
-            # Join the base URL parts with "/"
-            base_url = "/".join(base_url_parts)
-            # Remove the base URL from the original URL to get the route
-            route = url.replace(base_url, "")
-        else:
-            # If the URL does not start with "http", set the base URL to an empty string
-            # and the route to the same as the URL
-            base_url = ""
-            route = url
-        return UrlInfo(base_url, route)
-
     async def base(self, request: Request) -> Response:
         """The base method of the Engine protocol.
 
@@ -66,7 +65,7 @@ class MockEngine:
             Response: The response from the test server.
         """
         # Extract the base_url and route from Url
-        base_url, route = self._extract_base_url_and_route(request.url)
+        base_url, route = UrlInfo.from_url(request.url)
 
         # Copy request parameters to prevent changing the original request parameters
         request_route = copy(request)
