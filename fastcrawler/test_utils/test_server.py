@@ -1,5 +1,6 @@
 from typing import Callable
 
+from more_itertools import first_true
 from fastcrawler.engine.contracts import Request, Response
 from fastcrawler.test_utils.routes import Route, NoMatchFound
 
@@ -54,10 +55,13 @@ class TestServer:
         Raises:
             NoMatchFound: If no route matches the request.
         """
-        # Loop through the routes and return the first response that matches
-        for route in self.routes:
-            try:
-                return route.get_response_from_url(url, method)
-            except NoMatchFound:
-                pass
-        raise NoMatchFound(url, {})
+        # Use more_itertools.first_true to find the first response that matches
+        matched_route = first_true(
+            self.routes,
+            None,
+            lambda route: route.get_response_from_url(url, method, raise_exception=False),
+        )
+        if matched_route is None:
+            raise NoMatchFound(url, {})
+
+        return matched_route.get_response_from_url(url, method)

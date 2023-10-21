@@ -14,3 +14,4 @@ coloredlogs
 pyyaml
 redbird @ git+https://github.com/ManiMozaffar/red-bird@v2_but_v1
 rocketry @ git+https://github.com/ManiMozaffar/rocketry@master
+moreitertools
