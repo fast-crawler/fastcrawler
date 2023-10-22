@@ -16,6 +16,7 @@ class HTTPMethod(StrEnum):
     PATCH = "PATCH"
     HEAD = "HEAD"
     OPTIONS = "OPTIONS"
+    TRACE = "TRACE"
 
     def __str__(self):
         return self.value
