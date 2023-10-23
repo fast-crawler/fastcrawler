@@ -1,42 +1,12 @@
-import re
-from typing import Iterable, NamedTuple, Self
+from typing import Iterable
 from copy import copy
 import asyncio
 
-from .test_server import TestServer
+from pydantic import AnyUrl
 from fastcrawler.engine.contracts import Request, Response, Url
 
 
-_url_pattern = re.compile(r"((?:http[s]?://)?[^/#?]+)(.*)")
-
-
-class UrlInfo(NamedTuple):
-    base_url: str
-    route: str
-
-    @classmethod
-    def from_url(cls, url: str) -> Self:
-        """Splits a URL into base URL and route.
-
-        The base URL has the protocol, domain, and port (if any).
-        The route has the rest of the URL.
-        If the URL does not have "http" at the start,
-        then the base URL is empty and the route is the whole URL.
-
-        Args:
-            url (str): The URL to be processed.
-
-        Returns:
-            UrlInfo: A tuple of the base URL and the route.
-        """
-        match = _url_pattern.match(url)
-        if match:
-            base_url, route = match.groups()
-            return cls(base_url, route or "/")
-
-        # If the URL does not match regex, set the base URL to an empty string
-        # and the route to the same as the URL
-        return cls("", url)
+from .test_server import TestServer
 
 
 class MockEngine:
@@ -65,7 +35,12 @@ class MockEngine:
             Response: The response from the test server.
         """
         # Extract the base_url and route from Url
-        base_url, route = UrlInfo.from_url(request.url)
+        request_url = AnyUrl(request.url)
+        base_url, route = (
+            f"{request_url.scheme}://{request_url.host}",
+            f"{request_url.path}"
+            + (f"?{request_url.query}" if request_url.query is not None else ""),
+        )
 
         # Copy request parameters to prevent changing the original request parameters
         request_route = copy(request)
