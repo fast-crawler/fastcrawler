@@ -13,15 +13,26 @@ class MockEngine:
     """This class uses the TestServer instance to handle requests and return responses.
 
     Attributes:
-        servers (TestServer | Iterable[TestServer]): The test server instances.
-        base_urls (str | Iterable[str]): The base urls of the requests.
+        test_servers (Iterable[TestServer]): The test server instances.
+        base_urls (Iterable[str]): The base urls of the requests.
     """
 
-    def __init__(self, servers: TestServer | Iterable[TestServer], base_urls: str | Iterable[str]):
-        servers = servers if not isinstance(servers, TestServer) else [servers]
-        base_urls = base_urls if not isinstance(base_urls, str) else [base_urls]
+    def __init__(self, test_servers: Iterable[TestServer], base_urls: Iterable[str]):
+        self.test_servers_map = {
+            base_url: server for base_url, server in zip(base_urls, test_servers)
+        }
 
-        self.servers = {base_url: server for base_url, server in zip(base_urls, servers)}
+    @classmethod
+    def from_servers(mock_engine_cls, test_server_dict: dict[str, TestServer]):
+        """Create a new instance of MockEngine
+
+        Attributes:
+            test_server_dict (dict[str, TestServer]): The test server instances in the dictionary
+            The keys in the dictionary are the base_urls of the TestServer instances
+        """
+        return mock_engine_cls(
+            test_servers=test_server_dict.values(), base_urls=test_server_dict.keys()
+        )
 
     async def base(self, request: Request) -> Response:
         """The base method of the Engine protocol.
@@ -47,7 +58,7 @@ class MockEngine:
         request_route.url = route
 
         # Get the TestServer instance from the dictionary
-        server = self.servers[base_url]
+        server = self.test_servers_map[base_url]
 
         # Get the response function from the test server
         response_func = server.get_response(request_route)

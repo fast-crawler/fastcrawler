@@ -16,7 +16,7 @@ def test_requests():
 
 @pytest.fixture(scope="session")
 def mock_engine(test_server):
-    yield MockEngine(test_server, BASE_URL)
+    yield MockEngine.from_servers({BASE_URL: test_server})
 
 
 # @pytest.mark.asyncio
