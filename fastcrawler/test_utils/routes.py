@@ -1,4 +1,4 @@
-from typing import Any, Callable, Coroutine
+from typing import Any, Callable
 
 from starlette.routing import NoMatchFound, compile_path
 
@@ -35,9 +35,7 @@ class Route:
         self.response = response
         self.path_regex, self.path_format, self.param_convertors = compile_path(request_pattern)
 
-    def get_response_from_url(
-        self, url: str, method: str, raise_exception: bool = False
-    ) -> Coroutine[Any, Any, Response] | Callable[..., Response] | None:
+    def get_response_from_url(self, url: str, method: str) -> Callable[..., Response]:
         """Get a response for a given url and method.
 
         Args:
@@ -45,23 +43,20 @@ class Route:
             method (str): The method to match.
 
         Returns:
-            Optional[Callable[..., Response]]: The response from the response object.
+            Callable[..., Response]: The response from the response object.
 
         Raises:
             NoMatchFound: If no match is found for the url and method.
         """
         match = self.path_regex.match(url)
 
-        if match is None and raise_exception:
+        if match is None:
             raise NoMatchFound(url, {})
 
-        if match is not None:
-            path_params: dict[str, Any] = {
-                key: self.param_convertors[key].convert(value)
-                for key, value in match.groupdict().items()
-            }
+        path_params: dict[str, Any] = {
+            key: self.param_convertors[key].convert(value)
+            for key, value in match.groupdict().items()
+        }
 
-            method_func = self.response.dispatch(method.lower())
-            return method_func(url, params=path_params)
-
-        return None
+        method_func = self.response.dispatch(method.lower())
+        return method_func(url, params=path_params)

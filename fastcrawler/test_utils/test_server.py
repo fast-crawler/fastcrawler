@@ -1,3 +1,4 @@
+from functools import partial
 from typing import Callable
 
 from more_itertools import first_true
@@ -50,17 +51,26 @@ class TestServer:
             method (str): The method to match.
 
         Returns:
-            Route: The matching route
+            Route: The matching route function
 
         Raises:
             NoMatchFound: If no route matches the request.
         """
+
         # Use more_itertools.first_true to find the first response that matches
+        def prediction(route: Route, url, method):
+            try:
+                route.get_response_from_url(url, method)
+                return True
+            except NoMatchFound:
+                pass
+
         matched_route = first_true(
             self.routes,
             None,
-            lambda route: route.get_response_from_url(url, method, raise_exception=False),
+            partial(prediction, url=url, method=method),
         )
+
         if matched_route is None:
             raise NoMatchFound(url, {})
 
