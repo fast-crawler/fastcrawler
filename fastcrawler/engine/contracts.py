@@ -2,9 +2,24 @@
 # pylint: disable=pointless-string-statement
 
 from dataclasses import dataclass
-from typing import Any, Literal, NewType, Protocol
+from typing import Any, Literal, NewType, Protocol, Iterable
+from enum import StrEnum
 
 import pydantic
+
+
+class HTTPMethod(StrEnum):
+    GET = "GET"
+    POST = "POST"
+    PUT = "PUT"
+    DELETE = "DELETE"
+    PATCH = "PATCH"
+    HEAD = "HEAD"
+    OPTIONS = "OPTIONS"
+    TRACE = "TRACE"
+
+    def __str__(self):
+        return self.value
 
 
 @dataclass
@@ -42,9 +57,9 @@ class Response:
 @dataclass
 class Request:
     url: str
+    method: HTTPMethod
     proxy: ProxySetting | None = None
     data: dict | str | None = None
-    method: str | None = None
     headers: dict | None = None
     cookies: SetCookieParam | None = None
     sleep_interval: float | None = None
@@ -67,11 +82,11 @@ class EngineProto(Protocol):
         self,
         cookies: list[SetCookieParam] | None = None,
         headers: dict | None = None,
-        useragent: str | None = None,
+        user_agent: str | None = None,
         proxy: ProxySetting | None = None,
         connection_limit: int = 100,
     ):
-        "Initialize a new engine instance with given cookie(s), header(s), useragent, and proxy"
+        "Initialize a new engine instance with given cookie(s), header(s), user_agent, and proxy"
 
     @property
     def cookies(self) -> list[SetCookieParam] | None:
@@ -106,34 +121,9 @@ class EngineProto(Protocol):
 
     async def batch(
         self,
-        requests: list[Request],
-        method: str,
+        requests: Iterable[Request],
     ) -> dict[Url, RequestCycle]:  # type: ignore
         """Batch Method for protocol to retrieve a list of URL."""
-
-    async def get(
-        self,
-        requests: list[Request],
-    ) -> dict[Url, RequestCycle]:  # type: ignore
-        """GET HTTP Method for protocol to retrieve a list of URL."""
-
-    async def post(
-        self,
-        requests: list[Request],
-    ) -> dict[Url, RequestCycle]:  # type: ignore
-        """POST HTTP Method for protocol to crawl a list of URL."""
-
-    async def put(
-        self,
-        requests: list[Request],
-    ) -> dict[Url, RequestCycle]:  # type: ignore
-        """PUT HTTP Method for protocol to crawl a list of URL."""
-
-    async def delete(
-        self,
-        requests: list[Request],
-    ) -> dict[Url, RequestCycle]:  # type: ignore
-        """DELETE HTTP Method for protocol to crawl a list of URL."""
 
     async def translate_to_response(
         self,

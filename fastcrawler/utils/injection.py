@@ -47,35 +47,34 @@ class _Depends:
 
     @staticmethod
     async def inject(func: "_Depends"):
-        if asyncio.iscoroutinefunction(func.dependency):
-            sig = inspect.signature(func.dependency)
-            bound = sig.bind_partial(*func.args, **func.kwargs)
-            bound.apply_defaults()
-            for name, value in bound.arguments.items():
-                if isinstance(value, _Depends):
-                    if value.use_cache:
-                        bound.arguments[name] = await value.async_eval()
-                    else:
-                        new_dependency: _Depends = Depends(value.dependency, use_cache=False)
-                        bound.arguments[name] = await new_dependency.async_eval()
-                else:
-                    bound.arguments[name] = value
-            return await func.dependency(*bound.args, **bound.kwargs)
+        sig = inspect.signature(func.dependency)
+        bound = sig.bind_partial(*func.args, **func.kwargs)
+        bound.apply_defaults()
 
+        for name, value in bound.arguments.items():
+            if isinstance(value, _Depends):
+                bound.arguments[name] = await _Depends.evaluate_dependency(value)
+
+        if asyncio.iscoroutinefunction(func.dependency):
+            return await func.dependency(*bound.args, **bound.kwargs)
         else:
-            sig = inspect.signature(func.dependency)
-            bound = sig.bind_partial(*func.args, **func.kwargs)
-            bound.apply_defaults()
-            for name, value in bound.arguments.items():
-                if isinstance(value, _Depends):
-                    if value.use_cache:
-                        bound.arguments[name] = value.sync_eval()
-                    else:
-                        new_dependency: _Depends = Depends(value.dependency, use_cache=False)
-                        bound.arguments[name] = new_dependency.sync_eval()
-                else:
-                    bound.arguments[name] = value
             return func.dependency(*bound.args, **bound.kwargs)
+
+    @staticmethod
+    async def evaluate_dependency(value: "_Depends"):
+        if value.use_cache:
+            return (
+                await value.async_eval()
+                if asyncio.iscoroutinefunction(value.dependency)
+                else value.sync_eval()
+            )
+        else:
+            new_dependency: _Depends = Depends(value.dependency, use_cache=False)
+            return (
+                await new_dependency.async_eval()
+                if asyncio.iscoroutinefunction(new_dependency.dependency)
+                else new_dependency.sync_eval()
+            )
 
 
 def dependency_injector(func):

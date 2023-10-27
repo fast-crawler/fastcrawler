@@ -1,11 +1,19 @@
 import asyncio
 from http.cookies import Morsel
-from typing import Any
+from typing import Any, Iterable, Self
+from dataclasses import asdict
 
 from aiohttp import BasicAuth, ClientSession, TCPConnector
 from aiohttp.client import ClientResponse
 
-from .contracts import ProxySetting, Request, RequestCycle, Response, SetCookieParam, Url
+from .contracts import (
+    ProxySetting,
+    Request,
+    RequestCycle,
+    Response,
+    SetCookieParam,
+    Url,
+)
 
 
 class AioHttpEngine:
@@ -15,7 +23,7 @@ class AioHttpEngine:
 
     def __init__(
         self,
-        cookies: list[SetCookieParam] | None = None,
+        cookies: Iterable[SetCookieParam] | None = None,
         headers: dict | None = None,
         user_agent: str | None = None,
         proxy: ProxySetting | None = None,
@@ -96,9 +104,9 @@ class AioHttpEngine:
             "secure": cookie.get("secure"),
             "sameSite": cookie.get("samesite"),
         }
-        return SetCookieParam(**cookie_params)
+        return SetCookieParam(**cookie_params)  # type: ignore
 
-    async def __aenter__(self) -> "AioHttpEngine":
+    async def __aenter__(self) -> Self:
         """Async context manager support for engine -> ENTER"""
         await self.setup()
         return self
@@ -131,8 +139,6 @@ class AioHttpEngine:
         verify_ssl=False,
     ) -> RequestCycle | None:
         """Base Method for protocol to retrieve a list of URL."""
-        assert request.method is not None
-
         if self.session:
             if isinstance(request.data, dict):
                 json = request.data
@@ -142,24 +148,22 @@ class AioHttpEngine:
                 data = request.data
 
             async with self.session.request(
-                request.method,
+                str(request.method),
                 request.url,
                 json=json,
                 data=data,
                 headers=request.headers or self.headers,
-                cookies=self._get_morsel_cookie(request.cookies)
+                cookies=dict(self._get_morsel_cookie(request.cookies))
                 if request.cookies
-                else self.cookies,
+                else [(cookie.name, asdict(cookie)) for cookie in (self.cookies or [])],
                 ssl=verify_ssl,
                 **self._proxy,
             ) as response:
                 return await self.translate_to_response(response, request)
         return None
 
-    async def batch(self, requests: list[Request], method: str) -> dict[Url, RequestCycle]:
+    async def batch(self, requests: Iterable[Request]) -> dict[Url, RequestCycle]:
         """Batch Method for protocol to retrieve a list of URL."""
-        for request in requests:
-            request.method = method
         tasks = []
         urls = []
 
@@ -171,23 +175,7 @@ class AioHttpEngine:
                 await asyncio.sleep(request.sleep_interval)
 
         results = await asyncio.gather(*tasks)
-        return {url: result for url, result in zip(urls, results)}
-
-    async def get(self, requests: list[Request]) -> dict[Url, RequestCycle]:
-        """GET HTTP Method for protocol to retrieve a list of URL."""
-        return await self.batch(requests, "GET")
-
-    async def post(self, requests: list[Request]) -> dict[Url, RequestCycle]:
-        """POST HTTP Method for protocol to crawl a list of URL."""
-        return await self.batch(requests, "POST")
-
-    async def put(self, requests: list[Request]) -> dict[Url, RequestCycle]:
-        """PUT HTTP Method for protocol to crawl a list of URL."""
-        return await self.batch(requests, "PUT")
-
-    async def delete(self, requests: list[Request]) -> dict[Url, RequestCycle]:
-        """DELETE HTTP Method for protocol to crawl a list of URL."""
-        return await self.batch(requests, "DELETE")
+        return {Url(url): result for url, result in zip(urls, results)}
 
     async def translate_to_response(
         self, response_obj: ClientResponse, request: Request

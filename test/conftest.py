@@ -1,7 +1,12 @@
 # pylint: skip-file
 import logging
 
+import pytest
+import pytest_asyncio
+
 from fastcrawler import Logger
+from fastcrawler.schedule.adopter import ProcessController, RocketryApplication
+
 from test.shared.engine import (
     get_aiohttp_engine,
     get_cookies,
@@ -11,11 +16,6 @@ from test.shared.engine import (
 )
 from test.shared.mock_html import get_corrupted_html, get_html
 from test.shared.mock_json import get_json_data
-
-import pytest
-import pytest_asyncio
-
-from fastcrawler.schedule.adopter import ProcessController, RocketryApplication
 
 
 @pytest.fixture
@@ -72,4 +72,4 @@ def task_manager(task_app):
 
 @pytest.fixture(scope="function")
 def logger():
-    return Logger(level=logging.DEBUG, formatter="%(asctime)s")
+    yield Logger(level=logging.DEBUG, formatter="%(asctime)s")
