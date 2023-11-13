@@ -3,6 +3,7 @@
 import pytest
 
 from fastcrawler.utils import Depends, _Depends, dependency_injector
+from fastcrawler.utils.injection import container
 
 
 def test_sync_dependency_injection():
@@ -194,3 +195,20 @@ def test_dependency_injector_with_Depends_in_args_sync():
 
     assert result1 == "sync_dependency1"
     assert result2 == "sync_dependency2"
+
+
+def test_override_dependency():
+    def dependency_1():
+        return "sync_dependency1"
+
+    def dependency_2():
+        return "sync_dependency2"
+
+    @dependency_injector
+    def func(
+        dep1=Depends(dependency_1, use_cache=True),
+    ):
+        return dep1
+
+    container[dependency_1] = dependency_2
+    assert func() == "sync_dependency2"
