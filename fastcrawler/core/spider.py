@@ -13,8 +13,9 @@ from fastcrawler.parsers.html import HTMLParser
 from fastcrawler.parsers.schema import BaseModel
 from fastcrawler.utils.injection import _Depends
 
+from .contracts import ProcessItem
 
-class Spider:
+class Spider(ProcessItem):
     """
     Spider class to create the actual spider interface
         so that configuration of each spider can be given
